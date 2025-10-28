@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "crm-frontend",
-    "slug": "crm-frontend",
+    "name": "beze-frontend",
+    "slug": "beze-frontend",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/icons/app-icon.png",
     "scheme": "crmfrontend",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -30,7 +30,7 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/images/splash.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff",
