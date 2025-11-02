@@ -1,0 +1,122 @@
+import { FlatList, Text, TouchableOpacity, View, StyleSheet } from 'react-native'
+import { theme } from '@/shared/theme'
+import { Category } from '../types/types'
+
+type FiltersProps = {
+    items: Category[]
+    activeId: string | null
+    onSelect: (item: Category) => void
+    onAddCategory?: () => void // если есть — появляется кнопка "Добавить категорию"
+    showAllButton?: boolean // если true — показывается кнопка "Все товары"
+}
+
+export default function Filters({
+    items,
+    activeId,
+    onSelect,
+    onAddCategory,
+    showAllButton = false,
+}: FiltersProps) {
+    let data: (Category | { id: '__add__'; name: string })[] = [...items]
+
+    if (showAllButton) {
+        data = [{ id: 'all', name: 'Все товары' }, ...data]
+    }
+
+    if (onAddCategory) {
+        data = [...data, { id: '__add__', name: 'Добавить категорию' }]
+    }
+
+    return (
+        <View style={styles.wrapper}>
+            <FlatList
+                horizontal
+                data={data}
+                keyExtractor={item => item.id}
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.content}
+                ItemSeparatorComponent={() => <View style={{ width: 8 }} />}
+                renderItem={({ item }) => {
+                    // кнопка "Добавить категорию"
+                    if (item.id === '__add__') {
+                        return (
+                            <TouchableOpacity
+                                style={[styles.chip, styles.addChip]}
+                                onPress={onAddCategory}
+                                activeOpacity={0.8}
+                            >
+                                <Text style={[styles.chipText, styles.addChipText]}>
+                                    {item.name}
+                                </Text>
+                            </TouchableOpacity>
+                        )
+                    }
+
+                    const isActive =
+                        (item.id === 'all' && activeId === null) ||
+                        (item.id !== 'all' && activeId === item.id)
+
+                    return (
+                        <TouchableOpacity
+                            style={[styles.chip, isActive && styles.chipActive]}
+                            onPress={() => {
+                                if (item.id === 'all') {
+                                    onSelect({ id: 'all', name: 'Все товары' })
+                                } else {
+                                    onSelect(item)
+                                }
+                            }}
+                            activeOpacity={0.8}
+                        >
+                            <Text
+                                style={[
+                                    styles.chipText,
+                                    isActive && styles.chipTextActive,
+                                ]}
+                                numberOfLines={1}
+                            >
+                                {item.name}
+                            </Text>
+                        </TouchableOpacity>
+                    )
+                }}
+            />
+        </View>
+    )
+}
+
+const styles = StyleSheet.create({
+    wrapper: {
+        marginBottom: 20,
+    },
+    content: {
+        paddingRight: 8,
+    },
+    chip: {
+        paddingHorizontal: 14,
+        paddingVertical: 8,
+        borderRadius: 20,
+        borderWidth: 1,
+        borderColor: theme.colors.lineGray,
+        backgroundColor: theme.colors.backgroundWhite,
+    },
+    chipActive: {
+        borderColor: theme.colors.mainPink,
+    },
+    chipText: {
+        fontSize: 14,
+        fontFamily: 'Epilogue-Regular',
+        color: theme.colors.mainGray,
+    },
+    chipTextActive: {
+        color: theme.colors.mainPink,
+        fontFamily: 'Epilogue-SemiBold',
+    },
+    addChip: {
+        borderColor: theme.colors.mainBlue,
+    },
+    addChipText: {
+        color: theme.colors.mainBlue,
+        fontFamily: 'Epilogue-SemiBold',
+    },
+})
