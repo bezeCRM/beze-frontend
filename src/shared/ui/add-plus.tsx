@@ -1,7 +1,6 @@
 import React from 'react'
-import { TouchableOpacity, StyleSheet } from 'react-native'
+import { TouchableOpacity } from 'react-native'
 import AddPlusIcon from '@/assets/images/add-plus.svg'
-import { theme } from '@/shared/theme'
 
 type Props = { onPress?: () => void }
 
