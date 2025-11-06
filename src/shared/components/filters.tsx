@@ -27,16 +27,18 @@ export default function Filters({
     if (showAllButton) data = [{ id: 'all', name: 'Все товары' }, ...data]
     if (onAddCategory) data = [...data, { id: '__add__', name: 'Добавить категорию' }]
 
-    const { listRef, onContentSizeChange, scrollToItem } =
-      useAutoScroll<FilterListItem>({ itemsLength: items.length, enabled: Boolean(onAddCategory) })
+    const { listRef, onContentSizeChange, scrollToItem } = useAutoScroll<FilterListItem>({
+        itemsLength: items.length,
+        enabled: Boolean(onAddCategory),
+    })
 
     useEffect(() => {
-      if (!activeId) return
-      const index = data.findIndex((el) => el.id === activeId)
-      if (index !== -1) {
-        scrollToItem(index)
-      }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        if (!activeId) return
+        const index = data.findIndex(el => el.id === activeId)
+        if (index !== -1) {
+            scrollToItem(index)
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [activeId])
 
     return (
@@ -102,9 +104,7 @@ const styles = StyleSheet.create({
     wrapper: {
         marginBottom: 20,
     },
-    content: {
-
-    },
+    content: {},
     chip: {
         paddingHorizontal: 15,
         paddingVertical: 8,
