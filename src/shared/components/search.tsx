@@ -5,7 +5,7 @@ import { theme } from '@/shared/theme'
 export default function Search() {
     return (
         <View style={styles.container}>
-            <SearchIcon width={18} height={18} />
+            <SearchIcon width={16} height={16} />
             <TextInput
                 style={styles.input}
                 placeholder="Поиск по названию"
@@ -30,8 +30,10 @@ const styles = StyleSheet.create({
     },
     input: {
         flex: 1,
-        marginLeft: 8,
-        fontSize: 16,
+        marginLeft: 10,
+        fontSize: 14,
+        lineHeight: 14,
+        paddingTop: 2,
         fontFamily: 'Epilogue-Regular',
         color: theme.colors.mainBlack,
     },

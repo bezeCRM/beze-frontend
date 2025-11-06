@@ -1,14 +1,19 @@
 import { FlatList, Text, TouchableOpacity, View, StyleSheet } from 'react-native'
 import { theme } from '@/shared/theme'
 import { Category } from '../types/types'
+import { useEffect } from 'react'
+import { useAutoScroll } from '@/shared/hooks/useAutoScroll'
 
 type FiltersProps = {
     items: Category[]
     activeId: string | null
     onSelect: (item: Category) => void
-    onAddCategory?: () => void // если есть — появляется кнопка "Добавить категорию"
-    showAllButton?: boolean // если true — показывается кнопка "Все товары"
+    onAddCategory?: () => void
+    showAllButton?: boolean
 }
+type AddItem = { id: '__add__'; name: string }
+type AllItem = { id: 'all'; name: string }
+type FilterListItem = Category | AddItem | AllItem
 
 export default function Filters({
     items,
@@ -17,19 +22,28 @@ export default function Filters({
     onAddCategory,
     showAllButton = false,
 }: FiltersProps) {
-    let data: (Category | { id: '__add__'; name: string })[] = [...items]
+    let data: FilterListItem[] = [...items]
 
-    if (showAllButton) {
-        data = [{ id: 'all', name: 'Все товары' }, ...data]
-    }
+    if (showAllButton) data = [{ id: 'all', name: 'Все товары' }, ...data]
+    if (onAddCategory) data = [...data, { id: '__add__', name: 'Добавить категорию' }]
 
-    if (onAddCategory) {
-        data = [...data, { id: '__add__', name: 'Добавить категорию' }]
-    }
+    const { listRef, onContentSizeChange, scrollToItem } =
+      useAutoScroll<FilterListItem>({ itemsLength: items.length, enabled: Boolean(onAddCategory) })
+
+    useEffect(() => {
+      if (!activeId) return
+      const index = data.findIndex((el) => el.id === activeId)
+      if (index !== -1) {
+        scrollToItem(index)
+      }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [activeId])
 
     return (
         <View style={styles.wrapper}>
-            <FlatList
+            <FlatList<FilterListItem>
+                ref={listRef}
+                onContentSizeChange={onContentSizeChange}
                 horizontal
                 data={data}
                 keyExtractor={item => item.id}
@@ -37,7 +51,6 @@ export default function Filters({
                 contentContainerStyle={styles.content}
                 ItemSeparatorComponent={() => <View style={{ width: 8 }} />}
                 renderItem={({ item }) => {
-                    // кнопка "Добавить категорию"
                     if (item.id === '__add__') {
                         return (
                             <TouchableOpacity
@@ -90,10 +103,10 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
     content: {
-        paddingRight: 8,
+
     },
     chip: {
-        paddingHorizontal: 14,
+        paddingHorizontal: 15,
         paddingVertical: 8,
         borderRadius: 20,
         borderWidth: 1,
