@@ -1,3 +1,4 @@
+import { ToastProvider } from '@/shared/components/toast/toast-provider'
 import { NavigationContainer } from '@react-navigation/native'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
@@ -8,10 +9,12 @@ type Props = {
 
 export default function AppProviders({ children }: Props) {
     return (
-        <GestureHandlerRootView style={{ flex: 1 }}>
-            <SafeAreaProvider>
-                <NavigationContainer>{children}</NavigationContainer>
-            </SafeAreaProvider>
-        </GestureHandlerRootView>
+        <SafeAreaProvider>
+            <ToastProvider>
+                <GestureHandlerRootView style={{ flex: 1 }}>
+                    <NavigationContainer>{children}</NavigationContainer>
+                </GestureHandlerRootView>
+            </ToastProvider>
+        </SafeAreaProvider>
     )
 }

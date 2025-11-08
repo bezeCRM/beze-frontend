@@ -6,7 +6,11 @@ type Props = { onPress?: () => void }
 
 export default function AddPlus({ onPress }: Props) {
     return (
-        <TouchableOpacity onPress={onPress} activeOpacity={0.8}>
+        <TouchableOpacity
+            onPress={onPress}
+            activeOpacity={0.8}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        >
             <AddPlusIcon width={25} height={25} />
         </TouchableOpacity>
     )

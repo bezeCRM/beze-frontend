@@ -15,29 +15,21 @@ const CategorySchema = z.object({
 const FormSchema = z
     .object({
         name: z.string().trim().min(1, 'обязательное поле'),
-        category: CategorySchema.nullable(),
+        // категория теперь опциональна
+        category: CategorySchema.optional(),
         unit: z.enum(['piece', 'kg'] as const),
         price: z.string().trim().min(1, 'обязательное поле'),
 
-        // необязательные поля формы
         recipe: z.string().optional(),
+        fillings: z.array(z.object({ id: z.string(), name: z.string() })).optional(),
 
-        // массивы могут отсутствовать на входе, но элементы внутри типизированы строго
-        fillings: z
-            .array(
-                z.object({
-                    id: z.string(),
-                    name: z.string(), // соответствует Filling.name: string
-                }),
-            )
-            .optional(),
-
+        // разрешаем пустые строки, но если пользователь начал, то требуем оба поля
         ingredients: z
             .array(
                 z.object({
                     id: z.string(),
-                    name: z.string(), // соответствует Ingredient.name: string
-                    weightGrams: z.string(), // обязательно строка, без undefined
+                    name: z.string(),
+                    weightGrams: z.string(),
                 }),
             )
             .optional(),
@@ -48,33 +40,48 @@ const FormSchema = z
             .optional(),
     })
     .superRefine((data, ctx) => {
-        if (!data.category) {
-            ctx.addIssue({
-                code: 'custom',
-                path: ['category'],
-                message: 'выберите категорию',
-            })
-        }
+        // проверяем только частично заполненные ингредиенты
+        const list = data.ingredients ?? []
+        list.forEach((row, idx) => {
+            const hasName = row.name.trim().length > 0
+            const hasWeight = row.weightGrams.trim().length > 0
+            if (hasName || hasWeight) {
+                if (!hasName) {
+                    ctx.addIssue({
+                        code: 'custom',
+                        path: ['ingredients', idx, 'name'],
+                        message: 'укажите название',
+                    })
+                }
+                if (!hasWeight) {
+                    ctx.addIssue({
+                        code: 'custom',
+                        path: ['ingredients', idx, 'weightGrams'],
+                        message: 'укажите вес',
+                    })
+                }
+            }
+        })
     })
 
-// важное: тип формы берем как input-срез схемы, чтобы совпасть с типами zodResolver
 export type ProductCreateFormValues = z.input<typeof FormSchema>
 
-export function useProductCreateForm(defaultCategory: Category | null = null) {
-    // дефолты храним явно, чтобы контролы всегда имели значения
-    const defaultValues: ProductCreateFormValues = useMemo(
-        () => ({
+export function useProductCreateForm(defaultCategory?: Category) {
+    // дефолтные значения
+    const defaultValues: ProductCreateFormValues = useMemo(() => {
+        const base = {
             name: '',
-            category: defaultCategory,
-            unit: 'piece',
+            unit: 'piece' as const,
             price: '',
             recipe: '',
-            fillings: [] as Filling[],
-            ingredients: [] as Ingredient[],
+            fillings: [{ id: String(Date.now()), name: '' }] as Filling[],
+            ingredients: [
+                { id: String(Date.now()), name: '', weightGrams: '' },
+            ] as Ingredient[],
             photoes: [] as Photo[],
-        }),
-        [defaultCategory],
-    )
+        }
+        return defaultCategory ? { ...base, category: defaultCategory } : base
+    }, [defaultCategory])
 
     const form = useForm<ProductCreateFormValues>({
         defaultValues,
@@ -82,15 +89,16 @@ export function useProductCreateForm(defaultCategory: Category | null = null) {
         mode: 'onSubmit',
     })
 
-    // простые сеттеры
-    function setCategory(c: Category | null) {
-        form.setValue('category', c, { shouldValidate: true })
+    // сеттеры
+    function setCategory(c?: Category | null) {
+        // null приводим к undefined, чтобы поле реально стало "пустым"
+        form.setValue('category', c ?? undefined, { shouldValidate: true })
     }
     function setUnit(u: ProductUnit) {
         form.setValue('unit', u, { shouldValidate: true })
     }
 
-    // fillings (Filling[])
+    // fillings
     function addFilling() {
         const id = String(Date.now())
         const list: Filling[] = form.getValues('fillings') ?? []
@@ -111,7 +119,7 @@ export function useProductCreateForm(defaultCategory: Category | null = null) {
         )
     }
 
-    // ingredients (Ingredient[])
+    // ingredients
     function addIngredient() {
         const id = String(Date.now())
         const list: Ingredient[] = form.getValues('ingredients') ?? []
@@ -158,16 +166,13 @@ export function useProductCreateForm(defaultCategory: Category | null = null) {
         ...form,
         setCategory,
         setUnit,
-        // fillings
         addFilling,
         updateFillingName,
         removeFilling,
-        // ingredients
         addIngredient,
         updateIngredientName,
         updateIngredientAmount,
         removeIngredient,
-        // photoes
         addPhoto,
         removePhoto,
     }

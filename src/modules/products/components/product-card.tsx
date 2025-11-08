@@ -24,7 +24,7 @@ export default function ProductCard({
                 </Text>
                 {fillings && (
                     <Text style={styles.fillings} numberOfLines={1}>
-                        {fillings.join(', ')}
+                        {fillings?.map(f => f.name).join(', ')}
                     </Text>
                 )}
             </View>

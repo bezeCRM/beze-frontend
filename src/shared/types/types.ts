@@ -3,7 +3,7 @@ export type ProductUnit = 'piece' | 'kg'
 export type Product = {
     id: string
     name: string
-    category: Category[]
+    category?: Category
     price: number
     fillings?: Filling[]
     ingredients?: Ingredient[]

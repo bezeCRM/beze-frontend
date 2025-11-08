@@ -5,7 +5,7 @@ type CategoryStore = {
     categories: Category[]
     activeCategoryId: string | null
     setActiveCategory: (id: string | null) => void
-    addCategory: (name: string) => void
+    addCategory: (name: string) => string
 }
 
 export const useCategoryStore = create<CategoryStore>(set => ({
@@ -18,8 +18,11 @@ export const useCategoryStore = create<CategoryStore>(set => ({
     ],
     activeCategoryId: null,
     setActiveCategory: id => set({ activeCategoryId: id }),
-    addCategory: name =>
+    addCategory: name => {
+        const id = Date.now().toString()
         set(state => ({
-            categories: [...state.categories, { id: Date.now().toString(), name }],
-        })),
+            categories: [...state.categories, { id, name }],
+        }))
+        return id
+    },
 }))

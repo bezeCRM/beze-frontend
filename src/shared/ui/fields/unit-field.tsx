@@ -17,7 +17,7 @@ export default function UnitField({ value, onChange, style, disabled }: Props) {
     ]
 
     return (
-        <SectionCard title="Единица измерения">
+        <SectionCard title="Единица измерения *">
             <View style={[styles.row, style]} accessibilityRole="radiogroup">
                 {options.map(opt => {
                     const checked = value === opt.value
@@ -29,8 +29,11 @@ export default function UnitField({ value, onChange, style, disabled }: Props) {
                             accessibilityRole="radio"
                             accessibilityState={{ checked, disabled }}
                             android_ripple={{ color: theme.colors.mainPink }}
+                            hitSlop={{ top: 7, bottom: 7, left: 7, right: 7 }}
                         >
-                            <View style={[styles.dot, checked && styles.dotActive]} />
+                            <View style={styles.dot}>
+                                {checked && <View style={styles.dotInner} />}
+                            </View>
                             <Text style={[styles.text, checked && styles.textActive]}>
                                 {opt.label}
                             </Text>
@@ -61,8 +64,13 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: colors.mainPink,
         marginRight: 7,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
-    dotActive: {
+    dotInner: {
+        width: 12,
+        height: 12,
+        borderRadius: 99,
         backgroundColor: colors.mainPink,
     },
     text: {

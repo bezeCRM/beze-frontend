@@ -5,18 +5,18 @@ import ProductsHeader from '../components/products-header'
 import Search from '@/shared/components/search'
 import ProductsList from '../components/products-list'
 import ProductsFilters from '../components/products-filters'
-import { mockProducts } from '@/shared/utils/mock-products'
 import { useCategoryStore } from '@/shared/store/categories'
+import { useProductsStore } from '@/shared/store/products'
 
 export default function ProductsScreen() {
+    const products = useProductsStore(s => s.products)
+
     const { activeCategoryId } = useCategoryStore()
 
     const filteredProducts = useMemo(() => {
-        if (!activeCategoryId) return mockProducts
-        return mockProducts.filter(product =>
-            product.category.some(cat => cat.id === activeCategoryId),
-        )
-    }, [activeCategoryId])
+        if (!activeCategoryId) return products
+        return products.filter(product => product.category?.id === activeCategoryId)
+    }, [activeCategoryId, products])
 
     return (
         <ScreenContainer>

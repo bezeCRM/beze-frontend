@@ -14,7 +14,13 @@ export default function SectionCard({ title, children, style }: Props) {
 }
 
 const styles = StyleSheet.create({
-    wrap: { marginBottom: 18, marginTop: 15 },
+    wrap: {
+        paddingBottom: 18,
+        paddingTop: 15,
+        paddingHorizontal: 15,
+        borderRadius: 25,
+        backgroundColor: theme.colors.mainWhite,
+    },
     title: {
         fontSize: 13,
         color: theme.colors.mainGray,
@@ -22,8 +28,6 @@ const styles = StyleSheet.create({
         fontFamily: 'Epilogue-Regular',
     },
     card: {
-        backgroundColor: theme.colors.backgroundWhite,
-        borderRadius: 25,
         shadowColor: '#888888',
         shadowOpacity: 0.03,
         shadowRadius: 15,

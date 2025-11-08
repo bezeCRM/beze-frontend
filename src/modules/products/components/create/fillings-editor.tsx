@@ -53,8 +53,8 @@ const { colors } = theme
 
 const styles = StyleSheet.create({
     list: { gap: 10 },
-    row: { flexDirection: 'row', alignItems: 'center', gap: 7 },
-    deleteBtn: {},
+    row: { flexDirection: 'row', alignItems: 'center', gap: 2 },
+    deleteBtn: { width: 30, alignItems: 'center' },
     input: {
         flex: 1,
         backgroundColor: colors.mainWhite,
