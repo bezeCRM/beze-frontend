@@ -1,4 +1,5 @@
 import { useMemo, useRef, useState } from 'react'
+import { useModalStore } from '@/modules/modal'
 import {
     View,
     Text,
@@ -34,7 +35,7 @@ export default function SelectField({
     error,
 }: Props) {
     const { height: screenH } = useWindowDimensions()
-    const [open, setOpen] = useState(false)
+    const [openSelect, setOpenSelect] = useState(false)
     const [anchor, setAnchor] = useState<LayoutRectangle | null>(null)
 
     const selected = useMemo(
@@ -47,26 +48,40 @@ export default function SelectField({
     function openDropdown() {
         anchorRef.current?.measureInWindow((x, y, w, h) => {
             setAnchor({ x, y, width: w, height: h })
-            setOpen(true)
+            setOpenSelect(true)
         })
     }
 
     function handleSelect(opt: Category) {
         onSelect?.(opt)
-        setOpen(false)
+        setOpenSelect(false)
     }
 
-    const addCategory = useCategoryStore(state => state.addCategory)
-    const setActiveCategory = useCategoryStore(state => state.setActiveCategory)
+    const { open } = useModalStore()
+    const addCategory = useCategoryStore(s => s.addCategory)
+    const setActiveCategory = useCategoryStore(s => s.setActiveCategory)
+    const hasCategory = useCategoryStore(s => s.hasCategory)
 
     function handleAddCategory() {
-        setOpen(false)
-
-        const name = `Новая категория ${Math.floor(Math.random() * 1000)}`
-        const newId = addCategory(name)
-        setActiveCategory(newId)
-
-        onSelect?.({ id: newId, name })
+        setOpenSelect(false)
+        open('form', {
+            title: 'Добавление категории',
+            placeholder: 'Введите название',
+            buttonTitle: 'Добавить категорию',
+            validate: (name: string) => {
+                if (hasCategory(name)) return 'Такая категория уже существует'
+                return null
+            },
+            onSubmit: (name: string) => {
+                const id = addCategory(name)
+                setActiveCategory(id)
+                open('status', {
+                    title: 'Добавление категории',
+                    message: 'Категория успешно добавлена!',
+                    success: true,
+                })
+            },
+        })
     }
 
     const dropdownPos = useMemo(() => {
@@ -96,14 +111,17 @@ export default function SelectField({
             </View>
 
             <Modal
-                visible={open}
+                visible={openSelect}
                 transparent
                 animationType="none"
                 statusBarTranslucent
-                onRequestClose={() => setOpen(false)}
+                onRequestClose={() => setOpenSelect(false)}
             >
                 <View style={StyleSheet.absoluteFillObject} pointerEvents="box-none">
-                    <Pressable style={styles.backdrop} onPress={() => setOpen(false)} />
+                    <Pressable
+                        style={styles.backdrop}
+                        onPress={() => setOpenSelect(false)}
+                    />
 
                     {anchor && (
                         <View

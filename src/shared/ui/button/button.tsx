@@ -5,13 +5,22 @@ import { theme } from '@/shared/theme'
 type Props = {
     small?: boolean
     blue?: boolean
+    modalWide?: boolean
     title: string
     onPress?: () => void
     style?: ViewStyle
     disabled?: boolean
 }
 
-export default function Button({ small, blue, title, onPress, style, disabled }: Props) {
+export default function Button({
+    small,
+    blue,
+    modalWide,
+    title,
+    onPress,
+    style,
+    disabled,
+}: Props) {
     return (
         <TouchableOpacity
             activeOpacity={0.8}
@@ -21,6 +30,7 @@ export default function Button({ small, blue, title, onPress, style, disabled }:
                 styles.btn,
                 small && styles.smallBtn,
                 blue && styles.blueBtn,
+                modalWide && styles.modalWideBtn,
                 disabled && styles.disabled,
                 style,
             ]}
@@ -41,6 +51,10 @@ const styles = StyleSheet.create({
     },
     smallBtn: { height: 40 },
     blueBtn: { backgroundColor: theme.colors.mainBlue },
+    modalWideBtn: {
+        height: 50,
+        borderRadius: 0,
+    },
     text: {
         color: theme.colors.mainWhite,
         fontSize: 16,

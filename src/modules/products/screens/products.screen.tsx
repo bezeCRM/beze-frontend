@@ -1,10 +1,10 @@
 import { useMemo } from 'react'
 import ScreenContainer from '@/shared/components/screen-container'
 import MainHeader from '@/shared/components/main-header'
-import ProductsHeader from '../components/products-header'
+import ProductsHeader from '../components/list/products-header'
 import Search from '@/shared/components/search'
-import ProductsList from '../components/products-list'
-import ProductsFilters from '../components/products-filters'
+import ProductsList from '../components/list/products-list'
+import ProductsFilters from '../components/list/products-filters'
 import { useCategoryStore } from '@/shared/store/categories'
 import { useProductsStore } from '@/shared/store/products'
 
