@@ -1,6 +1,12 @@
-import { View, ScrollView, StyleSheet, TextInput } from 'react-native'
+import {
+    View,
+    StyleSheet,
+    TextInput,
+} from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useNavigation, useRoute } from '@react-navigation/native'
+import { useMemo } from 'react'
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 
 import {
     InternalHeaderTopBar,
@@ -25,12 +31,13 @@ import ScreenContainer from '@/shared/components/screen-container'
 import { useCategoryStore } from '@/shared/store/categories'
 import { ToastViewport, useToast } from '@/shared/components/toast/toast-provider'
 import { makeOnInvalidToast } from '@/shared/components/toast/make-on-invalid-toast'
-import { useMemo } from 'react'
 import { NewProductInput, useProductsStore } from '@/shared/store/products'
 
 export default function ProductCreateScreen() {
     const { bottom } = useSafeAreaInsets()
     const navigation = useNavigation()
+    const route = useRoute()
+    const { show } = useToast()
 
     const {
         handleSubmit,
@@ -61,11 +68,6 @@ export default function ProductCreateScreen() {
     const photoes = watch('photoes') ?? []
 
     const { categories } = useCategoryStore()
-
-    // form check + errors
-    const route = useRoute()
-    const { show } = useToast()
-
     const addProduct = useProductsStore(s => s.addProduct)
 
     const onValid = (values: ProductCreateFormValues) => {
@@ -90,19 +92,14 @@ export default function ProductCreateScreen() {
             name: values.name.trim(),
             price: priceNum,
             unit: values.unit,
-            ...(values.category
-                ? { category: { id: values.category.id, name: values.category.name } }
-                : {}),
+            ...(values.category ? { category: values.category } : {}),
             ...(fillingsClean.length ? { fillings: fillingsClean } : {}),
             ...(ingredientsClean.length ? { ingredients: ingredientsClean } : {}),
             ...(recipeClean ? { recipe: recipeClean } : {}),
             ...(photoUri ? { photo: photoUri } : {}),
         }
 
-        console.log('добавляем товар:', JSON.stringify(newProduct, null, 2))
-        const id = addProduct(newProduct)
-        console.log('товар успешно добавлен с id:', id)
-
+        addProduct(newProduct)
         navigation.goBack()
     }
 
@@ -113,17 +110,6 @@ export default function ProductCreateScreen() {
         required: ['name', 'category', 'price'] as const,
         labels: { name: 'Название товара', category: 'Категория', price: 'Цена' },
         show: msg => show(msg, 'error', { scope: route.key }),
-        extra: formErrors => {
-            const out: string[] = []
-            const errs: any[] | undefined = (formErrors as any).ingredients
-            if (Array.isArray(errs)) {
-                errs.forEach((e, idx) => {
-                    if (e?.name) out.push(`Ингредиент ${idx + 1} — Название`)
-                    if (e?.weightGrams) out.push(`Ингредиент ${idx + 1} — Вес`)
-                })
-            }
-            return out
-        },
     })
 
     const ingErrorsById = useMemo(() => {
@@ -145,14 +131,25 @@ export default function ProductCreateScreen() {
     return (
         <ScreenContainer>
             <View style={styles.container}>
-                <View style={[styles.stickyTopBar]}>
+                <View style={styles.stickyTopBar}>
                     <InternalHeaderTopBar onBack={() => navigation.goBack()} />
                 </View>
 
-                <ScrollView
+                <KeyboardAwareScrollView
                     style={styles.scroll}
-                    contentContainerStyle={{ paddingBottom: bottom }}
+                    contentContainerStyle={{
+                    paddingBottom: bottom + 40,
+                    }}
+                    enableOnAndroid
+                    keyboardShouldPersistTaps="handled"
                     showsVerticalScrollIndicator={false}
+
+                    enableAutomaticScroll={true}
+                    scrollEnabled={true}
+                    extraScrollHeight={80}
+                    extraHeight={80} 
+                    enableResetScrollToCoords={false}
+                    keyboardDismissMode="on-drag"
                 >
                     <View style={styles.titleWrap}>
                         <InternalHeaderTitle title="Добавление товара" />
@@ -167,7 +164,10 @@ export default function ProductCreateScreen() {
                                 }
                                 placeholder="Шоколадный торт"
                                 placeholderTextColor={theme.colors.mainGray}
-                                style={[styles.input, errors.name && styles.inputError]}
+                                style={[
+                                    styles.input,
+                                    errors.name && styles.inputError,
+                                ]}
                                 returnKeyType="done"
                             />
                         </SectionCard>
@@ -219,28 +219,33 @@ export default function ProductCreateScreen() {
                                         : 'Введите цену за 1 кг'
                                 }
                                 placeholderTextColor={theme.colors.mainGray}
-                                style={[styles.input, errors.price && styles.inputError]}
+                                style={[
+                                    styles.input,
+                                    errors.price && styles.inputError,
+                                ]}
                                 keyboardType="numeric"
                                 returnKeyType="done"
+                                selectTextOnFocus={false}
+                                scrollEnabled={false}
                             />
                         </SectionCard>
 
                         <PhotoesPicker
                             photoes={photoes}
-                            onAddPress={() => addPhoto('https://picsum.photos/200')}
+                            onAddPress={() =>
+                                addPhoto('https://picsum.photos/200')
+                            }
                             onDeletePress={removePhoto}
                             onPhotoPress={() => {}}
                         />
-                    </View>
-                </ScrollView>
 
-                {/* нижняя кнопка */}
-                <View style={[styles.footer, { paddingBottom: bottom + 10 }]}>
-                    <Button
-                        title="Добавить товар"
-                        onPress={handleSubmit(onValid, onInvalid)}
-                    />
-                </View>
+                        <Button
+                            title="Добавить товар"
+                            onPress={handleSubmit(onValid, onInvalid)}
+                        />
+                    </View>
+                </KeyboardAwareScrollView>
+
                 <ToastViewport scope={route.key} bottomOffset={75} />
             </View>
         </ScreenContainer>
@@ -249,21 +254,10 @@ export default function ProductCreateScreen() {
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: theme.colors.backgroundWhite },
-
-    stickyTopBar: {
-        backgroundColor: theme.colors.backgroundWhite,
-    },
-
-    scroll: {
-        flex: 1,
-    },
-
+    stickyTopBar: { backgroundColor: theme.colors.backgroundWhite },
+    scroll: { flex: 1 },
     titleWrap: {},
-
-    formList: {
-        rowGap: 15,
-    },
-
+    formList: { rowGap: 15 },
     input: {
         backgroundColor: theme.colors.mainWhite,
         height: 40,
@@ -276,6 +270,4 @@ const styles = StyleSheet.create({
         color: theme.colors.mainBlack,
     },
     inputError: { borderColor: theme.colors.errorRed },
-
-    footer: {},
 })

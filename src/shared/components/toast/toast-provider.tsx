@@ -88,10 +88,15 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
 }
 
 function ToastCard({ item, onDismiss }: { item: ToastItem; onDismiss: () => void }) {
+    const onDismissRef = useRef(onDismiss)
     const translateY = useRef(new Animated.Value(16)).current
     const opacity = useRef(new Animated.Value(0)).current
     const translateX = useRef(new Animated.Value(0)).current
     const timerRef = useRef<NodeJS.Timeout | null>(null)
+
+    useEffect(() => {
+        onDismissRef.current = onDismiss
+    }, [onDismiss])
 
     useEffect(() => {
         Animated.parallel([
@@ -120,13 +125,19 @@ function ToastCard({ item, onDismiss }: { item: ToastItem; onDismiss: () => void
                     duration: EXIT_DURATION,
                     useNativeDriver: true,
                 }),
-            ]).start(onDismiss)
+            ]).start(() => {
+                onDismissRef.current()
+            })
         }, item.duration)
 
         return () => {
-            if (timerRef.current) clearTimeout(timerRef.current)
+            if (timerRef.current) {
+                clearTimeout(timerRef.current)
+                timerRef.current = null
+            }
         }
-    }, [item.duration, onDismiss, opacity, translateY])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
     const pan = useMemo(
         () =>
