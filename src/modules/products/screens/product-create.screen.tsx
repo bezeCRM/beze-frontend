@@ -1,8 +1,4 @@
-import {
-    View,
-    StyleSheet,
-    TextInput,
-} from 'react-native'
+import { View, StyleSheet, TextInput } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useNavigation, useRoute } from '@react-navigation/native'
 import { useMemo } from 'react'
@@ -138,16 +134,15 @@ export default function ProductCreateScreen() {
                 <KeyboardAwareScrollView
                     style={styles.scroll}
                     contentContainerStyle={{
-                    paddingBottom: bottom + 40,
+                        paddingBottom: bottom + 40,
                     }}
                     enableOnAndroid
                     keyboardShouldPersistTaps="handled"
                     showsVerticalScrollIndicator={false}
-
                     enableAutomaticScroll={true}
                     scrollEnabled={true}
                     extraScrollHeight={80}
-                    extraHeight={80} 
+                    extraHeight={80}
                     enableResetScrollToCoords={false}
                     keyboardDismissMode="on-drag"
                 >
@@ -164,10 +159,7 @@ export default function ProductCreateScreen() {
                                 }
                                 placeholder="Шоколадный торт"
                                 placeholderTextColor={theme.colors.mainGray}
-                                style={[
-                                    styles.input,
-                                    errors.name && styles.inputError,
-                                ]}
+                                style={[styles.input, errors.name && styles.inputError]}
                                 returnKeyType="done"
                             />
                         </SectionCard>
@@ -219,10 +211,7 @@ export default function ProductCreateScreen() {
                                         : 'Введите цену за 1 кг'
                                 }
                                 placeholderTextColor={theme.colors.mainGray}
-                                style={[
-                                    styles.input,
-                                    errors.price && styles.inputError,
-                                ]}
+                                style={[styles.input, errors.price && styles.inputError]}
                                 keyboardType="numeric"
                                 returnKeyType="done"
                                 selectTextOnFocus={false}
@@ -232,9 +221,7 @@ export default function ProductCreateScreen() {
 
                         <PhotoesPicker
                             photoes={photoes}
-                            onAddPress={() =>
-                                addPhoto('https://picsum.photos/200')
-                            }
+                            onAddPress={() => addPhoto('https://picsum.photos/200')}
                             onDeletePress={removePhoto}
                             onPhotoPress={() => {}}
                         />

@@ -136,7 +136,7 @@ function ToastCard({ item, onDismiss }: { item: ToastItem; onDismiss: () => void
                 timerRef.current = null
             }
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     const pan = useMemo(
