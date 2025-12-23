@@ -9,7 +9,7 @@ export type Product = {
     ingredients?: Ingredient[]
     recipe?: string
     unit: ProductUnit
-    photo?: string
+    photoes?: string[]
     createdAt: string
     updatedAt: string
 }

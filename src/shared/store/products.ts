@@ -1,4 +1,3 @@
-// shared/store/products.ts
 import { create } from 'zustand'
 import type { Product } from '../types/types'
 import { mockProducts } from '@/shared/utils/mock-products'
@@ -37,6 +36,7 @@ export const useProductsStore = create<ProductsStore>((set, get) => ({
             .filter(i => i.name.length > 0 || i.weightGrams.length > 0)
 
         const recipe = data.recipe?.trim()
+        const photoes = (data.photoes ?? []).filter(Boolean)
         const product: Product = {
             id,
             name: data.name.trim(),
@@ -48,7 +48,7 @@ export const useProductsStore = create<ProductsStore>((set, get) => ({
             ...(fillings.length ? { fillings } : {}),
             ...(ingredients.length ? { ingredients } : {}),
             ...(recipe ? { recipe } : {}),
-            ...(data.photo ? { photo: data.photo } : {}),
+            ...(photoes.length ? { photoes } : {}),
         }
 
         set(state => ({ products: [product, ...state.products] }))
@@ -56,39 +56,43 @@ export const useProductsStore = create<ProductsStore>((set, get) => ({
     },
 
     updateProduct: (id, patch) => {
-        // нормализуем патч, чтобы не писать пустые значения
-        const p = { ...patch }
-        if ('fillings' in p) {
-            const arr = (p.fillings ?? [])
-                .map(f => ({ id: f.id!, name: f.name?.trim() ?? '' }))
-                .filter(f => f.name)
-            p.fillings = arr.length ? arr : undefined
-        }
-        if ('ingredients' in p) {
-            const arr = (p.ingredients ?? [])
-                .map(i => ({
-                    id: i.id!,
-                    name: i.name?.trim() ?? '',
-                    weightGrams: i.weightGrams?.trim() ?? '',
-                }))
-                .filter(i => i.name || i.weightGrams)
-            p.ingredients = arr.length ? arr : undefined
-        }
-        if ('recipe' in p) {
-            const r = p.recipe?.trim()
-            p.recipe = r ? r : undefined
-        }
-        if ('photo' in p && !p.photo) {
-            p.photo = undefined
-        }
+      const p = { ...patch }
 
-        set(state => ({
-            products: state.products.map(prod =>
-                prod.id === id
-                    ? { ...prod, ...p, updatedAt: new Date().toISOString() }
-                    : prod,
-            ),
-        }))
+      if ('fillings' in p) {
+        const arr = (p.fillings ?? [])
+          .map(f => ({ id: f.id!, name: f.name?.trim() ?? '' }))
+          .filter(f => f.name)
+        p.fillings = arr.length ? arr : undefined
+      }
+
+      if ('ingredients' in p) {
+        const arr = (p.ingredients ?? [])
+          .map(i => ({
+            id: i.id!,
+            name: i.name?.trim() ?? '',
+            weightGrams: i.weightGrams?.trim() ?? '',
+          }))
+          .filter(i => i.name || i.weightGrams)
+        p.ingredients = arr.length ? arr : undefined
+      }
+
+      if ('recipe' in p) {
+        const r = p.recipe?.trim()
+        p.recipe = r ? r : undefined
+      }
+
+      if ('photoes' in p) {
+        const arr = (p.photoes ?? []).filter(Boolean)
+        p.photoes = arr.length ? arr : undefined
+      }
+
+      set(state => ({
+        products: state.products.map(prod =>
+          prod.id === id
+            ? { ...prod, ...p, updatedAt: new Date().toISOString() }
+            : prod,
+        ),
+      }))
     },
 
     removeProduct: id =>

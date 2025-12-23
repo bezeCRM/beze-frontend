@@ -4,7 +4,6 @@ import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Category, ProductUnit, Filling, Ingredient } from '@/shared/types/types'
 
-// локальный тип для единственного фото
 export type Photo = { id: string; uri: string }
 
 const CategorySchema = z.object({

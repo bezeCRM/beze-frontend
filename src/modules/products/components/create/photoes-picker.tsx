@@ -106,6 +106,7 @@ const styles = StyleSheet.create({
         height: DELETE_SIZE,
         borderRadius: 99,
         backgroundColor: colors.mainWhite,
+        resizeMode: 'contain',
         shadowColor: '#000',
         shadowOpacity: 0.1,
         shadowRadius: 10,

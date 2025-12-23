@@ -5,6 +5,7 @@ import { theme } from '@/shared/theme'
 type Props = {
     small?: boolean
     blue?: boolean
+    red?: boolean
     modalWide?: boolean
     title: string
     onPress?: () => void
@@ -15,6 +16,7 @@ type Props = {
 export default function Button({
     small,
     blue,
+    red,
     modalWide,
     title,
     onPress,
@@ -30,6 +32,7 @@ export default function Button({
                 styles.btn,
                 small && styles.smallBtn,
                 blue && styles.blueBtn,
+                red && styles.redBtn,
                 modalWide && styles.modalWideBtn,
                 disabled && styles.disabled,
                 style,
@@ -51,6 +54,7 @@ const styles = StyleSheet.create({
     },
     smallBtn: { height: 40 },
     blueBtn: { backgroundColor: theme.colors.mainBlue },
+    redBtn: { backgroundColor: theme.colors.errorRed },
     modalWideBtn: {
         height: 50,
         borderRadius: 0,
