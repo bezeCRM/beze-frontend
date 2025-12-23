@@ -82,19 +82,17 @@ export default function ProductCreateScreen() {
             .filter(i => i.name.length > 0 || i.weightGrams.length > 0)
 
         const recipeClean = values.recipe?.trim()
-        const photoes = (values.photoes ?? [])
-          .map(p => p.uri)
-          .filter(Boolean)
+        const photoes = (values.photoes ?? []).map(p => p.uri).filter(Boolean)
 
         const newProduct: NewProductInput = {
-          name: values.name.trim(),
-          price: priceNum,
-          unit: values.unit,
-          ...(values.category ? { category: values.category } : {}),
-          ...(fillingsClean.length ? { fillings: fillingsClean } : {}),
-          ...(ingredientsClean.length ? { ingredients: ingredientsClean } : {}),
-          ...(recipeClean ? { recipe: recipeClean } : {}),
-          ...(photoes.length ? { photoes } : {}),
+            name: values.name.trim(),
+            price: priceNum,
+            unit: values.unit,
+            ...(values.category ? { category: values.category } : {}),
+            ...(fillingsClean.length ? { fillings: fillingsClean } : {}),
+            ...(ingredientsClean.length ? { ingredients: ingredientsClean } : {}),
+            ...(recipeClean ? { recipe: recipeClean } : {}),
+            ...(photoes.length ? { photoes } : {}),
         }
 
         addProduct(newProduct)

@@ -13,9 +13,7 @@ export default function ProductInfoBlock({ product }: Props) {
             {/* категория */}
             <View style={styles.row}>
                 <Text style={styles.label}>Категория:&nbsp;</Text>
-                <Text style={styles.value}>
-                    {product.category?.name ?? '—'}
-                </Text>
+                <Text style={styles.value}>{product.category?.name ?? '—'}</Text>
             </View>
 
             {/* ингредиенты */}
@@ -38,9 +36,7 @@ export default function ProductInfoBlock({ product }: Props) {
             {/* рецепт */}
             <View style={styles.block}>
                 <Text style={styles.subTitle}>Рецепт:</Text>
-                <Text style={styles.text}>
-                    {product.recipe?.trim() || '—'}
-                </Text>
+                <Text style={styles.text}>{product.recipe?.trim() || '—'}</Text>
             </View>
         </SectionCard>
     )

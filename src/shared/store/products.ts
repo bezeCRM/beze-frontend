@@ -56,43 +56,43 @@ export const useProductsStore = create<ProductsStore>((set, get) => ({
     },
 
     updateProduct: (id, patch) => {
-      const p = { ...patch }
+        const p = { ...patch }
 
-      if ('fillings' in p) {
-        const arr = (p.fillings ?? [])
-          .map(f => ({ id: f.id!, name: f.name?.trim() ?? '' }))
-          .filter(f => f.name)
-        p.fillings = arr.length ? arr : undefined
-      }
+        if ('fillings' in p) {
+            const arr = (p.fillings ?? [])
+                .map(f => ({ id: f.id!, name: f.name?.trim() ?? '' }))
+                .filter(f => f.name)
+            p.fillings = arr.length ? arr : undefined
+        }
 
-      if ('ingredients' in p) {
-        const arr = (p.ingredients ?? [])
-          .map(i => ({
-            id: i.id!,
-            name: i.name?.trim() ?? '',
-            weightGrams: i.weightGrams?.trim() ?? '',
-          }))
-          .filter(i => i.name || i.weightGrams)
-        p.ingredients = arr.length ? arr : undefined
-      }
+        if ('ingredients' in p) {
+            const arr = (p.ingredients ?? [])
+                .map(i => ({
+                    id: i.id!,
+                    name: i.name?.trim() ?? '',
+                    weightGrams: i.weightGrams?.trim() ?? '',
+                }))
+                .filter(i => i.name || i.weightGrams)
+            p.ingredients = arr.length ? arr : undefined
+        }
 
-      if ('recipe' in p) {
-        const r = p.recipe?.trim()
-        p.recipe = r ? r : undefined
-      }
+        if ('recipe' in p) {
+            const r = p.recipe?.trim()
+            p.recipe = r ? r : undefined
+        }
 
-      if ('photoes' in p) {
-        const arr = (p.photoes ?? []).filter(Boolean)
-        p.photoes = arr.length ? arr : undefined
-      }
+        if ('photoes' in p) {
+            const arr = (p.photoes ?? []).filter(Boolean)
+            p.photoes = arr.length ? arr : undefined
+        }
 
-      set(state => ({
-        products: state.products.map(prod =>
-          prod.id === id
-            ? { ...prod, ...p, updatedAt: new Date().toISOString() }
-            : prod,
-        ),
-      }))
+        set(state => ({
+            products: state.products.map(prod =>
+                prod.id === id
+                    ? { ...prod, ...p, updatedAt: new Date().toISOString() }
+                    : prod,
+            ),
+        }))
     },
 
     removeProduct: id =>

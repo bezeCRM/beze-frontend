@@ -12,17 +12,10 @@ export default function ProductPhotoes({ photoes }: Props) {
         <SectionCard title="Фото товара">
             <View style={styles.row}>
                 {photoes?.map((photo, index) => (
-                    <Image
-                        key={index}
-                        source={{ uri: photo }}
-                        style={styles.photo}
-                    />
+                    <Image key={index} source={{ uri: photo }} style={styles.photo} />
                 ))}
                 {(!photoes || photoes.length === 0) && (
-                    <Image
-                        source={PlaceholderImage}
-                        style={styles.photo}
-                    />
+                    <Image source={PlaceholderImage} style={styles.photo} />
                 )}
             </View>
         </SectionCard>
@@ -35,7 +28,7 @@ const styles = StyleSheet.create({
     row: {
         flexDirection: 'row',
         gap: 10,
-        marginTop: 5
+        marginTop: 5,
     },
     photo: {
         width: 80,

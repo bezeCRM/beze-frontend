@@ -28,17 +28,13 @@ export default function ProductInfoScreen() {
     const route = useRoute<Route>()
     const { show } = useToast()
 
-    const product = useProductsStore(s =>
-        s.getById(route.params.productId),
-    )
-
+    const product = useProductsStore(s => s.getById(route.params.productId))
 
     if (!product) {
         navigation.goBack()
         return null
     }
     console.log('PHOTOES:', product?.photoes)
-
 
     return (
         <ScreenContainer>
@@ -64,7 +60,7 @@ export default function ProductInfoScreen() {
                     <View style={styles.content}>
                         <FillingsChips fillings={product.fillings ?? []} />
                         <ProductInfoBlock product={product} />
-                        <ProductPrice price={product.price} unit={product.unit}  />
+                        <ProductPrice price={product.price} unit={product.unit} />
                         <ProductPhotoes photoes={product.photoes} />
 
                         <Button
