@@ -40,11 +40,14 @@ export default function ConfirmModal({
 
 const { colors } = theme
 const styles = StyleSheet.create({
-    container: { paddingHorizontal: 20, paddingBottom: 10 },
+    container: { paddingBottom: 18 },
     text: {
-        fontSize: 15,
+        fontSize: 16,
+        paddingHorizontal: 40,
         textAlign: 'center',
         color: colors.mainBlack,
-        marginBottom: 10,
+        fontFamily: 'Epilogue-Semibold',
+        lineHeight: 19.2,
+        marginBottom: 25,
     },
 })

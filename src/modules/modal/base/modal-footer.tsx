@@ -1,6 +1,13 @@
 import React from 'react'
-import { View, StyleSheet } from 'react-native'
-import Button from '@/shared/ui/button/button'
+import {
+    View,
+    StyleSheet,
+    Pressable,
+    Text,
+    type StyleProp,
+    type ViewStyle,
+    type PressableStateCallbackType,
+} from 'react-native'
 import { theme } from '@/shared/theme'
 
 type Props = {
@@ -10,6 +17,7 @@ type Props = {
     onSecondaryPress?: () => void
     primaryDisabled?: boolean
     danger?: boolean
+    gap?: number
 }
 
 export default function ModalFooter({
@@ -18,24 +26,64 @@ export default function ModalFooter({
     onPrimaryPress,
     onSecondaryPress,
     primaryDisabled,
+    danger,
+    gap = 20,
 }: Props) {
+    const buttonsCount = Number(!!primaryTitle) + Number(!!secondaryTitle)
+    const isDouble = buttonsCount === 2
+
+    const radius = isDouble ? 15 : 0
+
+    const primaryBg = danger ? colors.errorRed : colors.mainPink
+    const primaryBorder = danger ? colors.errorRed : colors.mainPink
+
+    const baseDynamicStyle: ViewStyle = {
+        borderRadius: radius,
+    }
+
+    const secondaryStyle = ({
+        pressed,
+    }: PressableStateCallbackType): StyleProp<ViewStyle> => [
+        styles.buttonBase,
+        baseDynamicStyle,
+        styles.secondaryButton,
+        pressed ? styles.pressed : null,
+    ]
+
+    const primaryStyle = ({
+        pressed,
+    }: PressableStateCallbackType): StyleProp<ViewStyle> => [
+        styles.buttonBase,
+        baseDynamicStyle,
+        styles.primaryButton,
+        { backgroundColor: primaryBg, borderColor: primaryBorder },
+        primaryDisabled ? styles.primaryDisabled : null,
+        pressed && !primaryDisabled ? styles.pressed : null,
+    ]
+
     return (
-        <View style={styles.container}>
+        <View
+            style={[
+                styles.container,
+                { columnGap: gap },
+                isDouble ? { paddingHorizontal: 40 } : null,
+            ]}
+        >
             {secondaryTitle && (
-                <Button
-                    title={secondaryTitle}
-                    onPress={onSecondaryPress}
-                    small
-                    style={styles.secondary}
-                />
+                <Pressable onPress={onSecondaryPress} style={secondaryStyle} hitSlop={10}>
+                    <Text style={styles.secondaryText}>{secondaryTitle}</Text>
+                </Pressable>
             )}
+
             {primaryTitle && (
-                <Button
-                    title={primaryTitle}
+                <Pressable
                     onPress={onPrimaryPress}
                     disabled={primaryDisabled}
-                    modalWide
-                />
+                    style={primaryStyle}
+                    hitSlop={10}
+                >
+                    <Text style={styles.primaryText}>{primaryTitle}</Text>
+                </Pressable>
             )}
         </View>
     )
@@ -47,9 +95,44 @@ const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
         justifyContent: 'center',
-        alignItems: 'center',
     },
-    secondary: {
+
+    buttonBase: {
+        height: 45,
+        alignItems: 'center',
+        justifyContent: 'center',
+        overflow: 'hidden',
+        flex: 1,
+    },
+
+    secondaryButton: {
+        backgroundColor: colors.mainWhite,
+        borderWidth: 1,
+        borderColor: colors.mainPink,
+    },
+
+    primaryButton: {
+        borderWidth: 1,
+    },
+
+    secondaryText: {
+        fontSize: 16,
+        color: colors.mainPink,
+        fontFamily: 'Epilogue-Regular',
+    },
+
+    primaryText: {
+        fontSize: 16,
+        color: colors.mainWhite,
+        fontFamily: 'Epilogue-Semibold',
+    },
+
+    pressed: {
+        opacity: 0.85,
+    },
+
+    primaryDisabled: {
         backgroundColor: colors.mainGray,
+        borderColor: 'transparent',
     },
 })

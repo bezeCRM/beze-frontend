@@ -1,9 +1,11 @@
-import { FlatList } from 'react-native'
+import { FlatList, View, Text, StyleSheet } from 'react-native'
 import ProductCard from './product-card'
 import type { Product } from '@/shared/types/types'
 import { useNavigation } from '@react-navigation/native'
 import type { StackNavigationProp } from '@react-navigation/stack'
 import type { ProductsStackParamList } from '@/core/navigation/products-stack'
+import Button from '@/shared/ui/button/button'
+import { theme } from '@/shared/theme'
 
 type Props = { items: Product[] }
 type Nav = StackNavigationProp<ProductsStackParamList>
@@ -11,8 +13,19 @@ type Nav = StackNavigationProp<ProductsStackParamList>
 export default function ProductsList({ items }: Props) {
     const navigation = useNavigation<Nav>()
 
+    const renderEmpty = () => (
+        <View style={styles.emptyWrap}>
+            <Text style={styles.emptyTitle}>Товаров в этой категории пока нет</Text>
+            <Button
+                title="Добавить товар"
+                onPress={() => navigation.navigate('ProductCreate')}
+            />
+        </View>
+    )
+
     return (
         <FlatList
+            style={styles.list}
             data={items}
             keyExtractor={item => item.id}
             renderItem={({ item }) => (
@@ -29,7 +42,29 @@ export default function ProductsList({ items }: Props) {
                     }
                 />
             )}
+            ListEmptyComponent={renderEmpty}
+            contentContainerStyle={items.length ? undefined : styles.emptyContent}
             showsVerticalScrollIndicator={false}
         />
     )
 }
+
+const { colors } = theme
+
+const styles = StyleSheet.create({
+    list: { flex: 1 },
+    emptyContent: {
+        paddingTop: 30,
+        flexGrow: 1,
+        paddingHorizontal: 20,
+        paddingBottom: 30,
+    },
+    emptyWrap: {
+        rowGap: 20,
+        alignItems: 'center',
+    },
+    emptyTitle: {
+        fontSize: 16,
+        color: colors.mainGray,
+    },
+})

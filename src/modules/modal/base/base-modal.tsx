@@ -1,9 +1,7 @@
 import { theme } from '@/shared/theme'
-import React, { ReactNode, useEffect, useMemo } from 'react'
+import React, { ReactNode, useEffect } from 'react'
 import {
-    Animated,
     BackHandler,
-    Easing,
     Modal,
     StyleSheet,
     TouchableWithoutFeedback,
@@ -25,28 +23,6 @@ export default function BaseModal({
     dismissOnBackdrop = true,
     blocking = false,
 }: Props) {
-    const opacity = useMemo(() => new Animated.Value(0), [])
-    const scale = useMemo(() => new Animated.Value(0.95), [])
-
-    useEffect(() => {
-        if (visible) {
-            Animated.parallel([
-                Animated.timing(opacity, {
-                    toValue: 1,
-                    duration: 150,
-                    easing: Easing.out(Easing.ease),
-                    useNativeDriver: true,
-                }),
-                Animated.spring(scale, {
-                    toValue: 1,
-                    friction: 8,
-                    tension: 50,
-                    useNativeDriver: true,
-                }),
-            ]).start()
-        }
-    }, [visible, opacity, scale])
-
     // handle Android back
     useEffect(() => {
         const sub = BackHandler.addEventListener('hardwareBackPress', () => {
@@ -74,20 +50,11 @@ export default function BaseModal({
             statusBarTranslucent
         >
             <TouchableWithoutFeedback onPress={handleBackdropPress}>
-                <Animated.View style={[styles.backdrop, { opacity }]} />
+                <View style={styles.backdrop} />
             </TouchableWithoutFeedback>
 
             <View style={styles.center}>
-                <Animated.View
-                    style={[
-                        styles.card,
-                        {
-                            transform: [{ scale }],
-                        },
-                    ]}
-                >
-                    {children}
-                </Animated.View>
+                <View style={styles.card}>{children}</View>
             </View>
         </Modal>
     )

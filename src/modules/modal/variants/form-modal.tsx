@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 15,
         height: 45,
         fontFamily: 'Epilogue-Regular',
-        marginBottom: 8,
+        marginBottom: 20,
         marginHorizontal: 15,
         fontSize: 16,
         color: colors.mainBlack,

@@ -9,7 +9,7 @@ type Props = {
     modalWide?: boolean
     title: string
     onPress?: () => void
-    style?: ViewStyle
+    style?: ViewStyle | [ViewStyle, ViewStyle]
     disabled?: boolean
 }
 

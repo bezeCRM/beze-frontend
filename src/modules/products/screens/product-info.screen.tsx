@@ -1,5 +1,6 @@
 import { View, ScrollView, StyleSheet } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useEffect, useState } from 'react'
 import { useNavigation, useRoute } from '@react-navigation/native'
 
 import ScreenContainer from '@/shared/components/screen-container'
@@ -7,10 +8,11 @@ import {
     InternalHeaderTopBar,
     InternalHeaderTitle,
 } from '@/shared/components/internal-header'
-import { ToastViewport, useToast } from '@/shared/components/toast/toast-provider'
+import { ToastViewport } from '@/shared/components/toast/toast-provider'
 import { useProductsStore } from '@/shared/store/products'
 import type { ProductsStackParamList } from '@/core/navigation/products-stack'
 import type { RouteProp } from '@react-navigation/native'
+import type { StackNavigationProp } from '@react-navigation/stack'
 
 import {
     FillingsChips,
@@ -20,21 +22,40 @@ import {
 } from '../components/info'
 import Button from '@/shared/ui/button/button'
 
+import BaseModal from '@/modules/modal/base/base-modal'
+import ConfirmModal from '@/modules/modal/variants/confirm-modal'
+
 type Route = RouteProp<ProductsStackParamList, 'ProductInfo'>
+type Navigation = StackNavigationProp<ProductsStackParamList, 'ProductInfo'>
 
 export default function ProductInfoScreen() {
     const { bottom } = useSafeAreaInsets()
-    const navigation = useNavigation()
+    const navigation = useNavigation<Navigation>()
     const route = useRoute<Route>()
-    const { show } = useToast()
 
-    const product = useProductsStore(s => s.getById(route.params.productId))
+    const productId = route.params.productId
+    const product = useProductsStore(s => s.getById(productId))
+    const removeProduct = useProductsStore(s => s.removeProduct)
 
-    if (!product) {
+    const [deleteVisible, setDeleteVisible] = useState(false)
+
+    useEffect(() => {
+        if (!product) return
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [productId, !!product])
+
+    if (!product) return null
+
+    const openDelete = () => setDeleteVisible(true)
+    const closeDelete = () => setDeleteVisible(false)
+
+    const confirmDelete = () => {
+        closeDelete()
+        removeProduct(product.id)
         navigation.goBack()
-        return null
     }
-    console.log('PHOTOES:', product?.photoes)
+
+    const deleteMessage = `Вы уверены, что хотите удалить товар "${product.name}"?`
 
     return (
         <ScreenContainer>
@@ -44,9 +65,7 @@ export default function ProductInfoScreen() {
                         onBack={() => navigation.goBack()}
                         showEdit
                         onEditPress={() =>
-                            show('Редактирование скоро будет доступно', 'info', {
-                                scope: route.key,
-                            })
+                            navigation.navigate('ProductEdit', { productId: product.id })
                         }
                     />
                 </View>
@@ -63,13 +82,21 @@ export default function ProductInfoScreen() {
                         <ProductPrice price={product.price} unit={product.unit} />
                         <ProductPhotoes photoes={product.photoes} />
 
-                        <Button
-                            title="Удалить товар"
-                            onPress={() => console.log('*удалено*')}
-                            red
-                        />
+                        <Button title="Удалить товар" onPress={openDelete} red />
                     </View>
                 </ScrollView>
+
+                <BaseModal visible={deleteVisible} onClose={closeDelete}>
+                    <ConfirmModal
+                        title="Удаление товара"
+                        message={deleteMessage}
+                        onConfirm={confirmDelete}
+                        onCancel={closeDelete}
+                        onClose={closeDelete}
+                        confirmText="Удалить"
+                        cancelText="Отмена"
+                    />
+                </BaseModal>
 
                 <ToastViewport scope={route.key} bottomOffset={75} />
             </View>
