@@ -1,26 +1,26 @@
-import { View, ScrollView, StyleSheet } from 'react-native'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { useEffect, useState } from 'react'
 import { useNavigation, useRoute } from '@react-navigation/native'
+import { useEffect, useState } from 'react'
+import { ScrollView, StyleSheet, View } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
-import ScreenContainer from '@/shared/components/screen-container'
-import {
-    InternalHeaderTopBar,
-    InternalHeaderTitle,
-} from '@/shared/components/internal-header'
-import { ToastViewport } from '@/shared/components/toast/toast-provider'
-import { useProductsStore } from '@/shared/store/products'
 import type { ProductsStackParamList } from '@/core/navigation/products-stack'
+import {
+    InternalHeaderTitle,
+    InternalHeaderTopBar,
+} from '@/shared/components/internal-header'
+import ScreenContainer from '@/shared/components/screen-container'
+import { ToastViewport } from '@/shared/components/toast/toast-provider'
+import { useProductsStore } from '@/shared/store/products.store'
 import type { RouteProp } from '@react-navigation/native'
 import type { StackNavigationProp } from '@react-navigation/stack'
 
+import Button from '@/shared/ui/button/button'
 import {
     FillingsChips,
     ProductInfoBlock,
-    ProductPrice,
     ProductPhotoes,
+    ProductPrice,
 } from '../components/info'
-import Button from '@/shared/ui/button/button'
 
 import BaseModal from '@/modules/modal/base/base-modal'
 import ConfirmModal from '@/modules/modal/variants/confirm-modal'

@@ -1,21 +1,21 @@
-import { useMemo, useRef, useState } from 'react'
+import SelectIcon from '@/assets/images/select-icon.svg'
 import { useModalStore } from '@/modules/modal'
+import { useCategoryStore } from '@/shared/store/categories.store'
+import { theme } from '@/shared/theme'
+import { Category } from '@/shared/types/types'
+import { useMemo, useRef, useState } from 'react'
 import {
-    View,
-    Text,
-    StyleSheet,
-    TouchableOpacity,
-    Modal,
-    Pressable,
     FlatList,
     LayoutRectangle,
+    Modal,
+    Pressable,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
     useWindowDimensions,
+    View,
 } from 'react-native'
-import { theme } from '@/shared/theme'
-import SelectIcon from '@/assets/images/select-icon.svg'
 import SectionCard from '../section/section-card'
-import { Category } from '@/shared/types/types'
-import { useCategoryStore } from '@/shared/store/categories'
 
 type Props = {
     label: string

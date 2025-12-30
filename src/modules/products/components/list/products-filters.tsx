@@ -1,8 +1,8 @@
-import React from 'react'
-import Filters from '@/shared/components/filters'
-import { useCategoryStore } from '@/shared/store/categories'
-import { Category } from '@/shared/types/types'
 import { useModalStore } from '@/modules/modal'
+import Filters from '@/shared/components/filters'
+import { useCategoryStore } from '@/shared/store/categories.store'
+import { Category } from '@/shared/types/types'
+import React from 'react'
 
 export default function ProductsFilters() {
     const { categories, activeCategoryId } = useCategoryStore()

@@ -1,33 +1,33 @@
-import { View, StyleSheet, TextInput } from 'react-native'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useNavigation, useRoute } from '@react-navigation/native'
 import { useMemo } from 'react'
+import { StyleSheet, TextInput, View } from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import {
-    InternalHeaderTopBar,
     InternalHeaderTitle,
+    InternalHeaderTopBar,
 } from '@/shared/components/internal-header'
-import SectionCard from '@/shared/ui/section/section-card'
-import SelectField from '@/shared/ui/fields/select-field'
-import UnitField from '@/shared/ui/fields/unit-field'
-import TextareaField from '@/shared/ui/fields/textarea-field'
 import Button from '@/shared/ui/button/button'
+import SelectField from '@/shared/ui/fields/select-field'
+import TextareaField from '@/shared/ui/fields/textarea-field'
+import UnitField from '@/shared/ui/fields/unit-field'
+import SectionCard from '@/shared/ui/section/section-card'
 
 import FillingsEditor from '@/modules/products/components/create/fillings-editor'
 import IngredientsEditor from '@/modules/products/components/create/ingredients-editor'
 import PhotoesPicker from '@/modules/products/components/create/photoes-picker'
 
+import ScreenContainer from '@/shared/components/screen-container'
+import { makeOnInvalidToast } from '@/shared/components/toast/make-on-invalid-toast'
+import { ToastViewport, useToast } from '@/shared/components/toast/toast-provider'
+import { useCategoryStore } from '@/shared/store/categories.store'
+import { NewProductInput, useProductsStore } from '@/shared/store/products.store'
 import { theme } from '@/shared/theme'
 import {
     ProductCreateFormValues,
     useProductCreateForm,
 } from '../hooks/useProductCreateForm'
-import ScreenContainer from '@/shared/components/screen-container'
-import { useCategoryStore } from '@/shared/store/categories'
-import { ToastViewport, useToast } from '@/shared/components/toast/toast-provider'
-import { makeOnInvalidToast } from '@/shared/components/toast/make-on-invalid-toast'
-import { NewProductInput, useProductsStore } from '@/shared/store/products'
 
 export default function ProductCreateScreen() {
     const { bottom } = useSafeAreaInsets()

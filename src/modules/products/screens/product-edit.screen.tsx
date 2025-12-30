@@ -1,35 +1,35 @@
-import { View, StyleSheet, TextInput } from 'react-native'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { useEffect } from 'react'
-import { useNavigation, useRoute } from '@react-navigation/native'
 import type { RouteProp } from '@react-navigation/native'
+import { useNavigation, useRoute } from '@react-navigation/native'
+import { useEffect } from 'react'
+import { StyleSheet, TextInput, View } from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
-import ScreenContainer from '@/shared/components/screen-container'
 import {
-    InternalHeaderTopBar,
     InternalHeaderTitle,
+    InternalHeaderTopBar,
 } from '@/shared/components/internal-header'
-import { ToastViewport, useToast } from '@/shared/components/toast/toast-provider'
+import ScreenContainer from '@/shared/components/screen-container'
 import { makeOnInvalidToast } from '@/shared/components/toast/make-on-invalid-toast'
+import { ToastViewport, useToast } from '@/shared/components/toast/toast-provider'
 
-import SectionCard from '@/shared/ui/section/section-card'
-import SelectField from '@/shared/ui/fields/select-field'
-import UnitField from '@/shared/ui/fields/unit-field'
-import TextareaField from '@/shared/ui/fields/textarea-field'
 import Button from '@/shared/ui/button/button'
+import SelectField from '@/shared/ui/fields/select-field'
+import TextareaField from '@/shared/ui/fields/textarea-field'
+import UnitField from '@/shared/ui/fields/unit-field'
+import SectionCard from '@/shared/ui/section/section-card'
 
 import FillingsEditor from '@/modules/products/components/create/fillings-editor'
 import IngredientsEditor from '@/modules/products/components/create/ingredients-editor'
 import PhotoesPicker from '@/modules/products/components/create/photoes-picker'
 
-import { theme } from '@/shared/theme'
-import { useCategoryStore } from '@/shared/store/categories'
-import { useProductsStore } from '@/shared/store/products'
 import type { ProductsStackParamList } from '@/core/navigation/products-stack'
+import { useCategoryStore } from '@/shared/store/categories.store'
+import { useProductsStore } from '@/shared/store/products.store'
+import { theme } from '@/shared/theme'
+import { StackNavigationProp } from '@react-navigation/stack'
 import type { ProductCreateFormValues } from '../hooks/useProductCreateForm'
 import { useProductEditForm } from '../hooks/useProductEditForm'
-import { StackNavigationProp } from '@react-navigation/stack'
 
 type Route = RouteProp<ProductsStackParamList, 'ProductEdit'>
 type Navigation = StackNavigationProp<ProductsStackParamList, 'ProductEdit'>

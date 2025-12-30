@@ -1,16 +1,36 @@
-import { View, TextInput, StyleSheet } from 'react-native'
+import { View, TextInput, StyleSheet, TextInputProps } from 'react-native'
 import SearchIcon from '@/assets/images/search.svg'
 import { theme } from '@/shared/theme'
 
-export default function Search() {
+type Props = {
+    value: string
+    onChangeText: (text: string) => void
+    placeholder?: string
+    editable?: boolean
+    onSubmit?: () => void
+} & Omit<TextInputProps, 'value' | 'onChangeText' | 'placeholder' | 'editable'>
+
+export default function Search({
+    value,
+    onChangeText,
+    placeholder = 'Поиск по названию',
+    editable = true,
+    onSubmit,
+    ...rest
+}: Props) {
     return (
         <View style={styles.container}>
             <SearchIcon width={16} height={16} />
             <TextInput
                 style={styles.input}
-                placeholder="Поиск по названию"
+                value={value}
+                onChangeText={onChangeText}
+                placeholder={placeholder}
                 placeholderTextColor={theme.colors.mainGray}
-                editable={true}
+                editable={editable}
+                returnKeyType="search"
+                onSubmitEditing={onSubmit}
+                {...rest}
             />
         </View>
     )

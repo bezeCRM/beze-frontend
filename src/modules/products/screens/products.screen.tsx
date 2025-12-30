@@ -1,30 +1,38 @@
-import { useMemo } from 'react'
-import ScreenContainer from '@/shared/components/screen-container'
 import MainHeader from '@/shared/components/main-header'
-import ProductsHeader from '../components/list/products-header'
-import Search from '@/shared/components/search'
-import ProductsList from '../components/list/products-list'
+import ScreenContainer from '@/shared/components/screen-container'
+import Search from '@/shared/components/search/search'
+import { useCategoryStore } from '@/shared/store/categories.store'
+import { useState } from 'react'
 import ProductsFilters from '../components/list/products-filters'
-import { useCategoryStore } from '@/shared/store/categories'
-import { useProductsStore } from '@/shared/store/products'
+import ProductsHeader from '../components/list/products-header'
+import ProductsList from '../components/list/products-list'
+import { useProductsSearch } from '../hooks/useProductsSearch'
+import { useSearchHistoryStore } from '@/shared/store/searchHistory.store'
 
 export default function ProductsScreen() {
-    const products = useProductsStore(s => s.products)
+    const [query, setQuery] = useState('')
 
-    const { activeCategoryId } = useCategoryStore()
+    const activeCategoryId = useCategoryStore(s => s.activeCategoryId)
 
-    const filteredProducts = useMemo(() => {
-        if (!activeCategoryId) return products
-        return products.filter(product => product.category?.id === activeCategoryId)
-    }, [activeCategoryId, products])
+    const results = useProductsSearch({ query, activeCategoryId })
+
+    const addQuery = useSearchHistoryStore(s => s.addQuery)
 
     return (
         <ScreenContainer>
             <MainHeader />
             <ProductsHeader />
-            <Search />
+
+            <Search
+                value={query}
+                onChangeText={setQuery}
+                placeholder="Поиск по названию"
+                onSubmit={() => addQuery('products', query)}
+            />
+
             <ProductsFilters />
-            <ProductsList items={filteredProducts} />
+
+            <ProductsList items={results} />
         </ScreenContainer>
     )
 }
