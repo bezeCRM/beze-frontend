@@ -2,9 +2,13 @@ import { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Category, ProductUnit, Filling, Ingredient } from '@/shared/types/types'
-
-export type Photo = { id: string; uri: string }
+import {
+    Category,
+    ProductUnit,
+    Filling,
+    Ingredient,
+    PhotoItem,
+} from '@/shared/types/types'
 
 const CategorySchema = z.object({
     id: z.string(),
@@ -14,7 +18,6 @@ const CategorySchema = z.object({
 const FormSchema = z
     .object({
         name: z.string().trim().min(1, 'обязательное поле'),
-        // категория теперь опциональна
         category: CategorySchema.optional(),
         unit: z.enum(['piece', 'kg'] as const),
         price: z.string().trim().min(1, 'обязательное поле'),
@@ -22,7 +25,6 @@ const FormSchema = z
         recipe: z.string().optional(),
         fillings: z.array(z.object({ id: z.string(), name: z.string() })).optional(),
 
-        // разрешаем пустые строки, но если пользователь начал, то требуем оба поля
         ingredients: z
             .array(
                 z.object({
@@ -39,7 +41,6 @@ const FormSchema = z
             .optional(),
     })
     .superRefine((data, ctx) => {
-        // проверяем только частично заполненные ингредиенты
         const list = data.ingredients ?? []
         list.forEach((row, idx) => {
             const hasName = row.name.trim().length > 0
@@ -65,8 +66,11 @@ const FormSchema = z
 
 export type ProductCreateFormValues = z.input<typeof FormSchema>
 
+function makeId() {
+    return `${Date.now()}-${Math.random().toString(16).slice(2)}`
+}
+
 export function useProductCreateForm(defaultCategory?: Category) {
-    // дефолтные значения
     const defaultValues: ProductCreateFormValues = useMemo(() => {
         const base = {
             name: '',
@@ -77,7 +81,7 @@ export function useProductCreateForm(defaultCategory?: Category) {
             ingredients: [
                 { id: String(Date.now()), name: '', weightGrams: '' },
             ] as Ingredient[],
-            photoes: [] as Photo[],
+            photoes: [] as PhotoItem[],
         }
         return defaultCategory ? { ...base, category: defaultCategory } : base
     }, [defaultCategory])
@@ -88,21 +92,20 @@ export function useProductCreateForm(defaultCategory?: Category) {
         mode: 'onSubmit',
     })
 
-    // сеттеры
     function setCategory(c?: Category | null) {
-        // null приводим к undefined, чтобы поле реально стало "пустым"
         form.setValue('category', c ?? undefined, { shouldValidate: true })
     }
+
     function setUnit(u: ProductUnit) {
         form.setValue('unit', u, { shouldValidate: true })
     }
 
-    // fillings
     function addFilling() {
         const id = String(Date.now())
         const list: Filling[] = form.getValues('fillings') ?? []
         form.setValue('fillings', [...list, { id, name: '' }])
     }
+
     function updateFillingName(id: string, name: string) {
         const list: Filling[] = form.getValues('fillings') ?? []
         form.setValue(
@@ -110,6 +113,7 @@ export function useProductCreateForm(defaultCategory?: Category) {
             list.map(f => (f.id === id ? { ...f, name } : f)),
         )
     }
+
     function removeFilling(id: string) {
         const list: Filling[] = form.getValues('fillings') ?? []
         form.setValue(
@@ -118,12 +122,12 @@ export function useProductCreateForm(defaultCategory?: Category) {
         )
     }
 
-    // ingredients
     function addIngredient() {
         const id = String(Date.now())
         const list: Ingredient[] = form.getValues('ingredients') ?? []
         form.setValue('ingredients', [...list, { id, name: '', weightGrams: '' }])
     }
+
     function updateIngredientName(id: string, name: string) {
         const list: Ingredient[] = form.getValues('ingredients') ?? []
         form.setValue(
@@ -131,6 +135,7 @@ export function useProductCreateForm(defaultCategory?: Category) {
             list.map(i => (i.id === id ? { ...i, name } : i)),
         )
     }
+
     function updateIngredientAmount(id: string, weightGrams: string) {
         const list: Ingredient[] = form.getValues('ingredients') ?? []
         form.setValue(
@@ -138,6 +143,7 @@ export function useProductCreateForm(defaultCategory?: Category) {
             list.map(i => (i.id === id ? { ...i, weightGrams } : i)),
         )
     }
+
     function removeIngredient(id: string) {
         const list: Ingredient[] = form.getValues('ingredients') ?? []
         form.setValue(
@@ -146,18 +152,42 @@ export function useProductCreateForm(defaultCategory?: Category) {
         )
     }
 
-    // photoes
-    function addPhoto(uri: string) {
-        const list: Photo[] = form.getValues('photoes') ?? []
+    function addPhotoes(items: PhotoItem[]) {
+        const list: PhotoItem[] = form.getValues('photoes') ?? []
         if (list.length >= 3) return
-        const id = String(Date.now())
-        form.setValue('photoes', [...list, { id, uri }])
+
+        const remaining = 3 - list.length
+        const seen = new Set(list.map(p => p.uri))
+        const toAdd: PhotoItem[] = []
+
+        for (const p of items) {
+            if (toAdd.length >= remaining) break
+            if (!p?.uri) continue
+            if (seen.has(p.uri)) continue
+            seen.add(p.uri)
+            toAdd.push({ id: p.id || makeId(), uri: p.uri })
+        }
+
+        if (!toAdd.length) return
+        form.setValue('photoes', [...list, ...toAdd], { shouldValidate: true })
     }
+
+    function addPhoto(uri: string) {
+        if (!uri) return
+        const list: PhotoItem[] = form.getValues('photoes') ?? []
+        if (list.length >= 3) return
+        if (list.some(p => p.uri === uri)) return
+        form.setValue('photoes', [...list, { id: makeId(), uri }], {
+            shouldValidate: true,
+        })
+    }
+
     function removePhoto(id: string) {
-        const list: Photo[] = form.getValues('photoes') ?? []
+        const list: PhotoItem[] = form.getValues('photoes') ?? []
         form.setValue(
             'photoes',
             list.filter(p => p.id !== id),
+            { shouldValidate: true },
         )
     }
 
@@ -172,6 +202,7 @@ export function useProductCreateForm(defaultCategory?: Category) {
         updateIngredientName,
         updateIngredientAmount,
         removeIngredient,
+        addPhotoes,
         addPhoto,
         removePhoto,
     }

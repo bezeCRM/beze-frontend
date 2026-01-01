@@ -80,6 +80,7 @@ export default function ProductInfoScreen() {
                         <FillingsChips fillings={product.fillings ?? []} />
                         <ProductInfoBlock product={product} />
                         <ProductPrice price={product.price} unit={product.unit} />
+
                         <ProductPhotoes photoes={product.photoes} />
 
                         <Button title="Удалить товар" onPress={openDelete} red />

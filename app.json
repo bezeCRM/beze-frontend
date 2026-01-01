@@ -4,6 +4,11 @@
         "slug": "beze-frontend",
         "version": "1.0.0",
         "assetBundlePatterns": ["**/*"],
-        "plugins": ["expo-font"]
+        "plugins": ["expo-font"],
+        "ios": {
+            "infoPlist": {
+                "NSPhotoLibraryUsageDescription": "Нужно для выбора фото из галереи"
+            }
+        }
     }
 }

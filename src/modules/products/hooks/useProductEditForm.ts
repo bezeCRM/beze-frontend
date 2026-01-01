@@ -1,10 +1,29 @@
 import { useEffect, useRef } from 'react'
-import type { Product, Filling, Ingredient } from '@/shared/types/types'
+import type { Product, Filling, Ingredient, PhotoItem } from '@/shared/types/types'
 import {
-    type Photo,
     type ProductCreateFormValues,
     useProductCreateForm,
 } from './useProductCreateForm'
+
+function normalizePhotoes(product: Product): PhotoItem[] {
+    const raw = (product as any).photoes ?? []
+    if (!Array.isArray(raw)) return []
+
+    return raw
+        .map((p: any, index: number) => {
+            if (typeof p === 'string') {
+                return { id: `${product.id}-${index}`, uri: p }
+            }
+            if (p && typeof p === 'object') {
+                const uri = String(p.uri ?? '')
+                const id = String(p.id ?? `${product.id}-${index}`)
+                return { id, uri }
+            }
+            return null
+        })
+        .filter((p: PhotoItem | null): p is PhotoItem => !!p && !!p.uri)
+        .slice(0, 3)
+}
 
 export function useProductEditForm(product?: Product | null) {
     const form = useProductCreateForm()
@@ -23,10 +42,7 @@ export function useProductEditForm(product?: Product | null) {
             ? product.ingredients
             : [{ id: String(Date.now()), name: '', weightGrams: '' }]
 
-        const photoes: Photo[] = (product.photoes ?? []).map((uri, index) => ({
-            id: `${product.id}-${index}`,
-            uri,
-        }))
+        const photoes: PhotoItem[] = normalizePhotoes(product)
 
         const values: ProductCreateFormValues = {
             name: product.name ?? '',

@@ -1,4 +1,3 @@
-// src/modules/products/components/create/photos-picker.tsx
 import React from 'react'
 import { View, StyleSheet, TouchableOpacity, Image } from 'react-native'
 import SectionCard from '@/shared/ui/section/section-card'

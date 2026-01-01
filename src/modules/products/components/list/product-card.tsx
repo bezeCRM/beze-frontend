@@ -1,14 +1,33 @@
 import React, { useMemo } from 'react'
-import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native'
+import {
+    View,
+    Text,
+    Image,
+    StyleSheet,
+    TouchableOpacity,
+    ImageSourcePropType,
+} from 'react-native'
 import PlaceholderImage from '@/assets/images/product-card-placeholder.png'
 import { theme } from '@/shared/theme'
-import type { Product } from '@/shared/types/types'
+import type { Product, PhotoItem } from '@/shared/types/types'
 
 type ProductCardProps = Pick<
     Product,
     'id' | 'name' | 'price' | 'fillings' | 'photoes'
 > & {
     onPress?: () => void
+}
+
+function getFirstPhotoUri(photoes?: PhotoItem[]) {
+    if (!photoes?.length) return null
+    for (const p of photoes) {
+        if (typeof p === 'string') {
+            if (p) return p
+        } else if (p?.uri) {
+            return p.uri
+        }
+    }
+    return null
 }
 
 export default function ProductCard({
@@ -18,8 +37,8 @@ export default function ProductCard({
     photoes,
     onPress,
 }: ProductCardProps) {
-    const imageSource = useMemo(() => {
-        const firstUri = photoes?.find(Boolean)
+    const imageSource: ImageSourcePropType = useMemo(() => {
+        const firstUri = getFirstPhotoUri(photoes as unknown as PhotoItem[])
         return firstUri ? { uri: firstUri } : PlaceholderImage
     }, [photoes])
 

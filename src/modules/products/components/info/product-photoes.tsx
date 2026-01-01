@@ -2,19 +2,29 @@ import { View, Image, StyleSheet } from 'react-native'
 import SectionCard from '@/shared/ui/section/section-card'
 import PlaceholderImage from '@/assets/images/product-card-placeholder.png'
 import { theme } from '@/shared/theme'
+import type { PhotoItem } from '@/shared/types/types'
 
 type Props = {
-    photoes?: string[]
+    photoes?: PhotoItem[]
 }
 
 export default function ProductPhotoes({ photoes }: Props) {
+    const uris = (photoes ?? [])
+        .map(p => (typeof p === 'string' ? p : p?.uri))
+        .filter((u): u is string => Boolean(u))
+
     return (
         <SectionCard title="Фото товара">
             <View style={styles.row}>
-                {photoes?.map((photo, index) => (
-                    <Image key={index} source={{ uri: photo }} style={styles.photo} />
+                {uris.map((uri, index) => (
+                    <Image
+                        key={`${uri}-${index}`}
+                        source={{ uri }}
+                        style={styles.photo}
+                    />
                 ))}
-                {(!photoes || photoes.length === 0) && (
+
+                {uris.length === 0 && (
                     <Image source={PlaceholderImage} style={styles.photo} />
                 )}
             </View>
@@ -35,10 +45,5 @@ const styles = StyleSheet.create({
         height: 80,
         borderRadius: 15,
         backgroundColor: colors.mainPink,
-    },
-    placeholder: {
-        width: 80,
-        height: 80,
-        borderRadius: 20,
     },
 })

@@ -1,5 +1,5 @@
 import { useNavigation, useRoute } from '@react-navigation/native'
-import { useMemo } from 'react'
+import { useMemo, useCallback } from 'react'
 import { StyleSheet, TextInput, View } from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -29,6 +29,10 @@ import {
     useProductCreateForm,
 } from '../hooks/useProductCreateForm'
 
+import { pickImagesFromLibrary } from '@/shared/components/media'
+
+const MAX_PHOTOES = 3
+
 export default function ProductCreateScreen() {
     const { bottom } = useSafeAreaInsets()
     const navigation = useNavigation()
@@ -49,7 +53,7 @@ export default function ProductCreateScreen() {
         updateIngredientName,
         updateIngredientAmount,
         removeIngredient,
-        addPhoto,
+        addPhotoes,
         removePhoto,
     } = useProductCreateForm()
 
@@ -65,6 +69,16 @@ export default function ProductCreateScreen() {
 
     const { categories } = useCategoryStore()
     const addProduct = useProductsStore(s => s.addProduct)
+
+    const handleAddPhotoes = useCallback(async () => {
+        const remaining = MAX_PHOTOES - photoes.length
+        if (remaining <= 0) return
+
+        const picked = await pickImagesFromLibrary({ limit: remaining })
+        if (!picked.length) return
+
+        addPhotoes(picked)
+    }, [photoes.length, addPhotoes])
 
     const onValid = (values: ProductCreateFormValues) => {
         const priceNum = Number(String(values.price).replace(/\s/g, '')) || 0
@@ -82,7 +96,9 @@ export default function ProductCreateScreen() {
             .filter(i => i.name.length > 0 || i.weightGrams.length > 0)
 
         const recipeClean = values.recipe?.trim()
-        const photoes = (values.photoes ?? []).map(p => p.uri).filter(Boolean)
+        const photoesClean = (values.photoes ?? [])
+            .filter(p => !!p?.uri)
+            .slice(0, MAX_PHOTOES)
 
         const newProduct: NewProductInput = {
             name: values.name.trim(),
@@ -92,7 +108,7 @@ export default function ProductCreateScreen() {
             ...(fillingsClean.length ? { fillings: fillingsClean } : {}),
             ...(ingredientsClean.length ? { ingredients: ingredientsClean } : {}),
             ...(recipeClean ? { recipe: recipeClean } : {}),
-            ...(photoes.length ? { photoes } : {}),
+            ...(photoesClean.length ? { photoes: photoesClean } : {}),
         }
 
         addProduct(newProduct)
@@ -133,9 +149,7 @@ export default function ProductCreateScreen() {
 
                 <KeyboardAwareScrollView
                     style={styles.scroll}
-                    contentContainerStyle={{
-                        paddingBottom: bottom + 30,
-                    }}
+                    contentContainerStyle={{ paddingBottom: bottom + 30 }}
                     enableOnAndroid
                     keyboardShouldPersistTaps="handled"
                     showsVerticalScrollIndicator={false}
@@ -221,7 +235,10 @@ export default function ProductCreateScreen() {
 
                         <PhotoesPicker
                             photoes={photoes}
-                            onAddPress={() => addPhoto('https://picsum.photos/200')}
+                            maxCount={MAX_PHOTOES}
+                            onAddPress={() => {
+                                void handleAddPhotoes()
+                            }}
                             onDeletePress={removePhoto}
                             onPhotoPress={() => {}}
                         />

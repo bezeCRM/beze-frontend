@@ -1,6 +1,6 @@
 import type { RouteProp } from '@react-navigation/native'
 import { useNavigation, useRoute } from '@react-navigation/native'
-import { useEffect } from 'react'
+import { useCallback } from 'react'
 import { StyleSheet, TextInput, View } from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -27,12 +27,15 @@ import type { ProductsStackParamList } from '@/core/navigation/products-stack'
 import { useCategoryStore } from '@/shared/store/categories.store'
 import { useProductsStore } from '@/shared/store/products.store'
 import { theme } from '@/shared/theme'
-import { StackNavigationProp } from '@react-navigation/stack'
+import type { StackNavigationProp } from '@react-navigation/stack'
 import type { ProductCreateFormValues } from '../hooks/useProductCreateForm'
 import { useProductEditForm } from '../hooks/useProductEditForm'
+import { pickImagesFromLibrary } from '@/shared/components/media'
 
 type Route = RouteProp<ProductsStackParamList, 'ProductEdit'>
 type Navigation = StackNavigationProp<ProductsStackParamList, 'ProductEdit'>
+
+const MAX_PHOTOES = 3
 
 export default function ProductEditScreen() {
     const { bottom } = useSafeAreaInsets()
@@ -46,13 +49,6 @@ export default function ProductEditScreen() {
     const { categories } = useCategoryStore()
 
     const form = useProductEditForm(product)
-
-    useEffect(() => {
-        if (!product) navigation.goBack()
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [productId, !!product])
-
-    if (!product) return null
 
     const {
         handleSubmit,
@@ -68,7 +64,7 @@ export default function ProductEditScreen() {
         updateIngredientName,
         updateIngredientAmount,
         removeIngredient,
-        addPhoto,
+        addPhotoes,
         removePhoto,
     } = form
 
@@ -80,6 +76,18 @@ export default function ProductEditScreen() {
     const fillings = watch('fillings') ?? []
     const ingredients = watch('ingredients') ?? []
     const photoes = watch('photoes') ?? []
+
+    const handleAddPhotoes = useCallback(async () => {
+        const remaining = MAX_PHOTOES - photoes.length
+        if (remaining <= 0) return
+
+        const picked = await pickImagesFromLibrary({ limit: remaining })
+        if (!picked.length) return
+
+        addPhotoes(picked)
+    }, [photoes.length, addPhotoes])
+
+    if (!product) return null
 
     const onValid = (values: ProductCreateFormValues) => {
         const priceNum = Number(String(values.price).replace(/\s/g, '')) || 0
@@ -96,7 +104,9 @@ export default function ProductEditScreen() {
             }))
             .filter(i => i.name.length > 0 || i.weightGrams.length > 0)
 
-        const photoUris = (values.photoes ?? []).map(p => p.uri).filter(Boolean)
+        const photoesClean = (values.photoes ?? [])
+            .filter(p => !!p?.uri)
+            .slice(0, MAX_PHOTOES)
 
         updateProduct(product.id, {
             name: values.name.trim(),
@@ -106,7 +116,7 @@ export default function ProductEditScreen() {
             fillings: fillingsClean,
             ingredients: ingredientsClean,
             recipe: values.recipe ?? '',
-            photoes: photoUris,
+            photoes: photoesClean,
         })
 
         navigation.goBack()
@@ -227,7 +237,10 @@ export default function ProductEditScreen() {
 
                         <PhotoesPicker
                             photoes={photoes}
-                            onAddPress={() => addPhoto('https://picsum.photos/200')}
+                            maxCount={MAX_PHOTOES}
+                            onAddPress={() => {
+                                void handleAddPhotoes()
+                            }}
                             onDeletePress={removePhoto}
                             onPhotoPress={() => {}}
                         />

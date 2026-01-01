@@ -1,4 +1,5 @@
 export type ProductUnit = 'piece' | 'kg'
+export type PhotoItem = { id: string; uri: string }
 
 export type Product = {
     id: string
@@ -9,7 +10,7 @@ export type Product = {
     ingredients?: Ingredient[]
     recipe?: string
     unit: ProductUnit
-    photoes?: string[]
+    photoes?: PhotoItem[]
     createdAt: string
     updatedAt: string
 }
