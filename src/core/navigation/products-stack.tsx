@@ -1,8 +1,8 @@
 import { createStackNavigator } from '@react-navigation/stack'
 import { layeredSlideFromRight } from './transitions'
-import ProductsListScreen from '@/modules/products/screens/products.screen'
+import ProductsListScreen from '@/modules/products/screens/products-list.screen'
 import ProductCreateScreen from '@/modules/products/screens/product-create.screen'
-import ProductInfo from '@/modules/products/screens/product-info.screen'
+import ProductInfoScreen from '@/modules/products/screens/product-info.screen'
 import ProductEditScreen from '@/modules/products/screens/product-edit.screen'
 
 export type ProductsStackParamList = {
@@ -27,7 +27,7 @@ export default function ProductsStack() {
         >
             <Stack.Screen name="ProductsList" component={ProductsListScreen} />
             <Stack.Screen name="ProductCreate" component={ProductCreateScreen} />
-            <Stack.Screen name="ProductInfo" component={ProductInfo} />
+            <Stack.Screen name="ProductInfo" component={ProductInfoScreen} />
             <Stack.Screen name="ProductEdit" component={ProductEditScreen} />
         </Stack.Navigator>
     )

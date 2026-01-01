@@ -84,7 +84,7 @@ export default function IngredientsEditor({
 const { colors } = theme
 
 const styles = StyleSheet.create({
-    copyBtn: { position: 'absolute', right: 16, top: 16 },
+    copyBtn: { position: 'absolute', right: 0, top: -27 },
 
     list: { gap: 10 },
 

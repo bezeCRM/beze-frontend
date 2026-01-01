@@ -10,7 +10,8 @@ import {
 import { View, StyleSheet, Animated, PanResponder, Easing, Text } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { theme } from '@/shared/theme'
-import Icon from '@/assets/images/error-icon.svg'
+import ErrorIcon from '@/assets/images/error-icon.svg'
+import SuccessIcon from '@/assets/images/success-icon.svg'
 
 type ToastVariant = 'error' | 'info' | 'success'
 type ToastItem = {
@@ -94,6 +95,10 @@ function ToastCard({ item, onDismiss }: { item: ToastItem; onDismiss: () => void
     const translateX = useRef(new Animated.Value(0)).current
     const timerRef = useRef<NodeJS.Timeout | null>(null)
 
+    const Icon = item.variant === 'success' ? SuccessIcon : ErrorIcon
+    const variantCardStyle =
+        item.variant === 'success' ? styles.successCard : styles.errorCard
+
     useEffect(() => {
         onDismissRef.current = onDismiss
     }, [onDismiss])
@@ -167,12 +172,12 @@ function ToastCard({ item, onDismiss }: { item: ToastItem; onDismiss: () => void
         <Animated.View
             style={[
                 styles.card,
-                styles.errorCard,
+                variantCardStyle,
                 { opacity, transform: [{ translateY }, { translateX }] },
             ]}
             {...pan.panHandlers}
         >
-            <Icon width={25} height={25} style={styles.errorIcon} />
+            <Icon width={25} height={25} style={styles.icon} />
             <Text style={styles.message} numberOfLines={3}>
                 {item.message}
             </Text>
@@ -234,8 +239,12 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 2 },
         elevation: 8,
     },
+
     errorCard: { borderWidth: 1, borderColor: colors.lineGray },
-    errorIcon: { marginRight: 12 },
+    successCard: { borderWidth: 1, borderColor: colors.lineGray },
+
+    icon: { marginRight: 12 },
+
     message: {
         flex: 1,
         fontSize: 16,

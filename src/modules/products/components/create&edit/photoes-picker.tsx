@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
     },
 
     addWrap: {
-        marginRight: 0, // если это последняя, можно убрать отступ справа
+        marginRight: 0,
     },
     addTile: {
         width: SIZE,

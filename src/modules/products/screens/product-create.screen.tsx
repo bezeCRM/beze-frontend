@@ -1,5 +1,5 @@
 import { useNavigation, useRoute } from '@react-navigation/native'
-import { useMemo, useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { StyleSheet, TextInput, View } from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -14,9 +14,9 @@ import TextareaField from '@/shared/ui/fields/textarea-field'
 import UnitField from '@/shared/ui/fields/unit-field'
 import SectionCard from '@/shared/ui/section/section-card'
 
-import FillingsEditor from '@/modules/products/components/create/fillings-editor'
-import IngredientsEditor from '@/modules/products/components/create/ingredients-editor'
-import PhotoesPicker from '@/modules/products/components/create/photoes-picker'
+import FillingsEditor from '@/modules/products/components/create&edit/fillings-editor'
+import IngredientsEditor from '@/modules/products/components/create&edit/ingredients-editor'
+import PhotoesPicker from '@/modules/products/components/create&edit/photoes-picker'
 
 import ScreenContainer from '@/shared/components/screen-container'
 import { makeOnInvalidToast } from '@/shared/components/toast/make-on-invalid-toast'
@@ -30,14 +30,24 @@ import {
 } from '../hooks/useProductCreateForm'
 
 import { pickImagesFromLibrary } from '@/shared/components/media'
+import { useCopyIngredientsFromProduct } from '../hooks/useCopyIngredientsFromProduct'
+import { Route } from '@/shared/types/types'
 
 const MAX_PHOTOES = 3
 
 export default function ProductCreateScreen() {
     const { bottom } = useSafeAreaInsets()
     const navigation = useNavigation()
-    const route = useRoute()
+    const route = useRoute<Route>()
     const { show } = useToast()
+
+    //копирование рецептов из другого товара
+    const { openCopyIngredients, copyIngredientsModal } = useCopyIngredientsFromProduct({
+        onApply: copied =>
+            setValue('ingredients', copied, { shouldValidate: true, shouldDirty: true }),
+        onAfterApply: () =>
+            show('Ингредиенты скопированы', 'success', { scope: route.key }),
+    })
 
     const {
         handleSubmit,
@@ -199,9 +209,10 @@ export default function ProductCreateScreen() {
                             onChangeName={updateIngredientName}
                             onChangeAmount={updateIngredientAmount}
                             onRemovePress={removeIngredient}
-                            onCopyPress={() => {}}
+                            onCopyPress={openCopyIngredients}
                             errorsById={ingErrorsById}
                         />
+                        {copyIngredientsModal}
 
                         <TextareaField
                             label="Рецепт"

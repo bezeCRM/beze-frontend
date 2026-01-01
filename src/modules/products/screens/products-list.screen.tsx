@@ -9,7 +9,7 @@ import ProductsList from '../components/list/products-list'
 import { useProductsSearch } from '../hooks/useProductsSearch'
 import { useSearchHistoryStore } from '@/shared/store/searchHistory.store'
 
-export default function ProductsScreen() {
+export default function ProductsListScreen() {
     const [query, setQuery] = useState('')
 
     const activeCategoryId = useCategoryStore(s => s.activeCategoryId)

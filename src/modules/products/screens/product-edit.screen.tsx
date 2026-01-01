@@ -1,4 +1,3 @@
-import type { RouteProp } from '@react-navigation/native'
 import { useNavigation, useRoute } from '@react-navigation/native'
 import { useCallback } from 'react'
 import { StyleSheet, TextInput, View } from 'react-native'
@@ -19,25 +18,23 @@ import TextareaField from '@/shared/ui/fields/textarea-field'
 import UnitField from '@/shared/ui/fields/unit-field'
 import SectionCard from '@/shared/ui/section/section-card'
 
-import FillingsEditor from '@/modules/products/components/create/fillings-editor'
-import IngredientsEditor from '@/modules/products/components/create/ingredients-editor'
-import PhotoesPicker from '@/modules/products/components/create/photoes-picker'
+import FillingsEditor from '@/modules/products/components/create&edit/fillings-editor'
+import IngredientsEditor from '@/modules/products/components/create&edit/ingredients-editor'
+import PhotoesPicker from '@/modules/products/components/create&edit/photoes-picker'
 
-import type { ProductsStackParamList } from '@/core/navigation/products-stack'
+import { pickImagesFromLibrary } from '@/shared/components/media'
 import { useCategoryStore } from '@/shared/store/categories.store'
 import { useProductsStore } from '@/shared/store/products.store'
 import { theme } from '@/shared/theme'
-import type { StackNavigationProp } from '@react-navigation/stack'
+import { useCopyIngredientsFromProduct } from '../hooks/useCopyIngredientsFromProduct'
 import type { ProductCreateFormValues } from '../hooks/useProductCreateForm'
 import { useProductEditForm } from '../hooks/useProductEditForm'
-import { pickImagesFromLibrary } from '@/shared/components/media'
-
-type Route = RouteProp<ProductsStackParamList, 'ProductEdit'>
-type Navigation = StackNavigationProp<ProductsStackParamList, 'ProductEdit'>
+import type { Route, Navigation } from '@/shared/types/types'
 
 const MAX_PHOTOES = 3
 
 export default function ProductEditScreen() {
+    // объявление ключевых функций
     const { bottom } = useSafeAreaInsets()
     const navigation = useNavigation<Navigation>()
     const route = useRoute<Route>()
@@ -50,6 +47,16 @@ export default function ProductEditScreen() {
 
     const form = useProductEditForm(product)
 
+    //копирование рецептов из другого товара
+    const { openCopyIngredients, copyIngredientsModal } = useCopyIngredientsFromProduct({
+        excludeProductId: product?.id,
+        onApply: copied =>
+            setValue('ingredients', copied, { shouldValidate: true, shouldDirty: true }),
+        onAfterApply: () =>
+            show('Ингредиенты скопированы', 'success', { scope: route.key }),
+    })
+
+    //работа с формой
     const {
         handleSubmit,
         formState: { errors },
@@ -201,9 +208,10 @@ export default function ProductEditScreen() {
                             onChangeName={updateIngredientName}
                             onChangeAmount={updateIngredientAmount}
                             onRemovePress={removeIngredient}
-                            onCopyPress={() => {}}
+                            onCopyPress={openCopyIngredients}
                             errorsById={ingErrorsById}
                         />
+                        {copyIngredientsModal}
 
                         <TextareaField
                             label="Рецепт"
@@ -246,7 +254,7 @@ export default function ProductEditScreen() {
                         />
 
                         <Button
-                            title="Сохранить изменения"
+                            title="Сохранить и выйти"
                             onPress={handleSubmit(onValid, onInvalid)}
                         />
                     </View>
