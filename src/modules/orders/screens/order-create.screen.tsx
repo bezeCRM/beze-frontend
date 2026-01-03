@@ -1,0 +1,367 @@
+import type { RouteProp } from '@react-navigation/native'
+import { useNavigation, useRoute } from '@react-navigation/native'
+import type { StackNavigationProp } from '@react-navigation/stack'
+import React, { useCallback, useMemo } from 'react'
+import { StyleSheet, Switch, Text, View } from 'react-native'
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
+
+import type { OrdersStackParamList } from '@/core/navigation/orders-stack'
+import ScreenContainer from '@/shared/components/layout/screen-container'
+import {
+    InternalHeaderTitle,
+    InternalHeaderTopBar,
+} from '@/shared/components/headers/internal-header'
+import { ToastViewport, useToast } from '@/shared/components/toast/toast-provider'
+import { pickImagesFromLibrary } from '@/shared/components/media'
+import Button from '@/shared/ui/button/button'
+import SelectField from '@/shared/ui/fields/select-field'
+import TextareaField from '@/shared/ui/fields/textarea-field'
+import { useOrdersStore } from '@/shared/store/orders.store'
+import { useProductsStore } from '@/shared/store/products.store'
+import type { PhotoItem } from '@/shared/types/types'
+import { theme } from '@/shared/theme'
+
+import OrderTextField from '../components/create/order-text-field'
+import OrderDeliverySection from '../components/create/order-delivery-section'
+import OrderProductsSection from '../components/create/order-products-section'
+import OrderDecorPricesSection from '../components/create/order-decor-prices-section'
+import OrderExtraSection from '../components/create/order-extra-section'
+import OrderReferencesPicker from '../components/create/order-references-picker'
+
+import {
+    type OrderCreateFormValues,
+    type OrderPaymentStatus,
+    type OrderStatus,
+    type OrderCreateItem,
+    useOrderCreateForm,
+} from '../hooks/useOrderCreateForm'
+import { useOrderTotalPrice } from '../hooks/useOrderTotalPrice'
+import { useOrderProductPicker } from '../hooks/useOrderProductPicker'
+import { useOrderCreateInvalidToast } from '../hooks/useOrderCreateInvalidToast'
+import { buildNewOrderPayload } from '../utils/buildNewOrderPayload'
+
+const MAX_REFERENCES = 3
+const ORDERS_LIST_TOAST_SCOPE = 'ordersList'
+
+type Nav = StackNavigationProp<OrdersStackParamList, 'OrderCreate'>
+type R = RouteProp<OrdersStackParamList, 'OrderCreate'>
+
+export default function OrderCreateScreen() {
+    const { bottom } = useSafeAreaInsets()
+    const navigation = useNavigation<Nav>()
+    const route = useRoute<R>()
+    const { show } = useToast()
+
+    const addOrder = useOrdersStore(s => s.addOrder)
+    const products = useProductsStore(s => s.products)
+    const getProductById = useProductsStore(s => s.getById)
+
+    const {
+        handleSubmit,
+        formState: { errors },
+        watch,
+        setValue,
+        setPickup,
+        setPaymentStatus,
+        setStatus,
+        togglePlanner,
+        addItem,
+        removeItem,
+        incCount,
+        decCount,
+        setWeightKg,
+        setDecorPrice,
+        addReferences,
+        removeReference,
+    } = useOrderCreateForm()
+
+    const name = watch('name') ?? ''
+    const clientName = watch('clientName') ?? ''
+    const clientPhone = watch('clientPhone') ?? ''
+    const orderPlatform = watch('orderPlatform') ?? ''
+
+    const delivery = watch('delivery')
+    const watchedItems = watch('items')
+    const items = useMemo(() => (watchedItems as OrderCreateItem[]) ?? [], [watchedItems])
+    const extra = watch('extra')
+    const notes = watch('notes') ?? ''
+    const references = (watch('references') as PhotoItem[]) ?? []
+    const paymentStatus = watch('paymentStatus') as OrderPaymentStatus
+    const status = watch('status') as OrderStatus
+    const inPlanner = !!watch('inPlanner')
+
+    const totalPrice = useOrderTotalPrice(items, extra)
+
+    const { openPickProduct } = useOrderProductPicker({
+        products: products ?? [],
+        getProductById,
+        addItem,
+    })
+
+    const onInvalid = useOrderCreateInvalidToast(show as any, route.key)
+
+    const handleAddReferences = useCallback(async () => {
+        const remaining = MAX_REFERENCES - references.length
+        if (remaining <= 0) return
+
+        const picked = await pickImagesFromLibrary({ limit: remaining })
+        if (!picked.length) return
+
+        addReferences(picked)
+    }, [references.length, addReferences])
+
+    const PAYMENT_OPTIONS = useMemo(
+        (): { id: OrderPaymentStatus; name: string }[] => [
+            { id: 'unpaid', name: 'Не оплачен' },
+            { id: 'partial', name: 'Частичная оплата' },
+            { id: 'paid', name: 'Оплачено' },
+        ],
+        [],
+    )
+
+    const STATUS_OPTIONS = useMemo(
+        (): { id: OrderStatus; name: string }[] => [
+            { id: 'new', name: 'Новый' },
+            { id: 'inWork', name: 'В работе' },
+            { id: 'ready', name: 'Готов' },
+            { id: 'delivered', name: 'Выдан' },
+            { id: 'canceled', name: 'Отменён' },
+        ],
+        [],
+    )
+
+    const onValid = useCallback(
+        (values: OrderCreateFormValues) => {
+            const payload = buildNewOrderPayload(values, totalPrice)
+            addOrder(payload)
+
+            const unsub = navigation.addListener('transitionEnd', () => {
+                unsub()
+                show('Заказ добавлен', 'success', { scope: ORDERS_LIST_TOAST_SCOPE })
+            })
+
+            navigation.goBack()
+        },
+        [addOrder, navigation, show, totalPrice],
+    )
+
+    return (
+        <ScreenContainer>
+            <View style={styles.container}>
+                <View style={styles.stickyTopBar}>
+                    <InternalHeaderTopBar onBack={() => navigation.goBack()} />
+                </View>
+
+                <KeyboardAwareScrollView
+                    style={styles.scroll}
+                    contentContainerStyle={{ paddingBottom: bottom + 30 }}
+                    enableOnAndroid
+                    keyboardShouldPersistTaps="handled"
+                    showsVerticalScrollIndicator={false}
+                    enableAutomaticScroll
+                    extraScrollHeight={80}
+                    extraHeight={80}
+                    enableResetScrollToCoords={false}
+                    keyboardDismissMode="on-drag"
+                >
+                    <View style={styles.titleWrap}>
+                        <InternalHeaderTitle title="Новый заказ" />
+                    </View>
+
+                    <View style={styles.formList}>
+                        <OrderTextField
+                            title="Название заказа"
+                            value={name}
+                            placeholder='Например, "торт на 23 февраля"'
+                            onChangeText={t => setValue('name', t)}
+                        />
+
+                        <OrderTextField
+                            title="Имя клиента *"
+                            value={clientName}
+                            onChangeText={t =>
+                                setValue('clientName', t, { shouldValidate: true })
+                            }
+                            placeholder="Введите имя"
+                            error={!!errors.clientName}
+                        />
+
+                        <OrderTextField
+                            title="Номер телефона клиента"
+                            value={clientPhone}
+                            placeholder="Введите номер"
+                            onChangeText={t =>
+                                setValue('clientPhone', t, { shouldValidate: true })
+                            }
+                            keyboardType="phone-pad"
+                            error={!!errors.clientPhone}
+                            errorText={
+                                errors.clientPhone ? '*Некорректный номер' : undefined
+                            }
+                        />
+
+                        <OrderTextField
+                            title="Платформа заказа"
+                            value={orderPlatform}
+                            placeholder="Avito, Flowwow или другая"
+                            onChangeText={t => setValue('orderPlatform', t)}
+                        />
+
+                        <OrderDeliverySection
+                            isPickup={!!delivery?.isPickup}
+                            address={delivery?.address ?? ''}
+                            date={delivery?.date ?? ''}
+                            time={delivery?.time ?? ''}
+                            onTogglePickup={setPickup}
+                            onChangeAddress={t =>
+                                setValue('delivery.address', t, { shouldValidate: true })
+                            }
+                            onChangeDate={t =>
+                                setValue('delivery.date', t, { shouldValidate: true })
+                            }
+                            onChangeTime={t =>
+                                setValue('delivery.time', t, { shouldValidate: true })
+                            }
+                            addressError={!!(errors as any)?.delivery?.address}
+                            dateError={!!(errors as any)?.delivery?.date}
+                            timeError={!!(errors as any)?.delivery?.time}
+                        />
+
+                        <OrderProductsSection
+                            items={items as any}
+                            onAddPress={openPickProduct}
+                            onInc={incCount}
+                            onDec={decCount}
+                            onChangeWeight={setWeightKg}
+                            onRemove={removeItem}
+                        />
+
+                        <OrderDecorPricesSection
+                            items={items as any}
+                            onChange={setDecorPrice}
+                            onAddPress={openPickProduct}
+                        />
+
+                        <OrderExtraSection
+                            delivery={extra?.delivery ?? '0'}
+                            urgency={extra?.urgency ?? '0'}
+                            other={extra?.other ?? '0'}
+                            discount={extra?.discount ?? '0'}
+                            onChangeDelivery={t => setValue('extra.delivery', t)}
+                            onChangeUrgency={t => setValue('extra.urgency', t)}
+                            onChangeOther={t => setValue('extra.other', t)}
+                            onChangeDiscount={t => setValue('extra.discount', t)}
+                        />
+
+                        <TextareaField
+                            label="Примечания"
+                            placeholder='Например, "сделать как можно скорее"'
+                            multiline
+                            value={notes}
+                            onChangeText={t => setValue('notes', t)}
+                        />
+
+                        <OrderReferencesPicker
+                            items={references}
+                            maxCount={MAX_REFERENCES}
+                            onAddPress={() => {
+                                void handleAddReferences()
+                            }}
+                            onDeletePress={removeReference}
+                        />
+
+                        <SelectField
+                            label="Статус оплаты"
+                            options={PAYMENT_OPTIONS as any}
+                            selectedId={paymentStatus}
+                            onSelect={opt =>
+                                setPaymentStatus(opt.id as OrderPaymentStatus)
+                            }
+                            error={false}
+                            addCategoryEnabled={false}
+                        />
+
+                        <SelectField
+                            label="Статус заказа"
+                            options={STATUS_OPTIONS as any}
+                            selectedId={status}
+                            onSelect={opt => setStatus(opt.id as OrderStatus)}
+                            error={false}
+                            addCategoryEnabled={false}
+                        />
+
+                        <View style={styles.plannerRowFinal}>
+                            <Text style={styles.plannerLabel}>Добавить в планер</Text>
+                            <View style={{ transform: [{ scale: 0.95 }] }}>
+                                <Switch
+                                    value={inPlanner}
+                                    onValueChange={togglePlanner}
+                                    trackColor={{
+                                        false: theme.colors.lineGray,
+                                        true: theme.colors.mainPink,
+                                    }}
+                                    thumbColor={theme.colors.mainWhite}
+                                    ios_backgroundColor={theme.colors.lineGray}
+                                />
+                            </View>
+                        </View>
+
+                        <View style={styles.totalRow}>
+                            <Text style={styles.totalLabel}>Итоговая стоимость:</Text>
+                            <Text style={styles.totalValue}>
+                                {totalPrice.toLocaleString('ru-RU')} ₽
+                            </Text>
+                        </View>
+
+                        <Button
+                            title="Создать заказ"
+                            onPress={handleSubmit(onValid, onInvalid)}
+                        />
+                    </View>
+                </KeyboardAwareScrollView>
+
+                <ToastViewport scope={route.key} bottomOffset={75} />
+            </View>
+        </ScreenContainer>
+    )
+}
+
+const styles = StyleSheet.create({
+    container: { flex: 1, backgroundColor: theme.colors.backgroundWhite },
+    stickyTopBar: { backgroundColor: theme.colors.backgroundWhite },
+    scroll: { flex: 1 },
+    titleWrap: {},
+    formList: { rowGap: 15 },
+
+    plannerRowFinal: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginTop: 2,
+        paddingHorizontal: 2,
+    },
+    plannerLabel: {
+        fontSize: 14,
+        color: theme.colors.mainBlack,
+        fontFamily: 'Epilogue-Regular',
+    },
+
+    totalRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginTop: 4,
+        paddingHorizontal: 2,
+    },
+    totalLabel: {
+        fontSize: 14,
+        color: theme.colors.mainBlack,
+        fontFamily: 'Epilogue-Regular',
+    },
+    totalValue: {
+        fontSize: 14,
+        color: theme.colors.mainBlack,
+        fontFamily: 'Epilogue-SemiBold',
+    },
+})

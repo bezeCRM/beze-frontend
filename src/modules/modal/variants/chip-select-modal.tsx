@@ -1,48 +1,66 @@
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
+import React, { useMemo } from 'react'
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import ModalHeader from '@/modules/modal/base/modal-header'
 import ModalFooter from '@/modules/modal/base/modal-footer'
 import { theme } from '@/shared/theme'
-import { BaseModalProps } from '@/modules/modal/types/base-modal-props'
+import type { BaseModalProps } from '@/modules/modal/types/base-modal-props'
 
 type Option = { id: string; name: string; selected?: boolean }
 
 export type ChipSelectModalProps = BaseModalProps & {
     title: string
+    headline?: string
     options: Option[]
     onToggle: (id: string) => void
     onSubmit: () => void
+    onBack?: () => void
 }
+
 export default function ChipSelectModal({
     title,
+    headline = 'Выберите начинку',
     options,
     onToggle,
     onSubmit,
+    onBack,
     onClose,
 }: ChipSelectModalProps) {
+    const primaryDisabled = useMemo(() => !options.some(o => o.selected), [options])
+
     return (
         <View style={styles.container}>
-            <ModalHeader title={title} onClose={onClose} />
+            <ModalHeader title={title} onClose={onClose} onBack={onBack} />
 
-            <View style={styles.chips}>
-                {options.map(opt => (
-                    <TouchableOpacity
-                        key={opt.id}
-                        style={[styles.chip, opt.selected && styles.chipSelected]}
-                        onPress={() => onToggle(opt.id)}
-                    >
-                        <Text
-                            style={[
-                                styles.chipText,
-                                opt.selected && styles.chipTextSelected,
-                            ]}
-                        >
-                            {opt.name}
-                        </Text>
-                    </TouchableOpacity>
-                ))}
+            <View style={styles.top}>
+                <Text style={styles.headline}>{headline}</Text>
             </View>
 
-            <ModalFooter primaryTitle="Добавить в заказ" onPrimaryPress={onSubmit} />
+            <View style={styles.body}>
+                <ScrollView
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={styles.bodyContent}
+                    keyboardShouldPersistTaps="handled"
+                >
+                    <View style={styles.chips}>
+                        {options.map(opt => (
+                            <TouchableOpacity
+                                key={opt.id}
+                                style={[styles.chip, opt.selected && styles.chipSelected]}
+                                onPress={() => onToggle(opt.id)}
+                                activeOpacity={0.85}
+                            >
+                                <Text style={styles.chipText}>{opt.name}</Text>
+                            </TouchableOpacity>
+                        ))}
+                    </View>
+                </ScrollView>
+            </View>
+
+            <ModalFooter
+                primaryTitle="Добавить в заказ"
+                onPrimaryPress={onSubmit}
+                primaryDisabled={primaryDisabled}
+            />
         </View>
     )
 }
@@ -50,22 +68,49 @@ export default function ChipSelectModal({
 const { colors } = theme
 
 const styles = StyleSheet.create({
-    container: { paddingHorizontal: 20, paddingBottom: 10 },
-    chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 10 },
+    container: {
+        paddingBottom: 0,
+    },
+
+    top: {
+        paddingHorizontal: 15,
+        justifyContent: 'center',
+        marginTop: -5,
+    },
+    headline: {
+        fontSize: 16,
+        color: colors.mainBlack,
+        fontFamily: 'Epilogue-SemiBold',
+        textAlign: 'center',
+        marginBottom: 15,
+    },
+
+    body: {
+        paddingHorizontal: 15,
+        paddingBottom: 20,
+    },
+    bodyContent: {
+        alignItems: 'center',
+    },
+
+    chips: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: 7,
+        justifyContent: 'center',
+    },
     chip: {
         backgroundColor: colors.mainGray,
-        borderRadius: 20,
+        borderRadius: 999,
         paddingVertical: 8,
-        paddingHorizontal: 14,
+        paddingHorizontal: 15,
     },
     chipSelected: {
         backgroundColor: colors.mainPink,
     },
     chipText: {
-        color: colors.mainBlack,
-        fontSize: 14,
-    },
-    chipTextSelected: {
         color: colors.mainWhite,
+        fontSize: 14,
+        fontFamily: 'Epilogue-SemiBold',
     },
 })

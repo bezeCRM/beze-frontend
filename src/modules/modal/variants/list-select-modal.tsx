@@ -18,6 +18,7 @@ export type ListSelectItem = {
     name: string
     price?: number | null
     image?: string | null
+    next?: boolean
 }
 
 export type ListSelectModalProps = BaseModalProps & {
@@ -27,6 +28,7 @@ export type ListSelectModalProps = BaseModalProps & {
     primaryTitle?: string
     searchPlaceholder?: string
     searchConfig?: SearchConfig
+    closeOnSelect?: boolean
 }
 
 const ITEM_HEIGHT = 71
@@ -40,11 +42,11 @@ export default function ListSelectModal({
     primaryTitle = 'Выбрать',
     searchPlaceholder = 'Поиск по названию',
     searchConfig,
+    closeOnSelect = true,
 }: ListSelectModalProps) {
     const [query, setQuery] = useState('')
     const [selectedId, setSelectedId] = useState<string | null>(null)
 
-    // список товаров пуст
     const emptyText = query.trim().length > 0 ? 'Ничего не найдено' : 'Товаров пока нет'
 
     const renderEmpty = () => (
@@ -75,12 +77,16 @@ export default function ListSelectModal({
         return map
     }, [items])
 
+    const pick = (item: ListSelectItem) => {
+        onSelect(item)
+        if (closeOnSelect) onClose?.()
+    }
+
     const handlePrimaryPress = () => {
         if (!selectedId) return
         const selected = itemsById.get(selectedId)
         if (!selected) return
-        onSelect(selected)
-        onClose?.()
+        pick(selected)
     }
 
     useEffect(() => {
@@ -89,7 +95,6 @@ export default function ListSelectModal({
         if (!stillVisible) setSelectedId(null)
     }, [filtered, selectedId])
 
-    // primary кнопка неактивна, если ничего не выбрано
     const primaryDisabled = !selectedId
 
     return (
@@ -116,10 +121,16 @@ export default function ListSelectModal({
                             <TouchableOpacity
                                 style={[
                                     styles.item,
-                                    isSelected && styles.itemSelected,
+                                    isSelected && !item.next && styles.itemSelected,
                                     isLast && styles.itemLast,
                                 ]}
-                                onPress={() => setSelectedId(item.id)}
+                                onPress={() => {
+                                    if (item.next) {
+                                        pick(item)
+                                        return
+                                    }
+                                    setSelectedId(item.id)
+                                }}
                                 activeOpacity={0.7}
                             >
                                 {item.image ? (
@@ -141,6 +152,8 @@ export default function ListSelectModal({
                                         <Text style={styles.price}>{item.price} ₽</Text>
                                     )}
                                 </View>
+
+                                {item.next ? <Text style={styles.chevron}>›</Text> : null}
                             </TouchableOpacity>
                         )
                     }}
@@ -172,25 +185,13 @@ export default function ListSelectModal({
 const { colors } = theme
 
 const styles = StyleSheet.create({
-    container: {
-        paddingBottom: 0,
-    },
+    container: { paddingBottom: 0 },
 
-    searchWrap: {
-        paddingHorizontal: 15,
-        paddingBottom: 0,
-    },
+    searchWrap: { paddingHorizontal: 15, paddingBottom: 0 },
 
-    listWrap: {
-        height: ITEM_HEIGHT * 3,
-        marginBottom: 12,
-    },
-    list: {
-        flex: 1,
-    },
-    listContent: {
-        paddingVertical: 0,
-    },
+    listWrap: { height: ITEM_HEIGHT * 3, marginBottom: 12 },
+    list: { flex: 1 },
+    listContent: { paddingVertical: 0 },
 
     item: {
         height: ITEM_HEIGHT,
@@ -198,12 +199,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingHorizontal: 15,
     },
-    itemLast: {
-        borderBottomWidth: 0,
-    },
-    itemSelected: {
-        backgroundColor: 'rgba(255, 209, 232, 1)',
-    },
+    itemLast: { borderBottomWidth: 0 },
+    itemSelected: { backgroundColor: 'rgba(255, 209, 232, 1)' },
 
     thumb: {
         width: THUMB_SIZE,
@@ -216,10 +213,7 @@ const styles = StyleSheet.create({
         opacity: 0.6,
     },
 
-    itemText: {
-        flex: 1,
-        gap: 4,
-    },
+    itemText: { flex: 1, gap: 4 },
     name: {
         fontSize: 16,
         color: colors.mainBlack,
@@ -233,22 +227,18 @@ const styles = StyleSheet.create({
     },
 
     chevron: {
-        fontSize: 24,
-        lineHeight: 24,
+        fontSize: 26,
+        lineHeight: 26,
         color: colors.mainGray,
         marginLeft: 10,
+        marginTop: -2,
     },
+
     listContentEmpty: {
         flexGrow: 1,
         justifyContent: 'center',
         alignItems: 'center',
     },
-    emptyWrap: {
-        alignItems: 'center',
-        paddingHorizontal: 20,
-    },
-    emptyTitle: {
-        fontSize: 16,
-        color: colors.mainGray,
-    },
+    emptyWrap: { alignItems: 'center', paddingHorizontal: 20 },
+    emptyTitle: { fontSize: 16, color: colors.mainGray },
 })

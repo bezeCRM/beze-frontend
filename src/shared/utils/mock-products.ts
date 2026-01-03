@@ -9,6 +9,10 @@ export const mockProducts: Product[] = [
         fillings: [
             { id: 'f1', name: 'Клубника' },
             { id: 'f2', name: 'Вишня' },
+            { id: 'f3', name: 'Малина' },
+            { id: 'f4', name: 'Смородина' },
+            { id: 'f5', name: 'Манго' },
+            { id: 'f6', name: 'Манго-маракуйя' },
         ],
         ingredients: [
             { id: 'i1', name: 'Мука', weightGrams: '250' },

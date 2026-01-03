@@ -46,6 +46,7 @@ export default function ProductsFilters() {
             onSelect={handleSelect}
             onAddCategory={openAddCategoryModal}
             showAllButton
+            screenTitle="товары"
         />
     )
 }

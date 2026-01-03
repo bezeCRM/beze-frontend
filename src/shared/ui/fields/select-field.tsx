@@ -24,6 +24,7 @@ type Props = {
     onSelect?: (opt: Category) => void
     placeholder?: string
     error?: boolean
+    addCategoryEnabled?: boolean
 }
 
 export default function SelectField({
@@ -33,6 +34,7 @@ export default function SelectField({
     onSelect,
     placeholder = 'Выберите категорию',
     error,
+    addCategoryEnabled = true,
 }: Props) {
     const { height: screenH } = useWindowDimensions()
     const [openSelect, setOpenSelect] = useState(false)
@@ -84,16 +86,38 @@ export default function SelectField({
         })
     }
 
+    const MAX_DROPDOWN_H = 260
+    const OPTION_H = 40
+    const SEP_H = StyleSheet.hairlineWidth
+
     const dropdownPos = useMemo(() => {
-        if (!anchor) return { top: 0, left: 0, width: 0, openUp: false }
+        if (!anchor) return { top: 0, left: 0, width: 0 }
+
+        const count = options.length
+        const hasAdd = addCategoryEnabled
+
+        // высота контента:
+        // - опции: count * 40
+        // - разделители внутри FlatList: (count-1) * hairline
+        // - кнопка "Добавить категорию": 40 (если включена)
+        // - разделитель после кнопки: hairline (если есть кнопка и есть хотя бы 1 опция)
+        const listH = count * OPTION_H
+        const listSeps = Math.max(0, count - 1) * SEP_H
+        const addH = hasAdd ? OPTION_H : 0
+        const addSepH = hasAdd && count > 0 ? SEP_H : 0
+
+        const desiredH = Math.min(MAX_DROPDOWN_H, listH + listSeps + addH + addSepH)
+
         const spaceBelow = screenH - (anchor.y + anchor.height)
-        const desiredH = Math.min(260, options.length * 48 + 8)
         const openUp = spaceBelow < desiredH
+
         const top = openUp
             ? Math.max(8, anchor.y - desiredH - 8)
             : anchor.y + anchor.height + 4
-        return { top, left: anchor.x, width: anchor.width, openUp }
-    }, [anchor, screenH, options.length])
+
+        return { top, left: anchor.x, width: anchor.width }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [anchor, screenH, options.length, addCategoryEnabled])
 
     return (
         <SectionCard title={label}>
@@ -136,19 +160,29 @@ export default function SelectField({
                             ]}
                         >
                             {/* кнопка "Добавить категорию" */}
-                            <Pressable
-                                onPress={handleAddCategory}
-                                style={({ pressed }) => [
-                                    styles.option,
-                                    pressed && { backgroundColor: '#f5f5f5' },
-                                ]}
-                            >
-                                <Text style={[styles.optionText, styles.addCategoryText]}>
-                                    Добавить категорию
-                                </Text>
-                            </Pressable>
+                            {addCategoryEnabled && (
+                                <Pressable
+                                    onPress={handleAddCategory}
+                                    style={({ pressed }) => [
+                                        styles.option,
+                                        pressed && { backgroundColor: '#f5f5f5' },
+                                    ]}
+                                >
+                                    <Text
+                                        style={[
+                                            styles.optionText,
+                                            styles.addCategoryText,
+                                        ]}
+                                    >
+                                        Добавить категорию
+                                    </Text>
+                                </Pressable>
+                            )}
 
-                            <View style={styles.sep} />
+                            {/* разделитель должен быть только если есть кнопка и есть список */}
+                            {addCategoryEnabled && options.length > 0 && (
+                                <View style={styles.sep} />
+                            )}
 
                             {/* список категорий */}
                             <FlatList

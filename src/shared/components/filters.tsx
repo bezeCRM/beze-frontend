@@ -10,6 +10,7 @@ type FiltersProps = {
     onSelect: (item: Category) => void
     onAddCategory?: () => void
     showAllButton?: boolean
+    screenTitle: 'товары' | 'заказы'
 }
 type AddItem = { id: '__add__'; name: string }
 type AllItem = { id: 'all'; name: string }
@@ -21,10 +22,11 @@ export default function Filters({
     onSelect,
     onAddCategory,
     showAllButton = false,
+    screenTitle,
 }: FiltersProps) {
     let data: FilterListItem[] = [...items]
 
-    if (showAllButton) data = [{ id: 'all', name: 'Все товары' }, ...data]
+    if (showAllButton) data = [{ id: 'all', name: `Все ${screenTitle}` }, ...data]
     if (onAddCategory) data = [...data, { id: '__add__', name: 'Добавить категорию' }]
 
     const { listRef, onContentSizeChange, scrollToItem } = useAutoScroll<FilterListItem>({
@@ -76,7 +78,7 @@ export default function Filters({
                             style={[styles.chip, isActive && styles.chipActive]}
                             onPress={() => {
                                 if (item.id === 'all') {
-                                    onSelect({ id: 'all', name: 'Все товары' })
+                                    onSelect({ id: 'all', name: `Все ${screenTitle}` })
                                 } else {
                                     onSelect(item)
                                 }

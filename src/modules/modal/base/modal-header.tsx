@@ -1,16 +1,25 @@
 import React from 'react'
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import CloseIcon from '@/assets/images/close-icon.svg'
+import BackIcon from '@/assets/images/modal-back-icon.svg'
 import { theme } from '@/shared/theme'
 
 type Props = {
     title: string
     onClose?: () => void
+    onBack?: () => void
 }
 
-export default function ModalHeader({ title, onClose }: Props) {
+export default function ModalHeader({ title, onClose, onBack }: Props) {
     return (
         <View style={styles.container}>
+            {onBack ? (
+                <TouchableOpacity onPress={onBack} style={styles.backBtn}>
+                    <BackIcon width={24} height={24} />
+                </TouchableOpacity>
+            ) : (
+                <View style={styles.backBtn} />
+            )}
             <Text style={styles.title}>{title}</Text>
             <TouchableOpacity
                 onPress={onClose}
@@ -26,8 +35,16 @@ export default function ModalHeader({ title, onClose }: Props) {
 const { colors } = theme
 
 const styles = StyleSheet.create({
+    backBtn: {
+        position: 'absolute',
+        left: 10,
+        top: 12,
+        width: 24,
+        height: 24,
+        marginRight: 10,
+    },
     container: {
-        paddingHorizontal: 20,
+        paddingHorizontal: 10,
         paddingTop: 6,
         paddingBottom: 12,
         alignItems: 'center',
@@ -37,10 +54,9 @@ const styles = StyleSheet.create({
         height: 50,
     },
     title: {
-        fontSize: 16,
+        fontSize: 14,
         fontFamily: 'Epilogue-Regular',
         color: colors.mainBlack,
-        marginTop: 2,
     },
     closeBtn: {
         position: 'absolute',
