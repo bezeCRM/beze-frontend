@@ -22,7 +22,6 @@ export type ProductsStackParamList = {
     ProductEdit: { productId: string }
 }
 
-
 const Stack = createStackNavigator<ProductsStackParamList>()
 
 export default function ProductsStack() {

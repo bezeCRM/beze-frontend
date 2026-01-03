@@ -25,7 +25,10 @@ export default function ScreenContainer({
                 <SafeAreaView style={[styles.container, style]} edges={edges}>
                     <ScrollView
                         showsVerticalScrollIndicator={false}
-                        contentContainerStyle={[styles.scrollContent, contentContainerStyle]}
+                        contentContainerStyle={[
+                            styles.scrollContent,
+                            contentContainerStyle,
+                        ]}
                     >
                         {children}
                     </ScrollView>

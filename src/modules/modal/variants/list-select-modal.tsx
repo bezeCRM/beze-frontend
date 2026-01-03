@@ -123,9 +123,14 @@ export default function ListSelectModal({
                                 activeOpacity={0.7}
                             >
                                 {item.image ? (
-                                    <Image source={{ uri: item.image }} style={styles.thumb} />
+                                    <Image
+                                        source={{ uri: item.image }}
+                                        style={styles.thumb}
+                                    />
                                 ) : (
-                                    <View style={[styles.thumb, styles.thumbPlaceholder]} />
+                                    <View
+                                        style={[styles.thumb, styles.thumbPlaceholder]}
+                                    />
                                 )}
 
                                 <View style={styles.itemText}>

@@ -61,13 +61,14 @@ export default function ProductInfoScreen() {
             const unsub = navigation.addListener('transitionEnd', () => {
                 unsub()
                 removeProduct(deletedId)
-                show(`Товар "${deletedName}" удален`, 'success', { scope: 'productsList' })
+                show(`Товар "${deletedName}" удален`, 'success', {
+                    scope: 'productsList',
+                })
             })
 
             navigation.goBack()
         })
     }
-
 
     const deleteMessage = `Вы уверены, что хотите удалить товар "${product.name}"?`
 

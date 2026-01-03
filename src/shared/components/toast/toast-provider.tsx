@@ -229,7 +229,6 @@ export function ToastViewport({
     )
 }
 
-
 const { colors } = theme
 const styles = StyleSheet.create({
     stack: { gap: 8 },
