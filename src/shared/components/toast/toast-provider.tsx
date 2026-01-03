@@ -188,9 +188,11 @@ function ToastCard({ item, onDismiss }: { item: ToastItem; onDismiss: () => void
 export function ToastViewport({
     scope,
     bottomOffset = 90,
+    horizontalInset = 0,
 }: {
     scope: string
     bottomOffset?: number
+    horizontalInset?: number
 }) {
     const { items, dismiss, clearScope } = useToast()
     const { bottom } = useSafeAreaInsets()
@@ -207,7 +209,11 @@ export function ToastViewport({
             pointerEvents="box-none"
             style={[
                 StyleSheet.absoluteFill,
-                { justifyContent: 'flex-end', paddingBottom: bottom + bottomOffset },
+                {
+                    justifyContent: 'flex-end',
+                    paddingBottom: bottom + bottomOffset,
+                    paddingHorizontal: horizontalInset,
+                },
             ]}
         >
             <View pointerEvents="box-none" style={styles.stack}>
@@ -222,6 +228,7 @@ export function ToastViewport({
         </View>
     )
 }
+
 
 const { colors } = theme
 const styles = StyleSheet.create({

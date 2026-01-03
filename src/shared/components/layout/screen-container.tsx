@@ -2,6 +2,7 @@ import { theme } from '@/shared/theme'
 import React from 'react'
 import { ScrollView, StyleSheet, View, ViewStyle } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import DismissKeyboard from '../keyboard/dismiss-keyboard'
 
 type ScreenContainerProps = {
     children: React.ReactNode
@@ -20,14 +21,16 @@ export default function ScreenContainer({
 }: ScreenContainerProps) {
     if (scrollable) {
         return (
-            <SafeAreaView style={[styles.container, style]} edges={edges}>
-                <ScrollView
-                    showsVerticalScrollIndicator={false}
-                    contentContainerStyle={[styles.scrollContent, contentContainerStyle]}
-                >
-                    {children}
-                </ScrollView>
-            </SafeAreaView>
+            <DismissKeyboard>
+                <SafeAreaView style={[styles.container, style]} edges={edges}>
+                    <ScrollView
+                        showsVerticalScrollIndicator={false}
+                        contentContainerStyle={[styles.scrollContent, contentContainerStyle]}
+                    >
+                        {children}
+                    </ScrollView>
+                </SafeAreaView>
+            </DismissKeyboard>
         )
     }
 

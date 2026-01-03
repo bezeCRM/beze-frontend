@@ -1,13 +1,21 @@
+import type { RouteProp } from '@react-navigation/native'
 import { useNavigation, useRoute } from '@react-navigation/native'
+import type { StackNavigationProp } from '@react-navigation/stack'
 import { useCallback, useMemo } from 'react'
 import { StyleSheet, TextInput, View } from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
+import type { ProductsStackParamList } from '@/core/navigation/products-stack'
+
 import {
     InternalHeaderTitle,
     InternalHeaderTopBar,
-} from '@/shared/components/internal-header'
+} from '@/shared/components/headers/internal-header'
+import ScreenContainer from '@/shared/components/layout/screen-container'
+import { makeOnInvalidToast } from '@/shared/components/toast/make-on-invalid-toast'
+import { ToastViewport, useToast } from '@/shared/components/toast/toast-provider'
+
 import Button from '@/shared/ui/button/button'
 import SelectField from '@/shared/ui/fields/select-field'
 import TextareaField from '@/shared/ui/fields/textarea-field'
@@ -18,36 +26,29 @@ import FillingsEditor from '@/modules/products/components/create&edit/fillings-e
 import IngredientsEditor from '@/modules/products/components/create&edit/ingredients-editor'
 import PhotoesPicker from '@/modules/products/components/create&edit/photoes-picker'
 
-import ScreenContainer from '@/shared/components/screen-container'
-import { makeOnInvalidToast } from '@/shared/components/toast/make-on-invalid-toast'
-import { ToastViewport, useToast } from '@/shared/components/toast/toast-provider'
+import { pickImagesFromLibrary } from '@/shared/components/media'
 import { useCategoryStore } from '@/shared/store/categories.store'
-import { NewProductInput, useProductsStore } from '@/shared/store/products.store'
+import type { NewProductInput } from '@/shared/store/products.store'
+import { useProductsStore } from '@/shared/store/products.store'
 import { theme } from '@/shared/theme'
+
+import { useCopyIngredientsFromProduct } from '../hooks/useCopyIngredientsFromProduct'
 import {
-    ProductCreateFormValues,
+    type ProductCreateFormValues,
     useProductCreateForm,
 } from '../hooks/useProductCreateForm'
 
-import { pickImagesFromLibrary } from '@/shared/components/media'
-import { useCopyIngredientsFromProduct } from '../hooks/useCopyIngredientsFromProduct'
-import { Route } from '@/shared/types/types'
-
 const MAX_PHOTOES = 3
+const PRODUCTS_LIST_TOAST_SCOPE = 'productsList'
+
+type Navigation = StackNavigationProp<ProductsStackParamList, 'ProductCreate'>
+type Route = RouteProp<ProductsStackParamList, 'ProductCreate'>
 
 export default function ProductCreateScreen() {
     const { bottom } = useSafeAreaInsets()
-    const navigation = useNavigation()
+    const navigation = useNavigation<Navigation>()
     const route = useRoute<Route>()
     const { show } = useToast()
-
-    //копирование рецептов из другого товара
-    const { openCopyIngredients, copyIngredientsModal } = useCopyIngredientsFromProduct({
-        onApply: copied =>
-            setValue('ingredients', copied, { shouldValidate: true, shouldDirty: true }),
-        onAfterApply: () =>
-            show('Ингредиенты скопированы', 'success', { scope: route.key }),
-    })
 
     const {
         handleSubmit,
@@ -66,6 +67,14 @@ export default function ProductCreateScreen() {
         addPhotoes,
         removePhoto,
     } = useProductCreateForm()
+
+    // копирование ингредиентов из другого товара
+    const { openCopyIngredients, copyIngredientsModal } = useCopyIngredientsFromProduct({
+        onApply: copied =>
+            setValue('ingredients', copied, { shouldValidate: true, shouldDirty: true }),
+        onAfterApply: () =>
+            show('Ингредиенты скопированы', 'success', { scope: route.key }),
+    })
 
     const name = watch('name')
     const category = watch('category')
@@ -110,8 +119,10 @@ export default function ProductCreateScreen() {
             .filter(p => !!p?.uri)
             .slice(0, MAX_PHOTOES)
 
+        const createdName = values.name.trim()
+
         const newProduct: NewProductInput = {
-            name: values.name.trim(),
+            name: createdName,
             price: priceNum,
             unit: values.unit,
             ...(values.category ? { category: values.category } : {}),
@@ -122,6 +133,15 @@ export default function ProductCreateScreen() {
         }
 
         addProduct(newProduct)
+
+        // показываем тост после завершения анимации закрытия экрана
+        const unsub = navigation.addListener('transitionEnd', () => {
+            unsub()
+            show(`Товар "${createdName}" добавлен`, 'success', {
+                scope: PRODUCTS_LIST_TOAST_SCOPE,
+            })
+        })
+
         navigation.goBack()
     }
 
@@ -163,8 +183,7 @@ export default function ProductCreateScreen() {
                     enableOnAndroid
                     keyboardShouldPersistTaps="handled"
                     showsVerticalScrollIndicator={false}
-                    enableAutomaticScroll={true}
-                    scrollEnabled={true}
+                    enableAutomaticScroll
                     extraScrollHeight={80}
                     extraHeight={80}
                     enableResetScrollToCoords={false}

@@ -5,12 +5,23 @@ import ProductCreateScreen from '@/modules/products/screens/product-create.scree
 import ProductInfoScreen from '@/modules/products/screens/product-info.screen'
 import ProductEditScreen from '@/modules/products/screens/product-edit.screen'
 
+export type ToastNavPayload = {
+    message: string
+    variant?: 'error' | 'info' | 'success'
+}
+
+export type ProductsListParams = {
+    toast?: ToastNavPayload
+    deletedProduct?: { id: string; name: string }
+}
+
 export type ProductsStackParamList = {
-    ProductsList: undefined
+    ProductsList: ProductsListParams | undefined
     ProductCreate: undefined
     ProductInfo: { productId: string }
     ProductEdit: { productId: string }
 }
+
 
 const Stack = createStackNavigator<ProductsStackParamList>()
 

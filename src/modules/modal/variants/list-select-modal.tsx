@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native'
 
 import ModalHeader from '@/modules/modal/base/modal-header'
@@ -44,6 +44,15 @@ export default function ListSelectModal({
     const [query, setQuery] = useState('')
     const [selectedId, setSelectedId] = useState<string | null>(null)
 
+    // список товаров пуст
+    const emptyText = query.trim().length > 0 ? 'Ничего не найдено' : 'Товаров пока нет'
+
+    const renderEmpty = () => (
+        <View style={styles.emptyWrap}>
+            <Text style={styles.emptyTitle}>{emptyText}</Text>
+        </View>
+    )
+
     const engine = useMemo(() => {
         return buildSearchEngine(items, {
             getId: i => i.id,
@@ -73,6 +82,15 @@ export default function ListSelectModal({
         onSelect(selected)
         onClose?.()
     }
+
+    useEffect(() => {
+        if (!selectedId) return
+        const stillVisible = filtered.some(i => i.id === selectedId)
+        if (!stillVisible) setSelectedId(null)
+    }, [filtered, selectedId])
+
+    // primary кнопка неактивна, если ничего не выбрано
+    const primaryDisabled = !selectedId
 
     return (
         <View style={styles.container}>
@@ -105,14 +123,9 @@ export default function ListSelectModal({
                                 activeOpacity={0.7}
                             >
                                 {item.image ? (
-                                    <Image
-                                        source={{ uri: item.image }}
-                                        style={styles.thumb}
-                                    />
+                                    <Image source={{ uri: item.image }} style={styles.thumb} />
                                 ) : (
-                                    <View
-                                        style={[styles.thumb, styles.thumbPlaceholder]}
-                                    />
+                                    <View style={[styles.thumb, styles.thumbPlaceholder]} />
                                 )}
 
                                 <View style={styles.itemText}>
@@ -127,7 +140,11 @@ export default function ListSelectModal({
                         )
                     }}
                     style={styles.list}
-                    contentContainerStyle={styles.listContent}
+                    contentContainerStyle={[
+                        styles.listContent,
+                        filtered.length === 0 && styles.listContentEmpty,
+                    ]}
+                    ListEmptyComponent={renderEmpty}
                     keyboardShouldPersistTaps="handled"
                     showsVerticalScrollIndicator={false}
                     getItemLayout={(_, index) => ({
@@ -141,6 +158,7 @@ export default function ListSelectModal({
             <ModalFooter
                 primaryTitle={primaryTitle}
                 onPrimaryPress={handlePrimaryPress}
+                primaryDisabled={primaryDisabled}
             />
         </View>
     )
@@ -214,5 +232,18 @@ const styles = StyleSheet.create({
         lineHeight: 24,
         color: colors.mainGray,
         marginLeft: 10,
+    },
+    listContentEmpty: {
+        flexGrow: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    emptyWrap: {
+        alignItems: 'center',
+        paddingHorizontal: 20,
+    },
+    emptyTitle: {
+        fontSize: 16,
+        color: colors.mainGray,
     },
 })

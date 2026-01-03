@@ -1,21 +1,22 @@
-import MainHeader from '@/shared/components/main-header'
-import ScreenContainer from '@/shared/components/screen-container'
+import MainHeader from '@/shared/components/headers/main-header'
+import ScreenContainer from '@/shared/components/layout/screen-container'
 import Search from '@/shared/components/search/search'
+import { ToastViewport } from '@/shared/components/toast/toast-provider'
 import { useCategoryStore } from '@/shared/store/categories.store'
+import { useSearchHistoryStore } from '@/shared/store/searchHistory.store'
 import { useState } from 'react'
 import ProductsFilters from '../components/list/products-filters'
 import ProductsHeader from '../components/list/products-header'
 import ProductsList from '../components/list/products-list'
 import { useProductsSearch } from '../hooks/useProductsSearch'
-import { useSearchHistoryStore } from '@/shared/store/searchHistory.store'
+
+const PRODUCTS_LIST_TOAST_SCOPE = 'productsList'
 
 export default function ProductsListScreen() {
     const [query, setQuery] = useState('')
 
     const activeCategoryId = useCategoryStore(s => s.activeCategoryId)
-
     const results = useProductsSearch({ query, activeCategoryId })
-
     const addQuery = useSearchHistoryStore(s => s.addQuery)
 
     return (
@@ -31,8 +32,13 @@ export default function ProductsListScreen() {
             />
 
             <ProductsFilters />
-
             <ProductsList items={results} />
+
+            <ToastViewport
+                scope={PRODUCTS_LIST_TOAST_SCOPE}
+                bottomOffset={75}
+                horizontalInset={15}
+            />
         </ScreenContainer>
     )
 }

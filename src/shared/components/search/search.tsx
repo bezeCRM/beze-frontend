@@ -1,5 +1,15 @@
-import { View, TextInput, StyleSheet, TextInputProps } from 'react-native'
+import { useCallback, useRef, useMemo } from 'react'
+import {
+    View,
+    TextInput,
+    StyleSheet,
+    TextInputProps,
+    TouchableOpacity,
+    Keyboard,
+} from 'react-native'
 import SearchIcon from '@/assets/images/search.svg'
+import SearchBlueIcon from '@/assets/images/search-blue.svg'
+import ClearSearchIcon from '@/assets/images/clear-search-icon.svg'
 import { theme } from '@/shared/theme'
 
 type Props = {
@@ -18,43 +28,92 @@ export default function Search({
     onSubmit,
     ...rest
 }: Props) {
+    const inputRef = useRef<TextInput>(null)
+
+    const trimmed = value.trim()
+    const canSubmit = trimmed.length > 0
+
+    const blurAndDismiss = useCallback(() => {
+        inputRef.current?.blur()
+        Keyboard.dismiss()
+    }, [])
+
+    const handleClear = useCallback(() => {
+        onChangeText('')
+        blurAndDismiss()
+    }, [onChangeText, blurAndDismiss])
+
+    const handleSubmit = useCallback(() => {
+        if (!canSubmit) return
+        onSubmit?.()
+        blurAndDismiss()
+    }, [canSubmit, onSubmit, blurAndDismiss])
+
+    const LeftIcon = useMemo(() => (canSubmit ? SearchBlueIcon : SearchIcon), [canSubmit])
+
     return (
         <View style={styles.container}>
-            <SearchIcon width={16} height={16} />
+            <TouchableOpacity
+                onPress={handleSubmit}
+                disabled={!canSubmit}
+                activeOpacity={0.7}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                style={styles.leftBtn}
+            >
+                <LeftIcon width={16} height={16} />
+            </TouchableOpacity>
+
             <TextInput
-                style={styles.input}
+                ref={inputRef}
                 value={value}
                 onChangeText={onChangeText}
                 placeholder={placeholder}
                 placeholderTextColor={theme.colors.mainGray}
                 editable={editable}
                 returnKeyType="search"
-                onSubmitEditing={onSubmit}
+                onSubmitEditing={handleSubmit}
+                style={styles.input}
                 {...rest}
             />
+
+            <TouchableOpacity
+                onPress={handleClear}
+                activeOpacity={0.7}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                style={styles.clearBtn}
+            >
+                <ClearSearchIcon width={12} height={12} />
+            </TouchableOpacity>
         </View>
     )
 }
 
 const styles = StyleSheet.create({
     container: {
+        height: 40,
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: theme.colors.mainWhite,
-        borderRadius: 99,
-        paddingHorizontal: 12,
-        height: 40,
+        borderRadius: 999,
+        paddingHorizontal: 14,
         marginBottom: 12,
         borderColor: theme.colors.lineGray,
         borderWidth: 1,
     },
+    leftBtn: {
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
     input: {
         flex: 1,
-        marginLeft: 10,
+        height: '100%',
         fontSize: 14,
-        lineHeight: 14,
-        paddingTop: 2,
+        marginHorizontal: 10,
         fontFamily: 'Epilogue-Regular',
         color: theme.colors.mainBlack,
+    },
+    clearBtn: {
+        justifyContent: 'center',
+        alignItems: 'center',
     },
 })

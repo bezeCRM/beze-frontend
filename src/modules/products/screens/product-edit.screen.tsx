@@ -7,8 +7,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
     InternalHeaderTitle,
     InternalHeaderTopBar,
-} from '@/shared/components/internal-header'
-import ScreenContainer from '@/shared/components/screen-container'
+} from '@/shared/components/headers/internal-header'
+import ScreenContainer from '@/shared/components/layout/screen-container'
 import { makeOnInvalidToast } from '@/shared/components/toast/make-on-invalid-toast'
 import { ToastViewport, useToast } from '@/shared/components/toast/toast-provider'
 
@@ -26,10 +26,10 @@ import { pickImagesFromLibrary } from '@/shared/components/media'
 import { useCategoryStore } from '@/shared/store/categories.store'
 import { useProductsStore } from '@/shared/store/products.store'
 import { theme } from '@/shared/theme'
+import type { Navigation, Route } from '@/shared/types/types'
 import { useCopyIngredientsFromProduct } from '../hooks/useCopyIngredientsFromProduct'
 import type { ProductCreateFormValues } from '../hooks/useProductCreateForm'
 import { useProductEditForm } from '../hooks/useProductEditForm'
-import type { Route, Navigation } from '@/shared/types/types'
 
 const MAX_PHOTOES = 3
 

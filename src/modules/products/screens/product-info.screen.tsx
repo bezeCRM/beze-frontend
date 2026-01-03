@@ -7,9 +7,9 @@ import type { ProductsStackParamList } from '@/core/navigation/products-stack'
 import {
     InternalHeaderTitle,
     InternalHeaderTopBar,
-} from '@/shared/components/internal-header'
-import ScreenContainer from '@/shared/components/screen-container'
-import { ToastViewport } from '@/shared/components/toast/toast-provider'
+} from '@/shared/components/headers/internal-header'
+import ScreenContainer from '@/shared/components/layout/screen-container'
+import { ToastViewport, useToast } from '@/shared/components/toast/toast-provider'
 import { useProductsStore } from '@/shared/store/products.store'
 import type { RouteProp } from '@react-navigation/native'
 import type { StackNavigationProp } from '@react-navigation/stack'
@@ -37,6 +37,8 @@ export default function ProductInfoScreen() {
     const product = useProductsStore(s => s.getById(productId))
     const removeProduct = useProductsStore(s => s.removeProduct)
 
+    // удаление товара
+    const { show } = useToast()
     const [deleteVisible, setDeleteVisible] = useState(false)
 
     useEffect(() => {
@@ -50,10 +52,22 @@ export default function ProductInfoScreen() {
     const closeDelete = () => setDeleteVisible(false)
 
     const confirmDelete = () => {
-        closeDelete()
-        removeProduct(product.id)
-        navigation.goBack()
+        const deletedId = product.id
+        const deletedName = product.name
+
+        setDeleteVisible(false)
+
+        requestAnimationFrame(() => {
+            const unsub = navigation.addListener('transitionEnd', () => {
+                unsub()
+                removeProduct(deletedId)
+                show(`Товар "${deletedName}" удален`, 'success', { scope: 'productsList' })
+            })
+
+            navigation.goBack()
+        })
     }
+
 
     const deleteMessage = `Вы уверены, что хотите удалить товар "${product.name}"?`
 
@@ -99,7 +113,7 @@ export default function ProductInfoScreen() {
                     />
                 </BaseModal>
 
-                <ToastViewport scope={route.key} bottomOffset={75} />
+                <ToastViewport scope={route.key} bottomOffset={75} horizontalInset={15} />
             </View>
         </ScreenContainer>
     )
