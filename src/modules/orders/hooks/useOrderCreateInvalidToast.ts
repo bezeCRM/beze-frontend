@@ -14,7 +14,6 @@ const LABELS = {
     deliveryDate: 'Дата доставки',
     deliveryTime: 'Время доставки',
     deliveryAddress: 'Адрес доставки',
-    clientPhone: 'Номер телефона клиента',
 } as const
 
 function getMessage(errors: FieldErrors<OrderCreateFormValues>) {
@@ -42,8 +41,6 @@ function getMessage(errors: FieldErrors<OrderCreateFormValues>) {
         if (addrMsg === 'обязательное поле') missing.push(LABELS.deliveryAddress)
         else invalid.push(LABELS.deliveryAddress)
     }
-
-    if (errors.clientPhone) invalid.push(LABELS.clientPhone)
 
     if (missing.length && invalid.length) {
         return `Не заполнены следующие поля: ${missing.join(', ')}. Проверьте: ${invalid.join(

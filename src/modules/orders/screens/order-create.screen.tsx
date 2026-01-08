@@ -248,10 +248,18 @@ export default function OrderCreateScreen() {
                             urgency={extra?.urgency ?? '0'}
                             other={extra?.other ?? '0'}
                             discount={extra?.discount ?? '0'}
-                            onChangeDelivery={t => setValue('extra.delivery', t)}
-                            onChangeUrgency={t => setValue('extra.urgency', t)}
-                            onChangeOther={t => setValue('extra.other', t)}
-                            onChangeDiscount={t => setValue('extra.discount', t)}
+                            onChangeDelivery={t =>
+                                setValue('extra.delivery', t, { shouldDirty: true })
+                            }
+                            onChangeUrgency={t =>
+                                setValue('extra.urgency', t, { shouldDirty: true })
+                            }
+                            onChangeOther={t =>
+                                setValue('extra.other', t, { shouldDirty: true })
+                            }
+                            onChangeDiscount={t =>
+                                setValue('extra.discount', t, { shouldDirty: true })
+                            }
                         />
 
                         <TextareaField
@@ -338,8 +346,12 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        marginTop: 2,
-        paddingHorizontal: 2,
+        paddingRight: 15,
+        paddingLeft: 18,
+        backgroundColor: theme.colors.mainWhite,
+        paddingVertical: 11,
+        borderRadius: 25,
+        marginBottom: 5,
     },
     plannerLabel: {
         fontSize: 14,
@@ -351,16 +363,16 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        marginTop: 4,
-        paddingHorizontal: 2,
+        paddingHorizontal: 3,
+        marginBottom: 7,
     },
     totalLabel: {
-        fontSize: 14,
+        fontSize: 16,
         color: theme.colors.mainBlack,
-        fontFamily: 'Epilogue-Regular',
+        fontFamily: 'Epilogue-SemiBold',
     },
     totalValue: {
-        fontSize: 14,
+        fontSize: 16,
         color: theme.colors.mainBlack,
         fontFamily: 'Epilogue-SemiBold',
     },

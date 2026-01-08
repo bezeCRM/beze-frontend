@@ -134,7 +134,7 @@ export default function OrderDeliverySection({
                         value={date}
                         onChangeText={handleDateChange}
                         onBlur={() => onChangeDate(normalizeDate(date))}
-                        placeholder="DD.MM.YY"
+                        placeholder="ДД.MM.ГГ"
                         placeholderTextColor={theme.colors.mainGray}
                         style={[
                             styles.input,
@@ -155,7 +155,7 @@ export default function OrderDeliverySection({
                         value={time}
                         onChangeText={handleTimeChange}
                         onBlur={() => onChangeTime(normalizeTime(time))}
-                        placeholder="HH:MM"
+                        placeholder="ЧЧ:MM"
                         placeholderTextColor={theme.colors.mainGray}
                         style={[
                             styles.input,
@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
     rowTop: {
         flexDirection: 'row',
         alignItems: 'center',
-        columnGap: 20,
+        columnGap: 15,
         marginBottom: 10,
     },
     pickupLabel: {

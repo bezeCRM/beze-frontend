@@ -86,7 +86,7 @@ const styles = StyleSheet.create({
     delete: {
         position: 'absolute',
         top: -4,
-        left: -4,
+        right: -4,
         width: DELETE_SIZE,
         height: DELETE_SIZE,
         borderRadius: 99,

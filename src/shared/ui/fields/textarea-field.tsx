@@ -25,7 +25,7 @@ const styles = StyleSheet.create({
         height: 100,
         lineHeight: 16.8,
         paddingHorizontal: 15,
-        paddingVertical: 15,
+        paddingVertical: 10,
         borderWidth: 1,
         borderColor: theme.colors.lineGray,
         fontSize: 14,

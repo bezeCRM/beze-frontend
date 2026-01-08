@@ -34,19 +34,6 @@ function makeId() {
     return `${Date.now()}-${Math.random().toString(16).slice(2)}`
 }
 
-function normalizePhone(raw: string) {
-    return (raw ?? '').replace(/[^\d+]/g, '')
-}
-
-function isValidPhone(raw: string) {
-    const v = normalizePhone(raw)
-    if (!v) return true
-    const digits = v.replace(/[^\d]/g, '')
-    if (digits.length < 10) return false
-    if (digits.length > 12) return false
-    return true
-}
-
 function isValidDateString(value: string) {
     const v = (value ?? '').trim()
     if (!/^\d{2}\.\d{2}\.\d{2}$/.test(v)) return false
@@ -110,14 +97,6 @@ const FormSchema = z
         inPlanner: z.boolean(),
     })
     .superRefine((data, ctx) => {
-        if (!isValidPhone(data.clientPhone ?? '')) {
-            ctx.addIssue({
-                code: 'custom',
-                path: ['clientPhone'],
-                message: 'некорректный номер',
-            })
-        }
-
         const date = data.delivery.date?.trim() ?? ''
         if (!date || date.length < 8) {
             ctx.addIssue({

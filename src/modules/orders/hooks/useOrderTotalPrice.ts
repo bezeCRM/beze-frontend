@@ -9,7 +9,24 @@ function parseNumber(text: string) {
     return Number.isFinite(n) ? n : 0
 }
 
-export function useOrderTotalPrice(items: OrderCreateItem[], extra: any) {
+export function useOrderTotalPrice(
+    items: OrderCreateItem[],
+    extra:
+        | {
+              delivery?: string
+              urgency?: string
+              urgent?: string
+              other?: string
+              discount?: string
+          }
+        | null
+        | undefined,
+) {
+    const delivery = extra?.delivery ?? '0'
+    const urgency = (extra?.urgency ?? extra?.urgent ?? '0') as string
+    const other = extra?.other ?? '0'
+    const discount = extra?.discount ?? '0'
+
     return useMemo(() => {
         const itemsTotal = items.reduce((sum, it) => {
             const unit = it.product?.unit
@@ -23,12 +40,12 @@ export function useOrderTotalPrice(items: OrderCreateItem[], extra: any) {
         const decorTotal = items.reduce((sum, it) => sum + parseNumber(it.decorPrice), 0)
 
         const extraTotal =
-            parseNumber(extra?.delivery) +
-            parseNumber(extra?.urgent) +
-            parseNumber(extra?.other) -
-            parseNumber(extra?.discount)
+            parseNumber(delivery) +
+            parseNumber(urgency) +
+            parseNumber(other) -
+            parseNumber(discount)
 
         const res = itemsTotal + decorTotal + extraTotal
         return res < 0 ? 0 : Math.round(res)
-    }, [items, extra])
+    }, [items, delivery, urgency, other, discount])
 }

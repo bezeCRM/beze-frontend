@@ -63,7 +63,7 @@ export default function OrderExtraSection({
 }
 
 const styles = StyleSheet.create({
-    list: { gap: 12 },
+    list: { gap: 10 },
     row: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -85,19 +85,19 @@ const styles = StyleSheet.create({
     input: {
         width: 70,
         height: 34,
-        borderRadius: 12,
+        borderRadius: 10,
         borderWidth: 1,
         borderColor: theme.colors.lineGray,
         backgroundColor: theme.colors.mainWhite,
         textAlign: 'center',
-        fontSize: 14,
+        fontSize: 16,
         color: theme.colors.mainBlack,
         fontFamily: 'Epilogue-Regular',
         paddingHorizontal: 8,
         paddingVertical: 6,
     },
     ruble: {
-        fontSize: 14,
+        fontSize: 16,
         color: theme.colors.mainBlack,
         fontFamily: 'Epilogue-Regular',
     },
