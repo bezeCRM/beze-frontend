@@ -93,6 +93,7 @@ const FormSchema = z
             .optional(),
 
         paymentStatus: z.enum(['unpaid', 'paid', 'partial'] as const),
+        paidAmount: z.string().optional(),
         status: z.enum(['new', 'inWork', 'ready', 'delivered', 'canceled'] as const),
         inPlanner: z.boolean(),
     })
@@ -136,6 +137,16 @@ const FormSchema = z
                 })
             }
         }
+        if (data.paymentStatus === 'partial') {
+            const t = (data.paidAmount ?? '').trim()
+            if (!t.length) {
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    path: ['paidAmount'],
+                    message: 'обязательное поле',
+                })
+            }
+        }
     })
 
 export type OrderCreateFormValues = z.input<typeof FormSchema>
@@ -163,6 +174,7 @@ export function useOrderCreateForm() {
             notes: '',
             references: [] as PhotoItem[],
             paymentStatus: 'unpaid',
+            paidAmount: '0',
             status: 'new',
             inPlanner: true,
         }),

@@ -26,6 +26,19 @@ export function buildNewOrderPayload(
     const products = ((values.items as any[]) ?? []).map((it: any) => {
         const unit = it.product?.unit
         const amount = unit === 'kg' ? toNumber(it.weightKg) : Number(it.count ?? 1)
+        const total = Math.max(0, totalPrice || 0)
+
+        const paidText = String((values as any).paidAmount ?? '').trim()
+        const rawPaid = toNumber((values as any).paidAmount)
+
+        const partialPaid = paidText.length > 0 ? rawPaid : Math.round(total * 0.5)
+
+        const paidAmount =
+            values.paymentStatus === 'unpaid'
+                ? 0
+                : values.paymentStatus === 'paid'
+                  ? total
+                  : Math.min(Math.max(0, partialPaid), total)
 
         return {
             id: it.id,
@@ -35,7 +48,7 @@ export function buildNewOrderPayload(
             count: Number(it.count ?? 1),
             weightKg: toNumber(it.weightKg),
             decorPrice: toNumber(it.decorPrice),
-
+            paidAmount,
             unit,
             amount,
             price: Number(it.product?.price ?? 0),

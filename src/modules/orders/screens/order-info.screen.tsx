@@ -39,8 +39,14 @@ export default function OrderInfoScreen() {
     const { show } = useToast()
 
     const orderId = route.params.orderId
-    const { order, setStatus, setPaymentStatus, setInPlanner, removeOrder } =
-        useOrderInfo(orderId)
+    const {
+        order,
+        setStatus,
+        setPaymentStatus,
+        setPaidAmount,
+        setInPlanner,
+        removeOrder,
+    } = useOrderInfo(orderId)
 
     const [deleteVisible, setDeleteVisible] = useState(false)
 
@@ -56,7 +62,7 @@ export default function OrderInfoScreen() {
 
     const confirmDelete = () => {
         const deletedId = order.id
-        const deletedName = order.name
+        const deletedName = `${order.name ? `"${order.name}"` : `#${order.id}`}`
 
         setDeleteVisible(false)
 
@@ -64,14 +70,14 @@ export default function OrderInfoScreen() {
             const unsub = navigation.addListener('transitionEnd', () => {
                 unsub()
                 removeOrder(deletedId)
-                show(`Заказ "${deletedName}" удален`, 'success', { scope: 'ordersList' })
+                show(`Заказ ${deletedName} удален`, 'success', { scope: 'ordersList' })
             })
 
             navigation.goBack()
         })
     }
 
-    const deleteMessage = `Вы уверены, что хотите удалить заказ "${order.name}"?`
+    const deleteMessage = `Вы уверены, что хотите удалить заказ ${order.name ? `"${order.name}"` : `#${order.id}`}?`
 
     return (
         <ScreenContainer>
@@ -90,15 +96,20 @@ export default function OrderInfoScreen() {
                     showsVerticalScrollIndicator={false}
                     contentContainerStyle={{ paddingBottom: bottom + 30 }}
                 >
-                    <InternalHeaderTitle title={order.name ? order.name : 'Заказ'} />
+                    <InternalHeaderTitle
+                        title={order.name ? order.name : `Заказ #${order.id}`}
+                    />
 
                     {!!createdLabel && <Text style={styles.created}>{createdLabel}</Text>}
 
                     <OrderStatusBar
                         status={order.status}
                         paymentStatus={order.paymentStatus}
+                        totalPrice={order.totalPrice}
+                        paidAmount={order.paidAmount}
                         onChangeStatus={setStatus}
                         onChangePayment={setPaymentStatus}
+                        onChangePaidAmount={setPaidAmount}
                     />
 
                     <View style={styles.content}>

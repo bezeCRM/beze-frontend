@@ -18,7 +18,7 @@ function statusPill(status: OrderStatus) {
 }
 
 export default function OrderCard({ order, onPress }: Props) {
-    const title = order.name?.trim() ? order.name : `Заказ №${order.id}`
+    const title = order.name?.trim() ? order.name : `Заказ #${order.id}`
     const s = statusPill(order.status)
 
     return (

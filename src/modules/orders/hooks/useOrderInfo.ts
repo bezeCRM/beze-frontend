@@ -17,14 +17,19 @@ export function useOrderInfo(orderId: string) {
         [orderId, updateOrder],
     )
 
+    const setPaidAmount = useCallback(
+        (paidAmount: number) => updateOrder(orderId, { paidAmount }),
+        [orderId, updateOrder],
+    )
+
     const setInPlanner = useCallback(
         (inPlanner: boolean) => updateOrder(orderId, { inPlanner }),
         [orderId, updateOrder],
     )
 
     const api = useMemo(
-        () => ({ setStatus, setPaymentStatus, setInPlanner, removeOrder }),
-        [setStatus, setPaymentStatus, setInPlanner, removeOrder],
+        () => ({ setStatus, setPaymentStatus, setPaidAmount, setInPlanner, removeOrder }),
+        [setStatus, setPaymentStatus, setPaidAmount, setInPlanner, removeOrder],
     )
 
     return { order, ...api }

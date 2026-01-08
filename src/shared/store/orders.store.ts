@@ -1,8 +1,13 @@
 import { create } from 'zustand'
-import type { Order } from '../types/types'
+import type { Order, OrderPaymentStatus } from '../types/types'
 import { mockOrders } from '@/shared/utils/mock-orders'
 
-export type NewOrderInput = Omit<Order, 'id' | 'createdAt' | 'updatedAt'>
+export type NewOrderInput = Omit<
+    Order,
+    'id' | 'createdAt' | 'updatedAt' | 'paidAmount'
+> & {
+    paidAmount?: number
+}
 
 type OrdersStore = {
     orders: Order[]
@@ -36,6 +41,37 @@ function calcOrderTotal(data: NewOrderInput) {
 
     const total = productsSum + decorSum + extraSum
     return total > 0 ? total : 0
+}
+
+function clampPaidAmount(total: number, paid: number) {
+    const t = Math.max(0, total || 0)
+    const p = Math.max(0, paid || 0)
+    return Math.min(p, t)
+}
+
+function defaultPartialPaid(total: number) {
+    const t = Math.max(0, total || 0)
+    return t > 0 ? Math.round(t * 0.5) : 0
+}
+
+function derivePaymentStatus(total: number, paid: number): OrderPaymentStatus {
+    const t = Math.max(0, total || 0)
+    const p = clampPaidAmount(t, paid)
+    if (p <= 0) return 'unpaid'
+    if (p >= t && t > 0) return 'paid'
+    return t === 0 ? 'unpaid' : 'partial'
+}
+
+function resolvePaidAmount(
+    total: number,
+    status: OrderPaymentStatus,
+    paidAmount?: number,
+) {
+    if (status === 'unpaid') return 0
+    if (status === 'paid') return Math.max(0, total || 0)
+
+    const base = typeof paidAmount === 'number' ? paidAmount : defaultPartialPaid(total)
+    return clampPaidAmount(total, base)
 }
 
 export const useOrdersStore = create<OrdersStore>((set, get) => ({
@@ -77,10 +113,24 @@ export const useOrdersStore = create<OrdersStore>((set, get) => ({
             ...(references.length ? { references } : {}),
         }
 
+        const totalPrice = Number(base.totalPrice) || calcOrderTotal(base)
+
+        const paidAmount = resolvePaidAmount(
+            totalPrice,
+            base.paymentStatus,
+            typeof (data as any).paidAmount === 'number'
+                ? (data as any).paidAmount
+                : undefined,
+        )
+
+        const paymentStatus = derivePaymentStatus(totalPrice, paidAmount)
+
         const order: Order = {
             id,
             ...base,
-            totalPrice: Number(base.totalPrice) || calcOrderTotal(base),
+            totalPrice,
+            paidAmount,
+            paymentStatus,
             createdAt: now,
             updatedAt: now,
         }
@@ -173,7 +223,39 @@ export const useOrdersStore = create<OrdersStore>((set, get) => ({
                               totalPrice: nextBase.totalPrice,
                           })
 
-                return { ...nextBase, totalPrice, updatedAt: new Date().toISOString() }
+                const prevPaid =
+                    typeof o.paidAmount === 'number'
+                        ? o.paidAmount
+                        : resolvePaidAmount(o.totalPrice, o.paymentStatus)
+
+                let nextPaid = prevPaid
+
+                if ('paymentStatus' in p) {
+                    const s = p.paymentStatus
+                    if (s === 'unpaid') nextPaid = 0
+                    if (s === 'paid') nextPaid = totalPrice
+
+                    if (s === 'partial') {
+                        if ('paidAmount' in p && typeof p.paidAmount === 'number') {
+                            nextPaid = p.paidAmount
+                        } else {
+                            nextPaid = defaultPartialPaid(totalPrice)
+                        }
+                    }
+                } else if ('paidAmount' in p) {
+                    nextPaid = typeof p.paidAmount === 'number' ? p.paidAmount : 0
+                }
+
+                nextPaid = clampPaidAmount(totalPrice, nextPaid)
+                const nextPaymentStatus = derivePaymentStatus(totalPrice, nextPaid)
+
+                return {
+                    ...nextBase,
+                    totalPrice,
+                    paidAmount: nextPaid,
+                    paymentStatus: nextPaymentStatus,
+                    updatedAt: new Date().toISOString(),
+                }
             }),
         }))
     },

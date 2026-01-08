@@ -13,7 +13,6 @@ import {
     InternalHeaderTopBar,
 } from '@/shared/components/headers/internal-header'
 import { ToastViewport, useToast } from '@/shared/components/toast/toast-provider'
-import { pickImagesFromLibrary } from '@/shared/components/media'
 import Button from '@/shared/ui/button/button'
 import SelectField from '@/shared/ui/fields/select-field'
 import TextareaField from '@/shared/ui/fields/textarea-field'
@@ -39,7 +38,13 @@ import {
 import { useOrderTotalPrice } from '../hooks/useOrderTotalPrice'
 import { useOrderProductPicker } from '../hooks/useOrderProductPicker'
 import { useOrderCreateInvalidToast } from '../hooks/useOrderCreateInvalidToast'
+
 import { buildNewOrderPayload } from '../utils/buildNewOrderPayload'
+import { ORDER_PAYMENT_OPTIONS, ORDER_STATUS_OPTIONS } from '../utils/order-options'
+import { useOrderPayment } from '../hooks/useOrderPayment'
+import { useOrderReferences } from '../hooks/useOrderReferences'
+import { formatMoneyRu } from '../utils/money'
+import PartialPaymentRow from '../components/create/partial-payment-row'
 
 const MAX_REFERENCES = 3
 const ORDERS_LIST_TOAST_SCOPE = 'ordersList'
@@ -84,10 +89,14 @@ export default function OrderCreateScreen() {
     const delivery = watch('delivery')
     const watchedItems = watch('items')
     const items = useMemo(() => (watchedItems as OrderCreateItem[]) ?? [], [watchedItems])
+
     const extra = watch('extra')
     const notes = watch('notes') ?? ''
     const references = (watch('references') as PhotoItem[]) ?? []
+
     const paymentStatus = watch('paymentStatus') as OrderPaymentStatus
+    const paidAmountText = (watch('paidAmount') as string) ?? ''
+
     const status = watch('status') as OrderStatus
     const inPlanner = !!watch('inPlanner')
 
@@ -101,35 +110,19 @@ export default function OrderCreateScreen() {
 
     const onInvalid = useOrderCreateInvalidToast(show as any, route.key)
 
-    const handleAddReferences = useCallback(async () => {
-        const remaining = MAX_REFERENCES - references.length
-        if (remaining <= 0) return
+    const { remaining, onSelectPaymentStatus, onPaidAmountBlur } = useOrderPayment({
+        totalPrice,
+        paymentStatus,
+        paidAmountText,
+        setPaymentStatus,
+        setValue,
+    })
 
-        const picked = await pickImagesFromLibrary({ limit: remaining })
-        if (!picked.length) return
-
-        addReferences(picked)
-    }, [references.length, addReferences])
-
-    const PAYMENT_OPTIONS = useMemo(
-        (): { id: OrderPaymentStatus; name: string }[] => [
-            { id: 'unpaid', name: 'Не оплачен' },
-            { id: 'partial', name: 'Частичная оплата' },
-            { id: 'paid', name: 'Оплачено' },
-        ],
-        [],
-    )
-
-    const STATUS_OPTIONS = useMemo(
-        (): { id: OrderStatus; name: string }[] => [
-            { id: 'new', name: 'Новый' },
-            { id: 'inWork', name: 'В работе' },
-            { id: 'ready', name: 'Готов' },
-            { id: 'delivered', name: 'Выдан' },
-            { id: 'canceled', name: 'Отменён' },
-        ],
-        [],
-    )
+    const { handleAddReferences } = useOrderReferences({
+        maxCount: MAX_REFERENCES,
+        references,
+        addReferences,
+    })
 
     const onValid = useCallback(
         (values: OrderCreateFormValues) => {
@@ -281,18 +274,30 @@ export default function OrderCreateScreen() {
 
                         <SelectField
                             label="Статус оплаты"
-                            options={PAYMENT_OPTIONS as any}
+                            options={ORDER_PAYMENT_OPTIONS as any}
                             selectedId={paymentStatus}
                             onSelect={opt =>
-                                setPaymentStatus(opt.id as OrderPaymentStatus)
+                                onSelectPaymentStatus(opt.id as OrderPaymentStatus)
                             }
                             error={false}
                             addCategoryEnabled={false}
                         />
 
+                        {paymentStatus === 'partial' && (
+                            <PartialPaymentRow
+                                paidAmountText={paidAmountText}
+                                onChangePaidAmountText={t =>
+                                    setValue('paidAmount', t, { shouldDirty: true })
+                                }
+                                onBlur={onPaidAmountBlur}
+                                remaining={remaining}
+                                hasError={!!(errors as any).paidAmount}
+                            />
+                        )}
+
                         <SelectField
                             label="Статус заказа"
-                            options={STATUS_OPTIONS as any}
+                            options={ORDER_STATUS_OPTIONS as any}
                             selectedId={status}
                             onSelect={opt => setStatus(opt.id as OrderStatus)}
                             error={false}
@@ -318,7 +323,7 @@ export default function OrderCreateScreen() {
                         <View style={styles.totalRow}>
                             <Text style={styles.totalLabel}>Итоговая стоимость:</Text>
                             <Text style={styles.totalValue}>
-                                {totalPrice.toLocaleString('ru-RU')} ₽
+                                {formatMoneyRu(totalPrice)} ₽
                             </Text>
                         </View>
 
@@ -372,7 +377,7 @@ const styles = StyleSheet.create({
         fontFamily: 'Epilogue-SemiBold',
     },
     totalValue: {
-        fontSize: 16,
+        fontSize: 18,
         color: theme.colors.mainBlack,
         fontFamily: 'Epilogue-SemiBold',
     },

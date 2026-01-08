@@ -83,6 +83,7 @@ export type Order = {
 
     paymentStatus: OrderPaymentStatus
     status: OrderStatus
+    paidAmount: number
 
     inPlanner: boolean
 
