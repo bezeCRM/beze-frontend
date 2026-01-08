@@ -1,33 +1,21 @@
+// @/shared/utils/mock-orders.ts
 import type { Order, Product } from '../types/types'
+import { mockProducts } from './mock-products'
 
 const now = new Date().toISOString()
 
-const p1: Product = {
-    id: 'p-1',
-    name: 'Шоколадный торт',
-    price: 2200,
-    unit: 'kg',
-    createdAt: now,
-    updatedAt: now,
+function getProduct(id: string): Product {
+    const p = mockProducts.find(x => x.id === id)
+    if (!p) {
+        throw new Error(`mock-orders: product "${id}" not found in mock-products`)
+    }
+    return p
 }
 
-const p2: Product = {
-    id: 'p-2',
-    name: 'Торт',
-    price: 5200,
-    unit: 'piece',
-    createdAt: now,
-    updatedAt: now,
-}
-
-const p3: Product = {
-    id: 'p-3',
-    name: 'Шоколадный торт',
-    price: 3500,
-    unit: 'piece',
-    createdAt: now,
-    updatedAt: now,
-}
+const pCakeChocolate = getProduct('1')
+const pNapoleon = getProduct('2')
+const pCupcakes = getProduct('3')
+const pCheesecake = getProduct('4')
 
 export const mockOrders: Order[] = [
     {
@@ -37,14 +25,17 @@ export const mockOrders: Order[] = [
         clientPhone: '+7 921 513 5342',
         orderPlatform: 'Avito',
         deliveryType: 'pickup',
-        date: '28.12.2025',
+        address: '',
+        date: '28.12.25',
+        time: '17:00',
         products: [
             {
-                id: 'ol-1',
-                product: p1,
+                id: 'ol-34-1',
+                product: pCakeChocolate,
+                filling: pCakeChocolate.fillings?.find(f => f.name === 'Вишня'),
                 amount: 1.6,
-                price: 2200,
-                unit: 'kg',
+                price: pCakeChocolate.price,
+                unit: pCakeChocolate.unit,
             },
         ],
         paymentStatus: 'paid',
@@ -59,14 +50,17 @@ export const mockOrders: Order[] = [
         name: 'Название заказа с каким-то длинным описанием или названием',
         clientName: 'Мария',
         deliveryType: 'pickup',
-        date: '01.01.2026',
+        address: '',
+        date: '01.01.26',
+        time: '12:30',
         products: [
             {
-                id: 'ol-2',
-                product: p2,
-                amount: 1,
-                price: 5200,
-                unit: 'piece',
+                id: 'ol-35-1',
+                product: pCheesecake,
+                filling: pCheesecake.fillings?.[0],
+                amount: 2,
+                price: pCheesecake.price,
+                unit: pCheesecake.unit,
             },
         ],
         paymentStatus: 'unpaid',
@@ -80,15 +74,18 @@ export const mockOrders: Order[] = [
         id: '36',
         name: 'Торт для Кого Нибудь ещё',
         clientName: 'Ирина',
-        deliveryType: 'pickup',
-        date: '28.01.2026',
+        deliveryType: 'delivery',
+        address: 'Невский проспект 10',
+        date: '28.01.26',
+        time: '18:00',
         products: [
             {
-                id: 'ol-3',
-                product: p3,
-                amount: 1,
-                price: 3500,
-                unit: 'piece',
+                id: 'ol-36-1',
+                product: pNapoleon,
+                filling: pNapoleon.fillings?.[0],
+                amount: 1.95,
+                price: pNapoleon.price,
+                unit: pNapoleon.unit,
             },
         ],
         paymentStatus: 'paid',
@@ -103,14 +100,17 @@ export const mockOrders: Order[] = [
         name: 'Заказ №87',
         clientName: 'Сергей',
         deliveryType: 'pickup',
-        date: '28.01.2026',
+        address: '',
+        date: '28.01.26',
+        time: '16:10',
         products: [
             {
-                id: 'ol-4',
-                product: p3,
-                amount: 1,
-                price: 3500,
-                unit: 'piece',
+                id: 'ol-87-1',
+                product: pCupcakes,
+                filling: pCupcakes.fillings?.[0],
+                amount: 10,
+                price: pCupcakes.price,
+                unit: pCupcakes.unit,
             },
         ],
         paymentStatus: 'partial',
@@ -125,14 +125,17 @@ export const mockOrders: Order[] = [
         name: 'Торт для Кого Нибудь ещё',
         clientName: 'Анна',
         deliveryType: 'pickup',
-        date: '28.01.2026',
+        address: '',
+        date: '28.01.26',
+        time: '19:40',
         products: [
             {
-                id: 'ol-5',
-                product: p3,
-                amount: 1,
-                price: 3500,
-                unit: 'piece',
+                id: 'ol-88-1',
+                product: pCakeChocolate,
+                filling: pCakeChocolate.fillings?.find(f => f.name === 'Клубника'),
+                amount: 1.6,
+                price: pCakeChocolate.price,
+                unit: pCakeChocolate.unit,
             },
         ],
         paymentStatus: 'paid',

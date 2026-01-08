@@ -5,9 +5,6 @@ import { useCallback, useMemo } from 'react'
 import { StyleSheet, TextInput, View } from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-
-import type { ProductsStackParamList } from '@/core/navigation/products-stack'
-
 import {
     InternalHeaderTitle,
     InternalHeaderTopBar,
@@ -37,12 +34,13 @@ import {
     type ProductCreateFormValues,
     useProductCreateForm,
 } from '../hooks/useProductCreateForm'
+import { AppStackParamList } from '@/core/navigation/app-navigation'
 
 const MAX_PHOTOES = 3
 const PRODUCTS_LIST_TOAST_SCOPE = 'productsList'
 
-type Navigation = StackNavigationProp<ProductsStackParamList, 'ProductCreate'>
-type Route = RouteProp<ProductsStackParamList, 'ProductCreate'>
+type Navigation = StackNavigationProp<AppStackParamList, 'ProductCreate'>
+type Route = RouteProp<AppStackParamList, 'ProductCreate'>
 
 export default function ProductCreateScreen() {
     const { bottom } = useSafeAreaInsets()

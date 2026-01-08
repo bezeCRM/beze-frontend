@@ -2,8 +2,6 @@ import { useNavigation, useRoute } from '@react-navigation/native'
 import { useEffect, useState } from 'react'
 import { ScrollView, StyleSheet, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-
-import type { ProductsStackParamList } from '@/core/navigation/products-stack'
 import {
     InternalHeaderTitle,
     InternalHeaderTopBar,
@@ -24,9 +22,10 @@ import {
 
 import BaseModal from '@/modules/modal/base/base-modal'
 import ConfirmModal from '@/modules/modal/variants/confirm-modal'
+import { AppStackParamList } from '@/core/navigation/app-navigation'
 
-type Route = RouteProp<ProductsStackParamList, 'ProductInfo'>
-type Navigation = StackNavigationProp<ProductsStackParamList, 'ProductInfo'>
+type Route = RouteProp<AppStackParamList, 'ProductInfo'>
+type Navigation = StackNavigationProp<AppStackParamList, 'ProductInfo'>
 
 export default function ProductInfoScreen() {
     const { bottom } = useSafeAreaInsets()

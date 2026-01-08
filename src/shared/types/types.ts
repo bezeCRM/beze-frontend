@@ -1,8 +1,4 @@
 // заказы
-import { ProductsStackParamList } from '@/core/navigation/products-stack'
-import { RouteProp } from '@react-navigation/native'
-import { StackNavigationProp } from '@react-navigation/stack'
-
 export type ProductUnit = 'piece' | 'kg'
 export type PhotoItem = { id: string; uri: string }
 
@@ -35,9 +31,6 @@ export type Ingredient = {
     name: string
     weightGrams: string
 }
-
-export type Route = RouteProp<ProductsStackParamList, 'ProductEdit'>
-export type Navigation = StackNavigationProp<ProductsStackParamList, 'ProductEdit'>
 
 // заказы
 export type OrderStatus = 'new' | 'inWork' | 'ready' | 'delivered' | 'canceled'

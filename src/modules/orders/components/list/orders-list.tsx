@@ -4,11 +4,15 @@ import Button from '@/shared/ui/button/button'
 import OrderCard from './order-card'
 import { theme } from '@/shared/theme'
 import { useNavigation } from '@react-navigation/native'
+import type { StackNavigationProp } from '@react-navigation/stack'
+import type { OrdersStackParamList } from '@/core/navigation/orders-stack'
 
 type Props = { items: Order[] }
 
+type Nav = StackNavigationProp<OrdersStackParamList>
+
 export default function OrdersList({ items }: Props) {
-    const navigation = useNavigation<any>()
+    const navigation = useNavigation<Nav>()
 
     const renderEmpty = () => (
         <View style={styles.emptyWrap}>
@@ -25,7 +29,12 @@ export default function OrdersList({ items }: Props) {
             style={styles.list}
             data={items}
             keyExtractor={item => item.id}
-            renderItem={({ item }) => <OrderCard order={item} />}
+            renderItem={({ item }) => (
+                <OrderCard
+                    order={item}
+                    onPress={() => navigation.navigate('OrderInfo', { orderId: item.id })}
+                />
+            )}
             ListEmptyComponent={renderEmpty}
             contentContainerStyle={items.length ? undefined : styles.emptyContent}
             showsVerticalScrollIndicator={false}

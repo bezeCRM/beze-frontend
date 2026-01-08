@@ -1,4 +1,4 @@
-import { useNavigation, useRoute } from '@react-navigation/native'
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native'
 import { useCallback } from 'react'
 import { StyleSheet, TextInput, View } from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
@@ -26,12 +26,16 @@ import { pickImagesFromLibrary } from '@/shared/components/media'
 import { useCategoryStore } from '@/shared/store/categories.store'
 import { useProductsStore } from '@/shared/store/products.store'
 import { theme } from '@/shared/theme'
-import type { Navigation, Route } from '@/shared/types/types'
 import { useCopyIngredientsFromProduct } from '../hooks/useCopyIngredientsFromProduct'
 import type { ProductCreateFormValues } from '../hooks/useProductCreateForm'
 import { useProductEditForm } from '../hooks/useProductEditForm'
+import { AppStackParamList } from '@/core/navigation/app-navigation'
+import { StackNavigationProp } from '@react-navigation/stack'
 
 const MAX_PHOTOES = 3
+
+type Navigation = StackNavigationProp<AppStackParamList, 'ProductEdit'>
+type Route = RouteProp<AppStackParamList, 'ProductEdit'>
 
 export default function ProductEditScreen() {
     // объявление ключевых функций

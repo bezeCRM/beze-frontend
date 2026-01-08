@@ -3,12 +3,12 @@ import ProductCard from './product-card'
 import type { Product } from '@/shared/types/types'
 import { useNavigation } from '@react-navigation/native'
 import type { StackNavigationProp } from '@react-navigation/stack'
-import type { ProductsStackParamList } from '@/core/navigation/products-stack'
 import Button from '@/shared/ui/button/button'
 import { theme } from '@/shared/theme'
+import { AppStackParamList } from '@/core/navigation/app-navigation'
 
 type Props = { items: Product[] }
-type Nav = StackNavigationProp<ProductsStackParamList>
+type Nav = StackNavigationProp<AppStackParamList>
 
 export default function ProductsList({ items }: Props) {
     const navigation = useNavigation<Nav>()

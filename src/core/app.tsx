@@ -1,8 +1,8 @@
 import { useFonts } from 'expo-font'
 import * as SplashScreen from 'expo-splash-screen'
 import { useEffect } from 'react'
-import RootNavigation from './navigation/root-navigation'
 import AppProviders from './providers/app-providers'
+import AppNavigation from './navigation/app-navigation'
 
 SplashScreen.preventAutoHideAsync()
 
@@ -22,7 +22,7 @@ export default function App() {
 
     return (
         <AppProviders>
-            <RootNavigation />
+            <AppNavigation />
         </AppProviders>
     )
 }
