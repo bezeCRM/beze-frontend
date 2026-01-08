@@ -1,11 +1,15 @@
 import { View, StyleSheet } from 'react-native'
 import Title from '@/shared/ui/title'
 import AddProductButton from '@/shared/ui/add-plus'
-import { useNavigation } from '@react-navigation/native'
+import { CompositeNavigationProp, useNavigation } from '@react-navigation/native'
 import { StackNavigationProp } from '@react-navigation/stack'
 import { ProductsStackParamList } from '@/core/navigation/products-stack'
+import { AppStackParamList } from '@/core/navigation/app-navigation'
 
-type Nav = StackNavigationProp<ProductsStackParamList, 'ProductsList'>
+type Nav = CompositeNavigationProp<
+    StackNavigationProp<ProductsStackParamList, 'ProductsList'>,
+    StackNavigationProp<AppStackParamList, 'Tabs'>
+>
 
 export default function ProductsHeader() {
     const navigation = useNavigation<Nav>()
