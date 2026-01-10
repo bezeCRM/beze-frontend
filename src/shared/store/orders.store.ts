@@ -195,14 +195,23 @@ export const useOrdersStore = create<OrdersStore>((set, get) => ({
             p.references = arr.length ? arr : undefined
         }
 
+        const affectsTotal =
+            typeof (p as any).totalPrice === 'number' ||
+            'products' in p ||
+            'decorPrices' in p ||
+            'extra' in p
+
+        const affectsPayment = 'paymentStatus' in p || 'paidAmount' in p
+
         set(state => ({
             orders: state.orders.map(o => {
                 if (o.id !== id) return o
 
                 const nextBase = { ...o, ...p }
-                const totalPrice =
-                    typeof p.totalPrice === 'number'
-                        ? p.totalPrice
+
+                const totalPrice = affectsTotal
+                    ? typeof (p as any).totalPrice === 'number'
+                        ? (p as any).totalPrice
                         : calcOrderTotal({
                               name: nextBase.name,
                               clientName: nextBase.clientName,
@@ -222,6 +231,7 @@ export const useOrdersStore = create<OrdersStore>((set, get) => ({
                               inPlanner: nextBase.inPlanner,
                               totalPrice: nextBase.totalPrice,
                           })
+                    : o.totalPrice
 
                 const prevPaid =
                     typeof o.paidAmount === 'number'
@@ -229,25 +239,34 @@ export const useOrdersStore = create<OrdersStore>((set, get) => ({
                         : resolvePaidAmount(o.totalPrice, o.paymentStatus)
 
                 let nextPaid = prevPaid
+                let nextPaymentStatus = o.paymentStatus
 
-                if ('paymentStatus' in p) {
-                    const s = p.paymentStatus
-                    if (s === 'unpaid') nextPaid = 0
-                    if (s === 'paid') nextPaid = totalPrice
+                if (affectsPayment) {
+                    if ('paymentStatus' in p) {
+                        const s = p.paymentStatus
+                        if (s === 'unpaid') nextPaid = 0
+                        if (s === 'paid') nextPaid = totalPrice
 
-                    if (s === 'partial') {
-                        if ('paidAmount' in p && typeof p.paidAmount === 'number') {
-                            nextPaid = p.paidAmount
-                        } else {
-                            nextPaid = defaultPartialPaid(totalPrice)
+                        if (s === 'partial') {
+                            if ('paidAmount' in p && typeof p.paidAmount === 'number') {
+                                nextPaid = p.paidAmount
+                            } else {
+                                nextPaid = defaultPartialPaid(totalPrice)
+                            }
                         }
+                    } else if ('paidAmount' in p) {
+                        nextPaid = typeof p.paidAmount === 'number' ? p.paidAmount : 0
                     }
-                } else if ('paidAmount' in p) {
-                    nextPaid = typeof p.paidAmount === 'number' ? p.paidAmount : 0
-                }
 
-                nextPaid = clampPaidAmount(totalPrice, nextPaid)
-                const nextPaymentStatus = derivePaymentStatus(totalPrice, nextPaid)
+                    nextPaid = clampPaidAmount(totalPrice, nextPaid)
+                    nextPaymentStatus = derivePaymentStatus(totalPrice, nextPaid)
+                } else if (affectsTotal) {
+                    nextPaid = clampPaidAmount(totalPrice, nextPaid)
+                    nextPaymentStatus = derivePaymentStatus(totalPrice, nextPaid)
+                } else {
+                    nextPaid = o.paidAmount
+                    nextPaymentStatus = o.paymentStatus
+                }
 
                 return {
                     ...nextBase,

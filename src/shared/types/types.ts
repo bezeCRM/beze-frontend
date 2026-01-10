@@ -1,4 +1,4 @@
-// заказы
+// товары
 export type ProductUnit = 'piece' | 'kg'
 export type PhotoItem = { id: string; uri: string }
 

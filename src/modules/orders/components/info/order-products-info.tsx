@@ -18,6 +18,7 @@ function Row({ line, onPress }: { line: OrderProductLine; onPress?: () => void }
     const price = typeof line.price === 'number' ? line.price : (line.product?.price ?? 0)
     const unit = line.unit ?? line.product?.unit
     const amount = typeof line.amount === 'number' ? line.amount : 1
+    const photo = line.product?.photoes?.[0].uri ?? undefined
 
     return (
         <TouchableOpacity
@@ -26,7 +27,10 @@ function Row({ line, onPress }: { line: OrderProductLine; onPress?: () => void }
             onPress={onPress}
             disabled={!onPress}
         >
-            <Image source={PlaceholderImage} style={styles.photo} />
+            <Image
+                source={photo ? { uri: photo } : PlaceholderImage}
+                style={styles.photo}
+            />
 
             <View style={styles.mid}>
                 <Text style={styles.name} numberOfLines={1}>
