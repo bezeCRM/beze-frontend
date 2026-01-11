@@ -1,5 +1,34 @@
-import type { Order } from '../types/types'
+import type { Order, Product } from '../types/types'
 import { mockProducts } from './mock-products'
+
+function pickProduct(seed: number): Product {
+    const idx = Math.abs(seed) % mockProducts.length
+    return mockProducts[idx]
+}
+
+function pickFilling(product: Product, seed: number) {
+    const fillings = product.fillings ?? []
+    if (!fillings.length) return undefined
+    return fillings[Math.abs(seed) % fillings.length]
+}
+
+function makeLine(id: string, seed: number, product: Product, amount: number) {
+    const filling = pickFilling(product, seed)
+    return {
+        id,
+        product,
+        ...(filling ? { filling } : {}),
+        amount,
+        price: product.price,
+        unit: product.unit,
+    }
+}
+
+const pCakeChocolate = pickProduct(0) // id: '1'
+const pNapoleon = pickProduct(1) // id: '2'
+const pCupcakes = pickProduct(2) // id: '3'
+const pCheesecake = pickProduct(3) // id: '4'
+const pPotato = pickProduct(4) // id: '5'
 
 export const mockOrders: Order[] = [
     {
@@ -10,21 +39,13 @@ export const mockOrders: Order[] = [
         orderPlatform: 'Instagram',
         deliveryType: 'delivery',
         address: 'ул. Ленина, 15',
-        date: '2026-01-20',
-        time: '15:00',
-        products: [
-            {
-                id: 'o101-1',
-                product: mockProducts[0],
-                amount: 2,
-                price: 2200,
-                unit: 'kg',
-            },
-        ],
+        date: '20.01.26',
+        time: '15:30',
+        products: [makeLine('o101-1', 101, pCakeChocolate, 2)],
         paymentStatus: 'paid',
         status: 'delivered',
-        paidAmount: 4400,
-        totalPrice: 4400,
+        paidAmount: 4700,
+        totalPrice: 4700,
         inPlanner: false,
         extra: { delivery: 300, urgency: 0, other: 0, discount: 0 },
         createdAt: '2026-01-05T10:00:00.000Z',
@@ -37,15 +58,9 @@ export const mockOrders: Order[] = [
         clientPhone: '+7 (981) 330-11-22',
         orderPlatform: 'WhatsApp',
         deliveryType: 'pickup',
-        products: [
-            {
-                id: 'o102-1',
-                product: mockProducts[2],
-                amount: 12,
-                price: 350,
-                unit: 'piece',
-            },
-        ],
+        date: '04.02.26',
+        time: '12:45',
+        products: [makeLine('o102-1', 102, pCupcakes, 12)],
         paymentStatus: 'partial',
         paidAmount: 2100,
         totalPrice: 4200,
@@ -63,20 +78,12 @@ export const mockOrders: Order[] = [
         orderPlatform: 'Avito',
         deliveryType: 'delivery',
         address: 'пр. Невский, 55',
-        date: '2026-01-22',
-        time: '17:00',
-        products: [
-            {
-                id: 'o103-1',
-                product: mockProducts[3],
-                amount: 1,
-                price: 2600,
-                unit: 'kg',
-            },
-        ],
+        date: '11.03.26',
+        time: '17:20',
+        products: [makeLine('o103-1', 103, pCheesecake, 1)],
         paymentStatus: 'unpaid',
         paidAmount: 0,
-        totalPrice: 2600,
+        totalPrice: 3000,
         status: 'new',
         inPlanner: true,
         extra: { delivery: 400, urgency: 0, other: 0, discount: 0 },
@@ -90,15 +97,9 @@ export const mockOrders: Order[] = [
         clientPhone: '+7 (911) 777-22-11',
         orderPlatform: 'Flowwow',
         deliveryType: 'pickup',
-        products: [
-            {
-                id: 'o104-1',
-                product: mockProducts[1],
-                amount: 1.5,
-                price: 1800,
-                unit: 'kg',
-            },
-        ],
+        date: '28.04.26',
+        time: '11:00',
+        products: [makeLine('o104-1', 104, pNapoleon, 1.5)],
         paymentStatus: 'paid',
         paidAmount: 2700,
         totalPrice: 2700,
@@ -115,25 +116,15 @@ export const mockOrders: Order[] = [
         orderPlatform: 'Telegram',
         deliveryType: 'delivery',
         address: 'ул. Кирова, 10',
+        date: '13.05.26',
+        time: '14:10',
         products: [
-            {
-                id: 'o105-1',
-                product: mockProducts[5] ?? mockProducts[4],
-                amount: 15,
-                price: 120,
-                unit: 'piece',
-            },
-            {
-                id: 'o105-2',
-                product: mockProducts[2],
-                amount: 10,
-                price: 350,
-                unit: 'piece',
-            },
+            makeLine('o105-1', 105, pPotato, 15),
+            makeLine('o105-2', 106, pCupcakes, 10),
         ],
         paymentStatus: 'partial',
         paidAmount: 2500,
-        totalPrice: 4700,
+        totalPrice: 5800,
         status: 'inWork',
         inPlanner: true,
         extra: { delivery: 500, urgency: 0, other: 0, discount: 0 },
@@ -145,15 +136,9 @@ export const mockOrders: Order[] = [
         name: 'Торт “Шоколадный сюрприз”',
         clientName: 'Олег Громов',
         deliveryType: 'pickup',
-        products: [
-            {
-                id: 'o106-1',
-                product: mockProducts[0],
-                amount: 1.5,
-                price: 2200,
-                unit: 'kg',
-            },
-        ],
+        date: '02.06.26',
+        time: '09:40',
+        products: [makeLine('o106-1', 106, pCakeChocolate, 1.5)],
         paymentStatus: 'paid',
         paidAmount: 3300,
         totalPrice: 3300,
@@ -170,18 +155,12 @@ export const mockOrders: Order[] = [
         clientPhone: '+7 (921) 111-44-88',
         deliveryType: 'delivery',
         address: 'ул. Молодёжная, 23',
-        products: [
-            {
-                id: 'o107-1',
-                product: mockProducts[2],
-                amount: 6,
-                price: 350,
-                unit: 'piece',
-            },
-        ],
+        date: '19.07.26',
+        time: '13:25',
+        products: [makeLine('o107-1', 107, pCupcakes, 6)],
         paymentStatus: 'paid',
-        paidAmount: 2100,
-        totalPrice: 2100,
+        paidAmount: 2350,
+        totalPrice: 2350,
         status: 'delivered',
         inPlanner: false,
         extra: { delivery: 250, urgency: 0, other: 0, discount: 0 },
@@ -194,15 +173,9 @@ export const mockOrders: Order[] = [
         clientName: 'Артём Лисицын',
         orderPlatform: 'Telegram',
         deliveryType: 'pickup',
-        products: [
-            {
-                id: 'o108-1',
-                product: mockProducts[3],
-                amount: 1,
-                price: 2600,
-                unit: 'kg',
-            },
-        ],
+        date: '05.09.26',
+        time: '16:40',
+        products: [makeLine('o108-1', 108, pCheesecake, 1)],
         paymentStatus: 'partial',
         paidAmount: 1300,
         totalPrice: 2600,
@@ -219,25 +192,15 @@ export const mockOrders: Order[] = [
         clientPhone: '+7 (999) 222-77-55',
         deliveryType: 'delivery',
         address: 'ул. Центральная, 45',
+        date: '12.10.26',
+        time: '10:15',
         products: [
-            {
-                id: 'o109-1',
-                product: mockProducts[4],
-                amount: 20,
-                price: 120,
-                unit: 'piece',
-            },
-            {
-                id: 'o109-2',
-                product: mockProducts[2],
-                amount: 6,
-                price: 350,
-                unit: 'piece',
-            },
+            makeLine('o109-1', 109, pPotato, 20),
+            makeLine('o109-2', 110, pCupcakes, 6),
         ],
         paymentStatus: 'paid',
-        paidAmount: 4200,
-        totalPrice: 4200,
+        paidAmount: 4900,
+        totalPrice: 4900,
         status: 'ready',
         inPlanner: true,
         extra: { delivery: 400, urgency: 0, other: 0, discount: 0 },
@@ -252,27 +215,15 @@ export const mockOrders: Order[] = [
         orderPlatform: 'Instagram',
         deliveryType: 'delivery',
         address: 'пр. Победы, 88',
-        date: '2026-02-10',
+        date: '24.11.26',
         time: '12:00',
         products: [
-            {
-                id: 'o110-1',
-                product: mockProducts[0],
-                amount: 3,
-                price: 2200,
-                unit: 'kg',
-            },
-            {
-                id: 'o110-2',
-                product: mockProducts[1],
-                amount: 1,
-                price: 1800,
-                unit: 'kg',
-            },
+            makeLine('o110-1', 110, pCakeChocolate, 3),
+            makeLine('o110-2', 111, pNapoleon, 1),
         ],
         paymentStatus: 'partial',
         paidAmount: 4000,
-        totalPrice: 8400,
+        totalPrice: 9000,
         status: 'inWork',
         inPlanner: true,
         extra: { delivery: 600, urgency: 0, other: 0, discount: 0 },

@@ -65,18 +65,26 @@ export default function OrderProductsInfo({ order }: Props) {
 
     return (
         <SectionCard title="Товары">
-            <View style={styles.list}>
-                {list.map(line => {
-                    const productId = line.product?.id
-                    return (
-                        <Row
-                            key={line.id}
-                            line={line}
-                            onPress={productId ? () => openProduct(productId) : undefined}
-                        />
-                    )
-                })}
-            </View>
+            {list.length === 0 ? (
+                <View style={styles.emptyWrap}>
+                    <Text style={styles.emptyText}>Товаров в этом заказе нет</Text>
+                </View>
+            ) : (
+                <View style={styles.list}>
+                    {list.map(line => {
+                        const productId = line.product?.id
+                        return (
+                            <Row
+                                key={line.id}
+                                line={line}
+                                onPress={
+                                    productId ? () => openProduct(productId) : undefined
+                                }
+                            />
+                        )
+                    })}
+                </View>
+            )}
         </SectionCard>
     )
 }
@@ -118,5 +126,17 @@ const styles = StyleSheet.create({
         fontFamily: 'Epilogue-Regular',
         minWidth: 64,
         textAlign: 'right',
+    },
+    emptyWrap: {
+        paddingTop: 10,
+        paddingBottom: 12,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    emptyText: {
+        fontSize: 14,
+        color: theme.colors.mainGray,
+        fontFamily: 'Epilogue-Regular',
+        textAlign: 'center',
     },
 })

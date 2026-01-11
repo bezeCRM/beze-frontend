@@ -12,7 +12,6 @@ import ScreenContainer from '@/shared/components/layout/screen-container'
 import { makeOnInvalidToast } from '@/shared/components/toast/make-on-invalid-toast'
 import { ToastViewport, useToast } from '@/shared/components/toast/toast-provider'
 
-import Button from '@/shared/ui/button/button'
 import SelectField from '@/shared/ui/fields/select-field'
 import TextareaField from '@/shared/ui/fields/textarea-field'
 import UnitField from '@/shared/ui/fields/unit-field'
@@ -158,7 +157,12 @@ export default function ProductEditScreen() {
         <ScreenContainer>
             <View style={styles.container}>
                 <View style={styles.stickyTopBar}>
-                    <InternalHeaderTopBar onBack={() => navigation.goBack()} />
+                    <InternalHeaderTopBar
+                        onBack={() => navigation.goBack()}
+                        showEdit={true}
+                        onEditPress={handleSubmit(onValid, onInvalid)}
+                        editText="Сохранить"
+                    />
                 </View>
 
                 <KeyboardAwareScrollView
@@ -255,11 +259,6 @@ export default function ProductEditScreen() {
                             }}
                             onDeletePress={removePhoto}
                             onPhotoPress={() => {}}
-                        />
-
-                        <Button
-                            title="Сохранить и выйти"
-                            onPress={handleSubmit(onValid, onInvalid)}
                         />
                     </View>
                 </KeyboardAwareScrollView>

@@ -71,8 +71,8 @@ export type Order = {
     deliveryType: OrderDeliveryType
     address?: string
 
-    date?: string
-    time?: string
+    date: string
+    time: string
 
     products: OrderProductLine[]
     decorPrices?: OrderDecorPrice[]

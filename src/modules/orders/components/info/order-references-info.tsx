@@ -1,8 +1,7 @@
 import React from 'react'
-import { Image, StyleSheet, View } from 'react-native'
+import { Image, StyleSheet, View, Text } from 'react-native'
 import SectionCard from '@/shared/ui/section/section-card'
 import { theme } from '@/shared/theme'
-import PlaceholderImage from '@/assets/images/product-card-placeholder.png'
 import type { Order, PhotoItem } from '@/shared/types/types'
 
 type Props = { order: Order }
@@ -16,12 +15,20 @@ export default function OrderReferencesInfo({ order }: Props) {
     return (
         <SectionCard title="Референсы">
             <View style={styles.row}>
-                {uris.map((uri, idx) => (
-                    <Image key={`${uri}-${idx}`} source={{ uri }} style={styles.photo} />
-                ))}
-
-                {uris.length === 0 && (
-                    <Image source={PlaceholderImage} style={styles.photo} />
+                {uris.length === 0 ? (
+                    <View style={styles.emptyWrap}>
+                        <Text style={styles.emptyText}>Референсов в этом заказе нет</Text>
+                    </View>
+                ) : (
+                    <>
+                        {uris.map((uri, idx) => (
+                            <Image
+                                key={`${uri}-${idx}`}
+                                source={{ uri }}
+                                style={styles.photo}
+                            />
+                        ))}
+                    </>
                 )}
             </View>
         </SectionCard>
@@ -35,5 +42,18 @@ const styles = StyleSheet.create({
         height: 80,
         borderRadius: 15,
         backgroundColor: theme.colors.mainPink,
+    },
+    emptyWrap: {
+        paddingTop: 10,
+        paddingBottom: 12,
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '100%',
+    },
+    emptyText: {
+        fontSize: 14,
+        color: theme.colors.mainGray,
+        fontFamily: 'Epilogue-Regular',
+        textAlign: 'center',
     },
 })

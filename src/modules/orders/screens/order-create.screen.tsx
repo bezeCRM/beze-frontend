@@ -7,44 +7,44 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import type { OrdersStackParamList } from '@/core/navigation/orders-stack'
-import ScreenContainer from '@/shared/components/layout/screen-container'
 import {
     InternalHeaderTitle,
     InternalHeaderTopBar,
 } from '@/shared/components/headers/internal-header'
+import ScreenContainer from '@/shared/components/layout/screen-container'
 import { ToastViewport, useToast } from '@/shared/components/toast/toast-provider'
+import { useOrdersStore } from '@/shared/store/orders.store'
+import { useProductsStore } from '@/shared/store/products.store'
+import { theme } from '@/shared/theme'
+import type { PhotoItem } from '@/shared/types/types'
 import Button from '@/shared/ui/button/button'
 import SelectField from '@/shared/ui/fields/select-field'
 import TextareaField from '@/shared/ui/fields/textarea-field'
-import { useOrdersStore } from '@/shared/store/orders.store'
-import { useProductsStore } from '@/shared/store/products.store'
-import type { PhotoItem } from '@/shared/types/types'
-import { theme } from '@/shared/theme'
 
-import OrderTextField from '../components/create/order-text-field'
-import OrderDeliverySection from '../components/create/order-delivery-section'
-import OrderProductsSection from '../components/create/order-products-section'
-import OrderDecorPricesSection from '../components/create/order-decor-prices-section'
-import OrderExtraSection from '../components/create/order-extra-section'
-import OrderReferencesPicker from '../components/create/order-references-picker'
+import OrderDecorPricesSection from '../components/create&edit/order-decor-prices-section'
+import OrderDeliverySection from '../components/create&edit/order-delivery-section'
+import OrderExtraSection from '../components/create&edit/order-extra-section'
+import OrderProductsSection from '../components/create&edit/order-products-section'
+import OrderReferencesPicker from '../components/create&edit/order-references-picker'
+import OrderTextField from '../components/create&edit/order-text-field'
 
 import {
     type OrderCreateFormValues,
+    type OrderCreateItem,
     type OrderPaymentStatus,
     type OrderStatus,
-    type OrderCreateItem,
     useOrderCreateForm,
 } from '../hooks/useOrderCreateForm'
-import { useOrderTotalPrice } from '../hooks/useOrderTotalPrice'
-import { useOrderProductPicker } from '../hooks/useOrderProductPicker'
 import { useOrderCreateInvalidToast } from '../hooks/useOrderCreateInvalidToast'
+import { useOrderProductPicker } from '../hooks/useOrderProductPicker'
+import { useOrderTotalPrice } from '../hooks/useOrderTotalPrice'
 
-import { buildNewOrderPayload } from '../utils/buildNewOrderPayload'
-import { ORDER_PAYMENT_OPTIONS, ORDER_STATUS_OPTIONS } from '../utils/order-options'
+import PartialPaymentRow from '../components/create&edit/partial-payment-row'
 import { useOrderPayment } from '../hooks/useOrderPayment'
 import { useOrderReferences } from '../hooks/useOrderReferences'
+import { buildNewOrderPayload } from '../utils/buildNewOrderPayload'
 import { formatMoneyRu } from '../utils/money'
-import PartialPaymentRow from '../components/create/partial-payment-row'
+import { ORDER_PAYMENT_OPTIONS, ORDER_STATUS_OPTIONS } from '../utils/order-options'
 
 const MAX_REFERENCES = 3
 const ORDERS_LIST_TOAST_SCOPE = 'ordersList'
