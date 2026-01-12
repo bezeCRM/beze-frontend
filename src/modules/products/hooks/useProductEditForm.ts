@@ -1,9 +1,10 @@
 import { useEffect, useRef } from 'react'
 import type { Product, Filling, Ingredient, PhotoItem } from '@/shared/types/types'
 import {
-    type ProductCreateFormValues,
-    useProductCreateForm,
-} from './useProductCreateForm'
+    useProductFormBase,
+    type ProductFormValues,
+    makeProductDefaultValues,
+} from './useProductFormBase'
 
 function normalizePhotoes(product: Product): PhotoItem[] {
     const raw = (product as any).photoes ?? []
@@ -26,7 +27,7 @@ function normalizePhotoes(product: Product): PhotoItem[] {
 }
 
 export function useProductEditForm(product?: Product | null) {
-    const form = useProductCreateForm()
+    const form = useProductFormBase(makeProductDefaultValues())
     const lastProductId = useRef<string | null>(null)
 
     useEffect(() => {
@@ -44,7 +45,7 @@ export function useProductEditForm(product?: Product | null) {
 
         const photoes: PhotoItem[] = normalizePhotoes(product)
 
-        const values: ProductCreateFormValues = {
+        const values: ProductFormValues = {
             name: product.name ?? '',
             category: product.category,
             unit: product.unit ?? 'piece',

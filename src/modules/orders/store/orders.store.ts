@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { Order, OrderPaymentStatus } from '../types/types'
+import type { Order, OrderPaymentStatus } from '@/shared/types/types'
 import { mockOrders } from '@/shared/utils/mock-orders'
 
 export type NewOrderInput = Omit<

@@ -3,7 +3,7 @@ import BaseModal from '@/modules/modal/base/base-modal'
 import ListSelectModal, {
     type ListSelectItem,
 } from '@/modules/modal/variants/list-select-modal'
-import { useProductsStore } from '@/shared/store/products.store'
+import { useProductsStore } from '../../store/products.store'
 
 type Props = {
     visible: boolean

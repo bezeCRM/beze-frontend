@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { Product } from '../types/types'
+import type { Product } from '@/shared/types/types'
 import { mockProducts } from '@/shared/utils/mock-products'
 
 export type NewProductInput = Omit<Product, 'id' | 'createdAt' | 'updatedAt'>

@@ -9,8 +9,11 @@ import type { Order, OrderProductLine } from '@/shared/types/types'
 import { formatAmount, formatMoney } from '../../utils/order-format'
 import { StackNavigationProp } from '@react-navigation/stack'
 import { AppStackParamList } from '@/core/navigation/app-navigation'
+import { useToast } from '@/shared/components/toast/toast-provider'
+import { useProductsStore } from '@/modules/products/store/products.store'
 
 type Props = { order: Order }
+const ORDER_INFO_TOAST_SCOPE = 'orderInfo'
 
 function Row({ line, onPress }: { line: OrderProductLine; onPress?: () => void }) {
     const name = line.product?.name ?? '—'
@@ -63,6 +66,13 @@ export default function OrderProductsInfo({ order }: Props) {
         navigation.navigate('ProductInfo', { productId })
     }
 
+    const { getById } = useProductsStore()
+
+    const { show } = useToast()
+    const undefinedProductAlert = () => {
+        show('Товар не найден', 'error', { scope: ORDER_INFO_TOAST_SCOPE })
+    }
+
     return (
         <SectionCard title="Товары">
             {list.length === 0 ? (
@@ -72,13 +82,16 @@ export default function OrderProductsInfo({ order }: Props) {
             ) : (
                 <View style={styles.list}>
                     {list.map(line => {
-                        const productId = line.product?.id
+                        const orderProductId = line.product?.id
+                        const realProductId = getById(orderProductId)?.id
                         return (
                             <Row
                                 key={line.id}
                                 line={line}
                                 onPress={
-                                    productId ? () => openProduct(productId) : undefined
+                                    realProductId
+                                        ? () => openProduct(realProductId)
+                                        : undefinedProductAlert
                                 }
                             />
                         )

@@ -22,8 +22,8 @@ import IngredientsEditor from '@/modules/products/components/create&edit/ingredi
 import PhotoesPicker from '@/modules/products/components/create&edit/photoes-picker'
 
 import { pickImagesFromLibrary } from '@/shared/components/media'
-import { useCategoryStore } from '@/shared/store/categories.store'
-import { useProductsStore } from '@/shared/store/products.store'
+import { useCategoryStore } from '../store/categories.store'
+import { useProductsStore } from '../store/products.store'
 import { theme } from '@/shared/theme'
 import { useCopyIngredientsFromProduct } from '../hooks/useCopyIngredientsFromProduct'
 import type { ProductCreateFormValues } from '../hooks/useProductCreateForm'
@@ -32,6 +32,7 @@ import { AppStackParamList } from '@/core/navigation/app-navigation'
 import { StackNavigationProp } from '@react-navigation/stack'
 
 const MAX_PHOTOES = 3
+const PRODUCT_INFO_TOAST_SCOPE = 'productInfo'
 
 type Navigation = StackNavigationProp<AppStackParamList, 'ProductEdit'>
 type Route = RouteProp<AppStackParamList, 'ProductEdit'>
@@ -129,6 +130,13 @@ export default function ProductEditScreen() {
             photoes: photoesClean,
         })
 
+        const unsub = navigation.addListener('transitionEnd', () => {
+            unsub()
+            show('Изменения сохранены', 'success', {
+                scope: PRODUCT_INFO_TOAST_SCOPE,
+            })
+        })
+
         navigation.goBack()
     }
 
@@ -159,9 +167,9 @@ export default function ProductEditScreen() {
                 <View style={styles.stickyTopBar}>
                     <InternalHeaderTopBar
                         onBack={() => navigation.goBack()}
-                        showEdit={true}
-                        onEditPress={handleSubmit(onValid, onInvalid)}
-                        editText="Сохранить"
+                        showAction={true}
+                        onActionPress={handleSubmit(onValid, onInvalid)}
+                        actionText="Сохранить"
                     />
                 </View>
 

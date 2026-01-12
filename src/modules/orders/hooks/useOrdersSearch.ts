@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useSmartSearch } from '@/shared/hooks/useSmartSearch'
-import { useOrdersStore } from '@/shared/store/orders.store'
+import { useOrdersStore } from '../store/orders.store'
 import type { Order, OrderStatus } from '@/shared/types/types'
 
 const orderEngineOptions = {

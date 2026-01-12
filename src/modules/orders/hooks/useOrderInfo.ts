@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from 'react'
-import { useOrdersStore } from '@/shared/store/orders.store'
+import { useOrdersStore } from '../store/orders.store'
 import type { OrderPaymentStatus, OrderStatus } from '@/shared/types/types'
 
 export function useOrderInfo(orderId: string) {

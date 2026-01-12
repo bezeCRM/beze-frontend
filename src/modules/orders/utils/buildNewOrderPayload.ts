@@ -1,6 +1,6 @@
 import type { OrderCreateFormValues } from '../hooks/useOrderCreateForm'
 import type { OrderDeliveryType } from '@/shared/types/types'
-import type { NewOrderInput } from '@/shared/store/orders.store'
+import type { NewOrderInput } from '../store/orders.store'
 
 function toNumber(value: unknown) {
     const s = String(value ?? '')

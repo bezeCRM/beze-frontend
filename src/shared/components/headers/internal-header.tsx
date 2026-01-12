@@ -4,16 +4,16 @@ import { theme } from '@/shared/theme'
 
 type CommonProps = {
     onBack?: () => void
-    onEditPress?: () => void
-    showEdit?: boolean
-    editText?: string
+    onActionPress?: () => void
+    showAction?: boolean
+    actionText?: string
 }
 
 export function InternalHeaderTopBar({
     onBack,
-    onEditPress,
-    showEdit = false,
-    editText = 'Изменить',
+    onActionPress,
+    showAction = false,
+    actionText = 'Изменить',
 }: CommonProps) {
     return (
         <View style={styles.topBar}>
@@ -27,14 +27,14 @@ export function InternalHeaderTopBar({
                 <Text style={styles.backText}>Назад</Text>
             </Pressable>
 
-            {showEdit ? (
+            {showAction ? (
                 <Pressable
-                    onPress={onEditPress}
+                    onPress={onActionPress}
                     style={styles.editBtn}
                     android_ripple={{ color: theme.colors.mainPink }}
                     hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                 >
-                    <Text style={styles.editText}>{editText}</Text>
+                    <Text style={styles.editText}>{actionText}</Text>
                 </Pressable>
             ) : (
                 <View style={styles.editSpacer} />
@@ -65,9 +65,9 @@ type FullProps = CommonProps & {
 export default function InternalHeader({
     title,
     onBack,
-    onEditPress,
-    showEdit = false,
-    editText = 'Изменить',
+    onActionPress,
+    showAction = false,
+    actionText = 'Изменить',
     containerStyle,
     titleStyle,
 }: FullProps) {
@@ -75,9 +75,9 @@ export default function InternalHeader({
         <View style={[styles.container, containerStyle]}>
             <InternalHeaderTopBar
                 onBack={onBack}
-                onEditPress={onEditPress}
-                showEdit={showEdit}
-                editText={editText}
+                onActionPress={onActionPress}
+                showAction={showAction}
+                actionText={actionText}
             />
             <InternalHeaderTitle title={title} titleStyle={titleStyle} />
         </View>

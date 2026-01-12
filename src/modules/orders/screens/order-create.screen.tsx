@@ -13,8 +13,8 @@ import {
 } from '@/shared/components/headers/internal-header'
 import ScreenContainer from '@/shared/components/layout/screen-container'
 import { ToastViewport, useToast } from '@/shared/components/toast/toast-provider'
-import { useOrdersStore } from '@/shared/store/orders.store'
-import { useProductsStore } from '@/shared/store/products.store'
+import { useOrdersStore } from '../store/orders.store'
+import { useProductsStore } from '@/modules/products/store/products.store'
 import { theme } from '@/shared/theme'
 import type { PhotoItem } from '@/shared/types/types'
 import Button from '@/shared/ui/button/button'
@@ -79,6 +79,8 @@ export default function OrderCreateScreen() {
         setDecorPrice,
         addReferences,
         removeReference,
+        clearDraft,
+        hasDraft,
     } = useOrderCreateForm()
 
     const name = watch('name') ?? ''
@@ -128,6 +130,7 @@ export default function OrderCreateScreen() {
         (values: OrderCreateFormValues) => {
             const payload = buildNewOrderPayload(values, totalPrice)
             addOrder(payload)
+            clearDraft()
 
             const unsub = navigation.addListener('transitionEnd', () => {
                 unsub()
@@ -136,14 +139,19 @@ export default function OrderCreateScreen() {
 
             navigation.goBack()
         },
-        [addOrder, navigation, show, totalPrice],
+        [addOrder, clearDraft, navigation, show, totalPrice],
     )
 
     return (
         <ScreenContainer>
             <View style={styles.container}>
                 <View style={styles.stickyTopBar}>
-                    <InternalHeaderTopBar onBack={() => navigation.goBack()} />
+                    <InternalHeaderTopBar
+                        onBack={() => navigation.goBack()}
+                        showAction={hasDraft}
+                        onActionPress={hasDraft ? clearDraft : undefined}
+                        actionText={hasDraft ? 'Очистить' : undefined}
+                    />
                 </View>
 
                 <KeyboardAwareScrollView

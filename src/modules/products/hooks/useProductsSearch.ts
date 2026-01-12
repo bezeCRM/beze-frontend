@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useSmartSearch } from '@/shared/hooks/useSmartSearch'
-import { useProductsStore } from '@/shared/store/products.store'
+import { useProductsStore } from '../store/products.store'
 import type { Product } from '@/shared/types/types'
 
 const productEngineOptions = {

@@ -24,9 +24,9 @@ import IngredientsEditor from '@/modules/products/components/create&edit/ingredi
 import PhotoesPicker from '@/modules/products/components/create&edit/photoes-picker'
 
 import { pickImagesFromLibrary } from '@/shared/components/media'
-import { useCategoryStore } from '@/shared/store/categories.store'
-import type { NewProductInput } from '@/shared/store/products.store'
-import { useProductsStore } from '@/shared/store/products.store'
+import { useCategoryStore } from '../store/categories.store'
+import type { NewProductInput } from '../store/products.store'
+import { useProductsStore } from '../store/products.store'
 import { theme } from '@/shared/theme'
 
 import { useCopyIngredientsFromProduct } from '../hooks/useCopyIngredientsFromProduct'
@@ -64,6 +64,8 @@ export default function ProductCreateScreen() {
         removeIngredient,
         addPhotoes,
         removePhoto,
+        hasDraft,
+        clearDraft,
     } = useProductCreateForm()
 
     // копирование ингредиентов из другого товара
@@ -131,6 +133,7 @@ export default function ProductCreateScreen() {
         }
 
         addProduct(newProduct)
+        clearDraft()
 
         // показываем тост после завершения анимации закрытия экрана
         const unsub = navigation.addListener('transitionEnd', () => {
@@ -172,7 +175,12 @@ export default function ProductCreateScreen() {
         <ScreenContainer>
             <View style={styles.container}>
                 <View style={styles.stickyTopBar}>
-                    <InternalHeaderTopBar onBack={() => navigation.goBack()} />
+                    <InternalHeaderTopBar
+                        onBack={() => navigation.goBack()}
+                        showAction={hasDraft}
+                        onActionPress={hasDraft ? clearDraft : undefined}
+                        actionText={hasDraft ? 'Очистить' : undefined}
+                    />
                 </View>
 
                 <KeyboardAwareScrollView

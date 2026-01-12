@@ -1,10 +1,10 @@
 import { useEffect, useRef } from 'react'
 import type { Order, PhotoItem } from '@/shared/types/types'
 import {
+    useOrderFormBase,
     type OrderCreateFormValues,
     type OrderCreateItem,
-    useOrderCreateForm,
-} from './useOrderCreateForm'
+} from './useOrderFormBase'
 
 function toText(n: unknown) {
     const num = typeof n === 'number' ? n : Number(n)
@@ -26,7 +26,7 @@ function normalizeReferences(orderId: string, raw?: PhotoItem[] | null): PhotoIt
 }
 
 export function useOrderEditForm(order?: Order | null) {
-    const form = useOrderCreateForm()
+    const base = useOrderFormBase()
     const lastOrderId = useRef<string | null>(null)
 
     useEffect(() => {
@@ -69,38 +69,32 @@ export function useOrderEditForm(order?: Order | null) {
             clientName: order.clientName ?? '',
             clientPhone: order.clientPhone ?? '',
             orderPlatform: order.orderPlatform ?? '',
-
             delivery: {
                 isPickup,
                 address: isPickup ? '' : (order.address ?? ''),
                 date: order.date ?? '',
                 time: order.time ?? '',
             },
-
             items,
-
             extra: {
                 delivery: toText(extra?.delivery ?? 0),
                 urgency: toText(extra?.urgency ?? 0),
                 other: toText(extra?.other ?? 0),
                 discount: toText(extra?.discount ?? 0),
             },
-
             notes: order.notes ?? '',
             references: normalizeReferences(order.id, order.references),
-
             paymentStatus: (order as any).paymentStatus ?? 'unpaid',
             status: (order as any).status ?? 'new',
             inPlanner: !!(order as any).inPlanner,
-
             ...(typeof (order as any).paidAmount !== 'undefined'
                 ? { paidAmount: toText((order as any).paidAmount) }
                 : {}),
         } as any
 
-        form.reset(values)
+        base.reset(values)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [order?.id])
 
-    return form
+    return base
 }

@@ -8,7 +8,7 @@ import {
 } from '@/shared/components/headers/internal-header'
 import ScreenContainer from '@/shared/components/layout/screen-container'
 import { ToastViewport, useToast } from '@/shared/components/toast/toast-provider'
-import { useProductsStore } from '@/shared/store/products.store'
+import { useProductsStore } from '../store/products.store'
 import type { RouteProp } from '@react-navigation/native'
 import type { StackNavigationProp } from '@react-navigation/stack'
 
@@ -26,6 +26,7 @@ import { AppStackParamList } from '@/core/navigation/app-navigation'
 
 type Route = RouteProp<AppStackParamList, 'ProductInfo'>
 type Navigation = StackNavigationProp<AppStackParamList, 'ProductInfo'>
+const PRODUCT_INFO_TOAST_SCOPE = 'productInfo'
 
 export default function ProductInfoScreen() {
     const { bottom } = useSafeAreaInsets()
@@ -77,8 +78,8 @@ export default function ProductInfoScreen() {
                 <View style={styles.stickyTopBar}>
                     <InternalHeaderTopBar
                         onBack={() => navigation.goBack()}
-                        showEdit
-                        onEditPress={() =>
+                        showAction
+                        onActionPress={() =>
                             navigation.navigate('ProductEdit', { productId: product.id })
                         }
                     />
@@ -113,7 +114,7 @@ export default function ProductInfoScreen() {
                     />
                 </BaseModal>
 
-                <ToastViewport scope={route.key} bottomOffset={75} horizontalInset={15} />
+                <ToastViewport scope={PRODUCT_INFO_TOAST_SCOPE} bottomOffset={25} />
             </View>
         </ScreenContainer>
     )

@@ -13,8 +13,8 @@ import {
 } from '@/shared/components/headers/internal-header'
 import ScreenContainer from '@/shared/components/layout/screen-container'
 import { ToastViewport, useToast } from '@/shared/components/toast/toast-provider'
-import { useOrdersStore } from '@/shared/store/orders.store'
-import { useProductsStore } from '@/shared/store/products.store'
+import { useOrdersStore } from '../store/orders.store'
+import { useProductsStore } from '@/modules/products/store/products.store'
 import { theme } from '@/shared/theme'
 import type { PhotoItem } from '@/shared/types/types'
 import TextareaField from '@/shared/ui/fields/textarea-field'
@@ -35,6 +35,7 @@ import { useOrderTotalPrice } from '../hooks/useOrderTotalPrice'
 import { buildNewOrderPayload } from '../utils/buildNewOrderPayload'
 
 const MAX_REFERENCES = 3
+const ORDER_INFO_TOAST_SCOPE = 'orderInfo'
 
 type R = RouteProp<OrdersStackParamList, 'OrderEdit'>
 type Nav = StackNavigationProp<OrdersStackParamList, 'OrderEdit'>
@@ -103,9 +104,13 @@ export default function OrderEditScreen() {
             if (!order) return
             const payload = buildNewOrderPayload(values, totalPrice)
             updateOrder(order.id, payload as any)
+            const unsub = navigation.addListener('transitionEnd', () => {
+                unsub()
+                show('Изменения сохранены', 'success', { scope: ORDER_INFO_TOAST_SCOPE })
+            })
             navigation.goBack()
         },
-        [navigation, order, totalPrice, updateOrder],
+        [navigation, order, show, totalPrice, updateOrder],
     )
 
     if (!order) {
@@ -129,9 +134,9 @@ export default function OrderEditScreen() {
                 <View style={styles.stickyTopBar}>
                     <InternalHeaderTopBar
                         onBack={() => navigation.goBack()}
-                        showEdit={true}
-                        onEditPress={handleSubmit(onValid, onInvalid)}
-                        editText="Сохранить"
+                        showAction={true}
+                        onActionPress={handleSubmit(onValid, onInvalid)}
+                        actionText="Сохранить"
                     />
                 </View>
 

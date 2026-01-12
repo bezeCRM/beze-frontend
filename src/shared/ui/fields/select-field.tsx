@@ -1,6 +1,6 @@
 import SelectIcon from '@/assets/images/select-icon.svg'
 import { useModalStore } from '@/modules/modal'
-import { useCategoryStore } from '@/shared/store/categories.store'
+import { useCategoryStore } from '@/modules/products/store/categories.store'
 import { theme } from '@/shared/theme'
 import { Category } from '@/shared/types/types'
 import { useMemo, useRef, useState } from 'react'

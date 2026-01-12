@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react'
 
 import CopyIngredientsModal from '@/modules/products/components/create&edit/copy-ingredients-modal'
-import { useProductsStore } from '@/shared/store/products.store'
+import { useProductsStore } from '../store/products.store'
 
 type IngredientFormValue = {
     id: string

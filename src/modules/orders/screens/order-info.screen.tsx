@@ -31,6 +31,7 @@ import { theme } from '@/shared/theme'
 
 type R = RouteProp<OrdersStackParamList, 'OrderInfo'>
 type Nav = StackNavigationProp<OrdersStackParamList, 'OrderInfo'>
+const ORDER_INFO_TOAST_SCOPE = 'orderInfo'
 
 export default function OrderInfoScreen() {
     const { bottom } = useSafeAreaInsets()
@@ -85,8 +86,8 @@ export default function OrderInfoScreen() {
                 <View style={styles.stickyTopBar}>
                     <InternalHeaderTopBar
                         onBack={() => navigation.goBack()}
-                        showEdit
-                        onEditPress={() =>
+                        showAction
+                        onActionPress={() =>
                             navigation.navigate('OrderEdit', { orderId: order.id })
                         }
                     />
@@ -142,7 +143,7 @@ export default function OrderInfoScreen() {
                     />
                 </BaseModal>
 
-                <ToastViewport scope={route.key} bottomOffset={75} horizontalInset={15} />
+                <ToastViewport scope={ORDER_INFO_TOAST_SCOPE} bottomOffset={25} />
             </View>
         </ScreenContainer>
     )
