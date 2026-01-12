@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { Category } from '../types/types'
+import type { Category } from '@/shared/types/types'
 
 type CategoryStore = {
     categories: Category[]
