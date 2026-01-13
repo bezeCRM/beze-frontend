@@ -12,14 +12,14 @@ type Props = {
 export default function AppProviders({ children }: Props) {
     return (
         <SafeAreaProvider>
-            <ImageViewerProvider>
-                <ToastProvider>
-                    <GestureHandlerRootView style={{ flex: 1 }}>
+            <ToastProvider>
+                <GestureHandlerRootView style={{ flex: 1 }}>
+                    <ImageViewerProvider>
                         <ModalProvider />
                         <NavigationContainer>{children}</NavigationContainer>
-                    </GestureHandlerRootView>
-                </ToastProvider>
-            </ImageViewerProvider>
+                    </ImageViewerProvider>
+                </GestureHandlerRootView>
+            </ToastProvider>
         </SafeAreaProvider>
     )
 }

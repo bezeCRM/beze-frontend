@@ -61,10 +61,10 @@ export function ImageViewerProvider({ children }: { children: React.ReactNode })
                 onImageIndexChange={i => {
                     currentIndexRef.current = i
                 }}
-                swipeToCloseEnabled
                 presentationStyle="overFullScreen"
                 animationType="slide"
                 backgroundColor="#000000"
+                doubleTapToZoomEnabled
             />
         </ImageViewerContext.Provider>
     )
