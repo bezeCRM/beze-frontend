@@ -1,9 +1,11 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { View, StyleSheet, TouchableOpacity, Image } from 'react-native'
+
 import SectionCard from '@/shared/ui/section/section-card'
 import AddPhotoIcon from '@/assets/images/add-photo-icon.svg'
 import DeletePhotoIcon from '@/assets/images/delete-photo-icon.svg'
 import { theme } from '@/shared/theme'
+import { useImageViewer } from '@/shared/hooks/useImageViewer'
 
 type Photo = { id: string; uri: string }
 
@@ -22,6 +24,12 @@ export default function PhotoesPicker({
     onPhotoPress,
     maxCount = 3,
 }: Props) {
+    const input = useMemo(
+        () => (photoes ?? []).map(p => p.uri).filter(Boolean),
+        [photoes],
+    )
+    const viewer = useImageViewer(input, maxCount)
+
     const canAdd = (photoes?.length ?? 0) < maxCount
 
     return (
@@ -31,9 +39,10 @@ export default function PhotoesPicker({
                     <View key={p.id} style={styles.tileWrap}>
                         <TouchableOpacity
                             activeOpacity={0.9}
-                            onPress={() =>
+                            onPress={() => {
+                                viewer.openAt(index)
                                 onPhotoPress?.({ id: p.id, uri: p.uri, index })
-                            }
+                            }}
                             style={styles.preview}
                         >
                             <Image source={{ uri: p.uri }} style={styles.img} />

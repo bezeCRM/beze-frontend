@@ -1,32 +1,41 @@
-import React from 'react'
-import { Image, StyleSheet, View, Text } from 'react-native'
+import React, { useMemo } from 'react'
+import { Image, StyleSheet, View, Text, Pressable } from 'react-native'
+
 import SectionCard from '@/shared/ui/section/section-card'
 import { theme } from '@/shared/theme'
 import type { Order, PhotoItem } from '@/shared/types/types'
+import { useImageViewer } from '@/shared/hooks/useImageViewer'
 
 type Props = { order: Order }
 
 export default function OrderReferencesInfo({ order }: Props) {
-    const uris = (order.references ?? [])
-        .map(p => (typeof p === 'string' ? p : (p as PhotoItem)?.uri))
-        .filter((u): u is string => Boolean(u))
-        .slice(0, 3)
+    const input = useMemo(
+        () =>
+            (order.references ?? [])
+                .map(p => (typeof p === 'string' ? p : (p as PhotoItem)?.uri))
+                .filter((u): u is string => Boolean(u))
+                .slice(0, 3),
+        [order.references],
+    )
+
+    const viewer = useImageViewer(input, 3)
 
     return (
         <SectionCard title="Референсы">
             <View style={styles.row}>
-                {uris.length === 0 ? (
+                {viewer.uris.length === 0 ? (
                     <View style={styles.emptyWrap}>
                         <Text style={styles.emptyText}>Референсов в этом заказе нет</Text>
                     </View>
                 ) : (
                     <>
-                        {uris.map((uri, idx) => (
-                            <Image
+                        {viewer.uris.map((uri, idx) => (
+                            <Pressable
                                 key={`${uri}-${idx}`}
-                                source={{ uri }}
-                                style={styles.photo}
-                            />
+                                onPress={() => viewer.openAt(idx)}
+                            >
+                                <Image source={{ uri }} style={styles.photo} />
+                            </Pressable>
                         ))}
                     </>
                 )}

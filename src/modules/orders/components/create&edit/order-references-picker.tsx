@@ -1,10 +1,12 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { Image, StyleSheet, TouchableOpacity, View } from 'react-native'
+
 import SectionCard from '@/shared/ui/section/section-card'
 import AddPhotoIcon from '@/assets/images/add-photo-icon.svg'
 import DeletePhotoIcon from '@/assets/images/delete-photo-icon.svg'
 import { theme } from '@/shared/theme'
 import type { PhotoItem } from '@/shared/types/types'
+import { useImageViewer } from '@/shared/hooks/useImageViewer'
 
 type Props = {
     items: PhotoItem[]
@@ -19,16 +21,23 @@ export default function OrderReferencesPicker({
     onDeletePress,
     maxCount = 3,
 }: Props) {
+    const input = useMemo(() => (items ?? []).map(p => p.uri).filter(Boolean), [items])
+    const viewer = useImageViewer(input, maxCount)
+
     const canAdd = (items?.length ?? 0) < maxCount
 
     return (
         <SectionCard title="Референсы">
             <View style={styles.row}>
-                {items.map(p => (
+                {items.map((p, index) => (
                     <View key={p.id} style={styles.tileWrap}>
-                        <View style={styles.preview}>
+                        <TouchableOpacity
+                            activeOpacity={0.9}
+                            onPress={() => viewer.openAt(index)}
+                            style={styles.preview}
+                        >
                             <Image source={{ uri: p.uri }} style={styles.img} />
-                        </View>
+                        </TouchableOpacity>
 
                         <TouchableOpacity
                             style={styles.delete}
