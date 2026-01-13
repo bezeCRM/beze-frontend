@@ -32,5 +32,7 @@ jobs:
             - name: 💅 Check Prettier formatting
               run: npm run format:check
 
-            - name: 🧱 Expo dry build
-              run: npx expo export --output-dir=dist
+            - name: 🧱 Expo dry build (native only)
+              run: |
+                npx expo export --platform ios --output-dir=dist/ios
+                npx expo export --platform android --output-dir=dist/android

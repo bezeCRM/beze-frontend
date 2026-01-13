@@ -5,6 +5,7 @@
         "version": "1.0.0",
         "assetBundlePatterns": ["**/*"],
         "plugins": ["expo-font"],
+        "platforms": ["ios", "android"],
         "ios": {
             "infoPlist": {
                 "NSPhotoLibraryUsageDescription": "Нужно для выбора фото из галереи"
