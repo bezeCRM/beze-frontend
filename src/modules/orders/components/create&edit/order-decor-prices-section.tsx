@@ -1,8 +1,8 @@
 import React from 'react'
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import SectionCard from '@/shared/ui/section/section-card'
-import { theme } from '@/shared/theme'
 import type { OrderCreateItem } from '../../hooks/useOrderCreateForm'
+import { createThemedStyles } from '@/shared/theme/create-themed-styles'
 
 type Props = {
     items: OrderCreateItem[]
@@ -19,6 +19,7 @@ function Row({
     value: string
     onChangeText: (t: string) => void
 }) {
+    const styles = useStyles()
     return (
         <View style={styles.row}>
             <Text style={styles.name} numberOfLines={1}>
@@ -40,6 +41,7 @@ function Row({
 }
 
 export default function OrderDecorPricesSection({ items, onChange, onAddPress }: Props) {
+    const styles = useStyles()
     if (items.length === 0) {
         return (
             <SectionCard title="Стоимость декора">
@@ -85,72 +87,74 @@ export default function OrderDecorPricesSection({ items, onChange, onAddPress }:
     )
 }
 
-const styles = StyleSheet.create({
-    list: { gap: 12 },
+const useStyles = createThemedStyles(theme =>
+    StyleSheet.create({
+        list: { gap: 12 },
 
-    row: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        columnGap: 12,
-    },
-    name: {
-        flex: 1,
-        fontSize: 14,
-        color: theme.colors.mainBlack,
-        fontFamily: 'Epilogue-Regular',
-    },
-    right: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        columnGap: 8,
-    },
-    input: {
-        width: 70,
-        height: 34,
-        borderRadius: 12,
-        borderWidth: 1,
-        borderColor: theme.colors.lineGray,
-        backgroundColor: theme.colors.mainWhite,
-        textAlign: 'center',
-        fontSize: 14,
-        color: theme.colors.mainBlack,
-        fontFamily: 'Epilogue-Regular',
-        paddingHorizontal: 8,
-        paddingVertical: 6,
-    },
-    ruble: {
-        fontSize: 14,
-        color: theme.colors.mainBlack,
-        fontFamily: 'Epilogue-Regular',
-    },
+        row: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            columnGap: 12,
+        },
+        name: {
+            flex: 1,
+            fontSize: 14,
+            color: theme.colors.text,
+            fontFamily: 'Epilogue-Regular',
+        },
+        right: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            columnGap: 8,
+        },
+        input: {
+            width: 70,
+            height: 34,
+            borderRadius: 12,
+            borderWidth: 1,
+            borderColor: theme.colors.border,
+            backgroundColor: theme.colors.surface,
+            textAlign: 'center',
+            fontSize: 14,
+            color: theme.colors.text,
+            fontFamily: 'Epilogue-Regular',
+            paddingHorizontal: 8,
+            paddingVertical: 6,
+        },
+        ruble: {
+            fontSize: 14,
+            color: theme.colors.text,
+            fontFamily: 'Epilogue-Regular',
+        },
 
-    decorEmptyWrap: {
-        marginTop: 6,
-        paddingVertical: 18,
-        alignItems: 'center',
-        justifyContent: 'center',
-        rowGap: 12,
-    },
-    decorEmptyText: {
-        fontSize: 14,
-        color: theme.colors.mainGray,
-        fontFamily: 'Epilogue-Regular',
-        textAlign: 'center',
-    },
-    decorEmptyBtn: {
-        height: 36,
-        paddingHorizontal: 18,
-        borderRadius: 15,
-        backgroundColor: theme.colors.mainPink,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    decorEmptyBtnText: {
-        fontSize: 14,
-        color: theme.colors.mainWhite,
-        fontFamily: 'Epilogue-SemiBold',
-    },
-    decorEmptyBtnDisabled: { backgroundColor: theme.colors.lineGray },
-    decorEmptyBtnTextDisabled: { color: theme.colors.mainGray },
-})
+        decorEmptyWrap: {
+            marginTop: 6,
+            paddingVertical: 18,
+            alignItems: 'center',
+            justifyContent: 'center',
+            rowGap: 12,
+        },
+        decorEmptyText: {
+            fontSize: 14,
+            color: theme.colors.textMuted,
+            fontFamily: 'Epilogue-Regular',
+            textAlign: 'center',
+        },
+        decorEmptyBtn: {
+            height: 36,
+            paddingHorizontal: 18,
+            borderRadius: 15,
+            backgroundColor: theme.colors.brand,
+            alignItems: 'center',
+            justifyContent: 'center',
+        },
+        decorEmptyBtnText: {
+            fontSize: 14,
+            color: theme.colors.surface,
+            fontFamily: 'Epilogue-SemiBold',
+        },
+        decorEmptyBtnDisabled: { backgroundColor: theme.colors.border },
+        decorEmptyBtnTextDisabled: { color: theme.colors.textMuted },
+    }),
+)

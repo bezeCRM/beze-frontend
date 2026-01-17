@@ -4,8 +4,8 @@ import { View, StyleSheet, TouchableOpacity, Image } from 'react-native'
 import SectionCard from '@/shared/ui/section/section-card'
 import AddPhotoIcon from '@/assets/images/add-photo-icon.svg'
 import DeletePhotoIcon from '@/assets/images/delete-photo-icon.svg'
-import { theme } from '@/shared/theme'
 import { useImageViewer } from '@/shared/hooks/useImageViewer'
+import { createThemedStyles } from '@/shared/theme/create-themed-styles'
 
 type Photo = { id: string; uri: string }
 
@@ -24,6 +24,7 @@ export default function PhotoesPicker({
     onPhotoPress,
     maxCount = 3,
 }: Props) {
+    const styles = useStyles()
     const input = useMemo(
         () => (photoes ?? []).map(p => p.uri).filter(Boolean),
         [photoes],
@@ -79,61 +80,61 @@ const GAP = 10
 const RADIUS = 15
 const DELETE_SIZE = 24
 
-const { colors } = theme
+const useStyles = createThemedStyles(theme =>
+    StyleSheet.create({
+        row: {
+            marginTop: 5,
+            flexDirection: 'row',
+            flexWrap: 'nowrap',
+        },
 
-const styles = StyleSheet.create({
-    row: {
-        marginTop: 5,
-        flexDirection: 'row',
-        flexWrap: 'nowrap',
-    },
+        tileWrap: {
+            marginRight: GAP,
+            position: 'relative',
+        },
 
-    tileWrap: {
-        marginRight: GAP,
-        position: 'relative',
-    },
+        preview: {
+            width: SIZE,
+            height: SIZE,
+            borderRadius: RADIUS,
+            overflow: 'hidden',
+            backgroundColor: theme.colors.background,
+        },
 
-    preview: {
-        width: SIZE,
-        height: SIZE,
-        borderRadius: RADIUS,
-        overflow: 'hidden',
-        backgroundColor: colors.backgroundWhite,
-    },
+        img: {
+            width: '100%',
+            height: '100%',
+        },
 
-    img: {
-        width: '100%',
-        height: '100%',
-    },
+        delete: {
+            position: 'absolute',
+            top: -4,
+            right: -4,
+            width: DELETE_SIZE,
+            height: DELETE_SIZE,
+            borderRadius: 99,
+            backgroundColor: theme.colors.surface,
+            resizeMode: 'contain',
+            shadowColor: '#000',
+            shadowOpacity: 0.1,
+            shadowRadius: 10,
+            shadowOffset: { width: 0, height: 0 },
+            elevation: 2,
+        },
 
-    delete: {
-        position: 'absolute',
-        top: -4,
-        right: -4,
-        width: DELETE_SIZE,
-        height: DELETE_SIZE,
-        borderRadius: 99,
-        backgroundColor: colors.mainWhite,
-        resizeMode: 'contain',
-        shadowColor: '#000',
-        shadowOpacity: 0.1,
-        shadowRadius: 10,
-        shadowOffset: { width: 0, height: 0 },
-        elevation: 2,
-    },
-
-    addWrap: {
-        marginRight: 0,
-    },
-    addTile: {
-        width: SIZE,
-        height: SIZE,
-        borderRadius: RADIUS,
-        borderWidth: 1,
-        borderColor: colors.mainGray,
-        borderStyle: 'dashed',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: colors.mainWhite,
-    },
-})
+        addWrap: {
+            marginRight: 0,
+        },
+        addTile: {
+            width: SIZE,
+            height: SIZE,
+            borderRadius: RADIUS,
+            borderWidth: 1,
+            borderColor: theme.colors.textMuted,
+            borderStyle: 'dashed',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: theme.colors.surface,
+        },
+    }),
+)

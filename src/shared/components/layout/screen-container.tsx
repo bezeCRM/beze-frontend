@@ -1,8 +1,7 @@
-import { theme } from '@/shared/theme'
-import React from 'react'
 import { ScrollView, StyleSheet, View, ViewStyle } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import DismissKeyboard from '../keyboard/dismiss-keyboard'
+import { createThemedStyles } from '@/shared/theme/create-themed-styles'
 
 type ScreenContainerProps = {
     children: React.ReactNode
@@ -19,6 +18,7 @@ export default function ScreenContainer({
     edges = ['top', 'left', 'right'],
     contentContainerStyle,
 }: ScreenContainerProps) {
+    const styles = useStyles()
     if (scrollable) {
         return (
             <DismissKeyboard>
@@ -44,16 +44,18 @@ export default function ScreenContainer({
     )
 }
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: theme.colors.backgroundWhite,
-    },
-    inner: {
-        flex: 1,
-        paddingHorizontal: 20,
-    },
-    scrollContent: {
-        paddingHorizontal: 20,
-    },
-})
+const useStyles = createThemedStyles(theme =>
+    StyleSheet.create({
+        container: {
+            flex: 1,
+            backgroundColor: theme.colors.background,
+        },
+        inner: {
+            flex: 1,
+            paddingHorizontal: 20,
+        },
+        scrollContent: {
+            paddingHorizontal: 20,
+        },
+    }),
+)

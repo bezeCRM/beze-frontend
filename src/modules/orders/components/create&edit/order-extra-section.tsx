@@ -1,7 +1,7 @@
 import React from 'react'
 import { StyleSheet, Text, TextInput, View } from 'react-native'
 import SectionCard from '@/shared/ui/section/section-card'
-import { theme } from '@/shared/theme'
+import { createThemedStyles } from '@/shared/theme/create-themed-styles'
 
 type Props = {
     delivery: string
@@ -23,6 +23,7 @@ function Row({
     value: string
     onChangeText: (t: string) => void
 }) {
+    const styles = useStyles()
     return (
         <View style={styles.row}>
             <Text style={styles.name}>{title}</Text>
@@ -50,6 +51,7 @@ export default function OrderExtraSection({
     onChangeOther,
     onChangeDiscount,
 }: Props) {
+    const styles = useStyles()
     return (
         <SectionCard title="Дополнительно">
             <View style={styles.list}>
@@ -62,43 +64,45 @@ export default function OrderExtraSection({
     )
 }
 
-const styles = StyleSheet.create({
-    list: { gap: 10 },
-    row: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        columnGap: 12,
-    },
-    name: {
-        flex: 1,
-        fontSize: 14,
-        color: theme.colors.mainBlack,
-        fontFamily: 'Epilogue-Regular',
-        textTransform: 'lowercase',
-    },
-    right: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        columnGap: 8,
-    },
-    input: {
-        width: 70,
-        height: 34,
-        borderRadius: 10,
-        borderWidth: 1,
-        borderColor: theme.colors.lineGray,
-        backgroundColor: theme.colors.mainWhite,
-        textAlign: 'center',
-        fontSize: 16,
-        color: theme.colors.mainBlack,
-        fontFamily: 'Epilogue-Regular',
-        paddingHorizontal: 8,
-        paddingVertical: 6,
-    },
-    ruble: {
-        fontSize: 16,
-        color: theme.colors.mainBlack,
-        fontFamily: 'Epilogue-Regular',
-    },
-})
+const useStyles = createThemedStyles(theme =>
+    StyleSheet.create({
+        list: { gap: 10 },
+        row: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            columnGap: 12,
+        },
+        name: {
+            flex: 1,
+            fontSize: 14,
+            color: theme.colors.text,
+            fontFamily: 'Epilogue-Regular',
+            textTransform: 'lowercase',
+        },
+        right: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            columnGap: 8,
+        },
+        input: {
+            width: 70,
+            height: 34,
+            borderRadius: 10,
+            borderWidth: 1,
+            borderColor: theme.colors.border,
+            backgroundColor: theme.colors.surface,
+            textAlign: 'center',
+            fontSize: 16,
+            color: theme.colors.text,
+            fontFamily: 'Epilogue-Regular',
+            paddingHorizontal: 8,
+            paddingVertical: 6,
+        },
+        ruble: {
+            fontSize: 16,
+            color: theme.colors.text,
+            fontFamily: 'Epilogue-Regular',
+        },
+    }),
+)

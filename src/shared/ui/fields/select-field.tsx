@@ -1,7 +1,6 @@
 import SelectIcon from '@/assets/images/select-icon.svg'
 import { useModalStore } from '@/modules/modal'
 import { useCategoryStore } from '@/modules/products/store/categories.store'
-import { theme } from '@/shared/theme'
 import { Category } from '@/shared/types/types'
 import { useMemo, useRef, useState } from 'react'
 import {
@@ -16,6 +15,7 @@ import {
     View,
 } from 'react-native'
 import SectionCard from '../section/section-card'
+import { createThemedStyles } from '@/shared/theme/create-themed-styles'
 
 type Props = {
     label: string
@@ -36,6 +36,7 @@ export default function SelectField({
     error,
     addCategoryEnabled = true,
 }: Props) {
+    const styles = useStyles()
     const { height: screenH } = useWindowDimensions()
     const [openSelect, setOpenSelect] = useState(false)
     const [anchor, setAnchor] = useState<LayoutRectangle | null>(null)
@@ -224,66 +225,66 @@ export default function SelectField({
     )
 }
 
-const { colors } = theme
+const useStyles = createThemedStyles(theme =>
+    StyleSheet.create({
+        field: {
+            backgroundColor: theme.colors.surface,
+            height: 40,
+            borderRadius: 15,
+            paddingHorizontal: 15,
+            borderWidth: 1,
+            borderColor: theme.colors.border,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+        },
+        fieldError: { borderColor: theme.colors.danger },
+        value: {
+            fontSize: 14,
+            color: theme.colors.text,
+            fontFamily: 'Epilogue-Regular',
+        },
+        placeholder: {
+            color: theme.colors.textMuted,
+        },
 
-const styles = StyleSheet.create({
-    field: {
-        backgroundColor: colors.mainWhite,
-        height: 40,
-        borderRadius: 15,
-        paddingHorizontal: 15,
-        borderWidth: 1,
-        borderColor: colors.lineGray,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-    },
-    fieldError: { borderColor: colors.errorRed },
-    value: {
-        fontSize: 14,
-        color: colors.mainBlack,
-        fontFamily: 'Epilogue-Regular',
-    },
-    placeholder: {
-        color: colors.mainGray,
-    },
-
-    backdrop: {
-        ...StyleSheet.absoluteFillObject,
-        backgroundColor: 'rgba(0,0,0,0.1)',
-    },
-    dropdown: {
-        position: 'absolute',
-        backgroundColor: colors.mainWhite,
-        borderRadius: 15,
-        overflow: 'hidden',
-        shadowColor: '#000',
-        shadowOpacity: 0.12,
-        shadowRadius: 8,
-        shadowOffset: { width: 0, height: 4 },
-        elevation: 6,
-    },
-    option: {
-        height: 40,
-        paddingHorizontal: 15,
-        justifyContent: 'center',
-    },
-    optionActive: { backgroundColor: colors.mainPink },
-    optionPressed: { backgroundColor: colors.mainWhite },
-    optionText: {
-        fontSize: 14,
-        color: colors.mainBlack,
-        fontFamily: 'Epilogue-Regular',
-    },
-    optionTextActive: {
-        color: colors.mainWhite,
-    },
-    addCategoryText: {
-        color: colors.mainPink,
-    },
-    sep: {
-        height: StyleSheet.hairlineWidth,
-        backgroundColor: colors.lineGray,
-        marginHorizontal: 10,
-    },
-})
+        backdrop: {
+            ...StyleSheet.absoluteFillObject,
+            backgroundColor: 'rgba(0,0,0,0.1)',
+        },
+        dropdown: {
+            position: 'absolute',
+            backgroundColor: theme.colors.surface,
+            borderRadius: 15,
+            overflow: 'hidden',
+            shadowColor: '#000',
+            shadowOpacity: 0.12,
+            shadowRadius: 8,
+            shadowOffset: { width: 0, height: 4 },
+            elevation: 6,
+        },
+        option: {
+            height: 40,
+            paddingHorizontal: 15,
+            justifyContent: 'center',
+        },
+        optionActive: { backgroundColor: theme.colors.brand },
+        optionPressed: { backgroundColor: theme.colors.surface },
+        optionText: {
+            fontSize: 14,
+            color: theme.colors.text,
+            fontFamily: 'Epilogue-Regular',
+        },
+        optionTextActive: {
+            color: theme.colors.surface,
+        },
+        addCategoryText: {
+            color: theme.colors.brand,
+        },
+        sep: {
+            height: StyleSheet.hairlineWidth,
+            backgroundColor: theme.colors.border,
+            marginHorizontal: 10,
+        },
+    }),
+)

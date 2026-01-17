@@ -1,13 +1,14 @@
 import { View, Text, StyleSheet } from 'react-native'
 import SectionCard from '@/shared/ui/section/section-card'
 import type { Product } from '@/shared/types/types'
-import { theme } from '@/shared/theme'
+import { createThemedStyles } from '@/shared/theme/create-themed-styles'
 
 type Props = {
     product: Product
 }
 
 export default function ProductInfoBlock({ product }: Props) {
+    const styles = useStyles()
     return (
         <SectionCard title="Информация о товаре">
             {/* категория */}
@@ -42,47 +43,50 @@ export default function ProductInfoBlock({ product }: Props) {
     )
 }
 
-const { colors } = theme
+const useStyles = createThemedStyles(theme =>
+    StyleSheet.create({
+        row: {
+            flexDirection: 'row',
+            flexWrap: 'wrap',
+        },
+        label: {
+            fontSize: 14,
+            fontFamily: 'Epilogue-SemiBold',
+            lineHeight: 18,
+            color: theme.colors.text,
+        },
+        value: {
+            fontSize: 14,
+            fontFamily: 'Epilogue-Regular',
+            lineHeight: 18,
+            color: theme.colors.text,
+        },
 
-const styles = StyleSheet.create({
-    row: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-    },
-    label: {
-        fontSize: 14,
-        fontFamily: 'Epilogue-SemiBold',
-        lineHeight: 18,
-    },
-    value: {
-        fontSize: 14,
-        fontFamily: 'Epilogue-Regular',
-        lineHeight: 18,
-    },
+        block: {
+            marginTop: 10,
+        },
+        subTitle: {
+            fontSize: 14,
+            fontFamily: 'Epilogue-SemiBold',
+            lineHeight: 18,
+            marginBottom: 5,
+            color: theme.colors.text,
+        },
 
-    block: {
-        marginTop: 10,
-    },
-    subTitle: {
-        fontSize: 14,
-        fontFamily: 'Epilogue-SemiBold',
-        lineHeight: 18,
-        marginBottom: 5,
-    },
-
-    list: {
-        rowGap: 2,
-    },
-    text: {
-        fontSize: 14,
-        fontFamily: 'Epilogue-Regular',
-        lineHeight: 18,
-        color: colors.mainBlack,
-    },
-    muted: {
-        fontSize: 14,
-        fontFamily: 'Epilogue-Regular',
-        lineHeight: 18,
-        color: colors.mainGray,
-    },
-})
+        list: {
+            rowGap: 2,
+        },
+        text: {
+            fontSize: 14,
+            fontFamily: 'Epilogue-Regular',
+            lineHeight: 18,
+            color: theme.colors.text,
+        },
+        muted: {
+            fontSize: 14,
+            fontFamily: 'Epilogue-Regular',
+            lineHeight: 18,
+            color: theme.colors.textMuted,
+        },
+    }),
+)

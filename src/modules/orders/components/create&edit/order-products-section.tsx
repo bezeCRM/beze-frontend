@@ -2,9 +2,9 @@ import React from 'react'
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import SectionCard from '@/shared/ui/section/section-card'
 import AddPlus from '@/shared/ui/add-plus'
-import { theme } from '@/shared/theme'
 import type { OrderCreateItem } from '../../hooks/useOrderCreateForm'
 import OrderProductRow from './order-product-row'
+import { createThemedStyles } from '@/shared/theme/create-themed-styles'
 
 type Props = {
     items: OrderCreateItem[]
@@ -23,6 +23,7 @@ export default function OrderProductsSection({
     onChangeWeight,
     onRemove,
 }: Props) {
+    const styles = useStyles()
     const empty = items.length === 0
 
     return (
@@ -69,40 +70,42 @@ export default function OrderProductsSection({
     )
 }
 
-const styles = StyleSheet.create({
-    addBtn: { position: 'absolute', right: 0, top: -27 },
+const useStyles = createThemedStyles(theme =>
+    StyleSheet.create({
+        addBtn: { position: 'absolute', right: 0, top: -27 },
 
-    list: {
-        marginTop: 6,
-        gap: 18,
-    },
+        list: {
+            marginTop: 6,
+            gap: 18,
+        },
 
-    emptyWrap: {
-        marginTop: 6,
-        paddingVertical: 18,
-        alignItems: 'center',
-        justifyContent: 'center',
-        rowGap: 12,
-    },
-    emptyText: {
-        fontSize: 14,
-        color: theme.colors.mainGray,
-        fontFamily: 'Epilogue-Regular',
-        textAlign: 'center',
-    },
-    emptyBtn: {
-        height: 36,
-        paddingHorizontal: 18,
-        borderRadius: 15,
-        backgroundColor: theme.colors.mainPink,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    emptyBtnText: {
-        fontSize: 14,
-        color: theme.colors.mainWhite,
-        fontFamily: 'Epilogue-SemiBold',
-    },
-    emptyBtnDisabled: { backgroundColor: theme.colors.lineGray },
-    emptyBtnTextDisabled: { color: theme.colors.mainGray },
-})
+        emptyWrap: {
+            marginTop: 6,
+            paddingVertical: 18,
+            alignItems: 'center',
+            justifyContent: 'center',
+            rowGap: 12,
+        },
+        emptyText: {
+            fontSize: 14,
+            color: theme.colors.textMuted,
+            fontFamily: 'Epilogue-Regular',
+            textAlign: 'center',
+        },
+        emptyBtn: {
+            height: 36,
+            paddingHorizontal: 18,
+            borderRadius: 15,
+            backgroundColor: theme.colors.brand,
+            alignItems: 'center',
+            justifyContent: 'center',
+        },
+        emptyBtnText: {
+            fontSize: 14,
+            color: theme.colors.surface,
+            fontFamily: 'Epilogue-SemiBold',
+        },
+        emptyBtnDisabled: { backgroundColor: theme.colors.border },
+        emptyBtnTextDisabled: { color: theme.colors.textMuted },
+    }),
+)

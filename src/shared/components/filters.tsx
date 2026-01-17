@@ -1,8 +1,8 @@
 import { FlatList, Text, TouchableOpacity, View, StyleSheet } from 'react-native'
-import { theme } from '@/shared/theme'
 import { Category } from '../types/types'
 import { useEffect } from 'react'
 import { useAutoScroll } from '@/shared/hooks/useAutoScroll'
+import { createThemedStyles } from '../theme/create-themed-styles'
 
 type FiltersProps = {
     items: Category[]
@@ -24,6 +24,7 @@ export default function Filters({
     showAllButton = false,
     screenTitle,
 }: FiltersProps) {
+    const styles = useStyles()
     let data: FilterListItem[] = [...items]
 
     if (showAllButton) data = [{ id: 'all', name: `Все ${screenTitle}` }, ...data]
@@ -102,36 +103,38 @@ export default function Filters({
     )
 }
 
-const styles = StyleSheet.create({
-    wrapper: {
-        marginBottom: 20,
-    },
-    content: {},
-    chip: {
-        paddingHorizontal: 15,
-        paddingVertical: 8,
-        borderRadius: 20,
-        borderWidth: 1,
-        borderColor: theme.colors.lineGray,
-        backgroundColor: theme.colors.backgroundWhite,
-    },
-    chipActive: {
-        borderColor: theme.colors.mainPink,
-    },
-    chipText: {
-        fontSize: 14,
-        fontFamily: 'Epilogue-Regular',
-        color: theme.colors.mainGray,
-    },
-    chipTextActive: {
-        color: theme.colors.mainPink,
-        fontFamily: 'Epilogue-SemiBold',
-    },
-    addChip: {
-        borderColor: theme.colors.mainBlue,
-    },
-    addChipText: {
-        color: theme.colors.mainBlue,
-        fontFamily: 'Epilogue-SemiBold',
-    },
-})
+const useStyles = createThemedStyles(theme =>
+    StyleSheet.create({
+        wrapper: {
+            marginBottom: 20,
+        },
+        content: {},
+        chip: {
+            paddingHorizontal: 15,
+            paddingVertical: 8,
+            borderRadius: 20,
+            borderWidth: 1,
+            borderColor: theme.colors.border,
+            backgroundColor: theme.colors.background,
+        },
+        chipActive: {
+            borderColor: theme.colors.brand,
+        },
+        chipText: {
+            fontSize: 14,
+            fontFamily: 'Epilogue-Regular',
+            color: theme.colors.textMuted,
+        },
+        chipTextActive: {
+            color: theme.colors.brand,
+            fontFamily: 'Epilogue-SemiBold',
+        },
+        addChip: {
+            borderColor: theme.colors.info,
+        },
+        addChipText: {
+            color: theme.colors.info,
+            fontFamily: 'Epilogue-SemiBold',
+        },
+    }),
+)

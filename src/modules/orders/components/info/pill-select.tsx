@@ -1,4 +1,6 @@
 import SelectIcon from '@/assets/images/select-icon-white.svg'
+import { createThemedStyles } from '@/shared/theme/create-themed-styles'
+import { useTheme } from '@/shared/theme/useTheme'
 import { useMemo, useRef, useState } from 'react'
 import {
     FlatList,
@@ -11,7 +13,6 @@ import {
     useWindowDimensions,
     View,
 } from 'react-native'
-import { theme } from '@/shared/theme'
 
 type Option<T extends string> = { id: T; name: string }
 
@@ -28,6 +29,8 @@ export default function PillSelect<T extends string>({
     backgroundColor,
     onSelect,
 }: Props<T>) {
+    const styles = useStyles()
+    const colors = useTheme().theme.colors
     const { height: screenH } = useWindowDimensions()
     const [open, setOpen] = useState(false)
     const [anchor, setAnchor] = useState<LayoutRectangle | null>(null)
@@ -72,11 +75,7 @@ export default function PillSelect<T extends string>({
                     <Text style={styles.pillText} numberOfLines={1}>
                         {selected?.name ?? ''}
                     </Text>
-                    <SelectIcon
-                        width={12}
-                        height={7}
-                        color={theme.colors.mainWhite as any}
-                    />
+                    <SelectIcon width={12} height={7} color={colors.surface as any} />
                 </TouchableOpacity>
             </View>
 
@@ -139,54 +138,56 @@ export default function PillSelect<T extends string>({
     )
 }
 
-const styles = StyleSheet.create({
-    pill: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        columnGap: 8,
-        alignSelf: 'flex-start',
-        paddingHorizontal: 15,
-        paddingVertical: 10,
-        borderRadius: 999,
-    },
-    pillText: {
-        color: theme.colors.mainWhite,
-        fontSize: 14,
-        fontFamily: 'Epilogue-Semibold',
-        lineHeight: 14,
-    },
+const useStyles = createThemedStyles(theme =>
+    StyleSheet.create({
+        pill: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            columnGap: 8,
+            alignSelf: 'flex-start',
+            paddingHorizontal: 15,
+            paddingVertical: 10,
+            borderRadius: 999,
+        },
+        pillText: {
+            color: theme.colors.fixedWhite,
+            fontSize: 14,
+            fontFamily: 'Epilogue-Semibold',
+            lineHeight: 14,
+        },
 
-    backdrop: {
-        ...StyleSheet.absoluteFillObject,
-        backgroundColor: 'rgba(0,0,0,0.1)',
-    },
-    dropdown: {
-        position: 'absolute',
-        backgroundColor: theme.colors.mainWhite,
-        borderRadius: 15,
-        overflow: 'hidden',
-        shadowColor: '#000',
-        shadowOpacity: 0.12,
-        shadowRadius: 8,
-        shadowOffset: { width: 0, height: 4 },
-        elevation: 6,
-    },
-    option: {
-        height: 40,
-        paddingHorizontal: 15,
-        justifyContent: 'center',
-    },
-    optionActive: { backgroundColor: theme.colors.mainPink },
-    optionPressed: { backgroundColor: theme.colors.mainWhite },
-    optionText: {
-        fontSize: 14,
-        color: theme.colors.mainBlack,
-        fontFamily: 'Epilogue-Regular',
-    },
-    optionTextActive: { color: theme.colors.mainWhite },
-    sep: {
-        height: StyleSheet.hairlineWidth,
-        backgroundColor: theme.colors.lineGray,
-        marginHorizontal: 10,
-    },
-})
+        backdrop: {
+            ...StyleSheet.absoluteFillObject,
+            backgroundColor: 'rgba(0,0,0,0.1)',
+        },
+        dropdown: {
+            position: 'absolute',
+            backgroundColor: theme.colors.surface,
+            borderRadius: 15,
+            overflow: 'hidden',
+            shadowColor: '#000',
+            shadowOpacity: 0.12,
+            shadowRadius: 8,
+            shadowOffset: { width: 0, height: 4 },
+            elevation: 6,
+        },
+        option: {
+            height: 40,
+            paddingHorizontal: 15,
+            justifyContent: 'center',
+        },
+        optionActive: { backgroundColor: theme.colors.brand },
+        optionPressed: { backgroundColor: theme.colors.surface },
+        optionText: {
+            fontSize: 14,
+            color: theme.colors.text,
+            fontFamily: 'Epilogue-Regular',
+        },
+        optionTextActive: { color: theme.colors.surface },
+        sep: {
+            height: StyleSheet.hairlineWidth,
+            backgroundColor: theme.colors.border,
+            marginHorizontal: 10,
+        },
+    }),
+)

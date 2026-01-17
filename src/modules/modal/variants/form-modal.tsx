@@ -2,8 +2,9 @@ import { useState } from 'react'
 import { View, TextInput, StyleSheet, Text } from 'react-native'
 import ModalHeader from '@/modules/modal/base/modal-header'
 import ModalFooter from '@/modules/modal/base/modal-footer'
-import { theme } from '@/shared/theme'
 import { BaseModalProps } from '@/modules/modal/types/base-modal-props'
+import { createThemedStyles } from '@/shared/theme/create-themed-styles'
+import { useTheme } from '@/shared/theme/useTheme'
 
 export type FormModalProps = BaseModalProps & {
     title: string
@@ -27,6 +28,8 @@ export default function FormModal({
     error,
     validate,
 }: FormModalProps) {
+    const styles = useStyles()
+    const colors = useTheme().theme.colors
     const [value, setValue] = useState('')
     const [localError, setLocalError] = useState<string | null>(null)
 
@@ -67,7 +70,7 @@ export default function FormModal({
                     if (localError) setLocalError(null) // сбрасываем ошибку при изменении текста
                 }}
                 placeholder={placeholder}
-                placeholderTextColor={theme.colors.mainGray}
+                placeholderTextColor={colors.textMuted}
                 style={styles.input}
             />
 
@@ -83,33 +86,33 @@ export default function FormModal({
         </View>
     )
 }
-const { colors } = theme
-
-const styles = StyleSheet.create({
-    container: {},
-    input: {
-        backgroundColor: colors.mainWhite,
-        borderColor: colors.lineGray,
-        borderWidth: 1,
-        borderRadius: 15,
-        paddingHorizontal: 15,
-        height: 45,
-        fontFamily: 'Epilogue-Regular',
-        marginBottom: 20,
-        marginHorizontal: 15,
-        fontSize: 16,
-        color: colors.mainBlack,
-    },
-    error: {
-        color: colors.errorRed,
-        fontSize: 13,
-        marginBottom: 12,
-        textAlign: 'center',
-    },
-    success: {
-        color: colors.successGreen,
-        fontSize: 16,
-        marginBottom: 10,
-        textAlign: 'center',
-    },
-})
+const useStyles = createThemedStyles(theme =>
+    StyleSheet.create({
+        container: {},
+        input: {
+            backgroundColor: theme.colors.surface,
+            borderColor: theme.colors.border,
+            borderWidth: 1,
+            borderRadius: 15,
+            paddingHorizontal: 15,
+            height: 45,
+            fontFamily: 'Epilogue-Regular',
+            marginBottom: 20,
+            marginHorizontal: 15,
+            fontSize: 16,
+            color: theme.colors.text,
+        },
+        error: {
+            color: theme.colors.danger,
+            fontSize: 13,
+            marginBottom: 12,
+            textAlign: 'center',
+        },
+        success: {
+            color: theme.colors.success,
+            fontSize: 16,
+            marginBottom: 10,
+            textAlign: 'center',
+        },
+    }),
+)

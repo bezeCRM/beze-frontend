@@ -1,7 +1,7 @@
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { theme } from '@/shared/theme'
+import { createThemedStyles } from '@/shared/theme/create-themed-styles'
 
 function getNestedRouteName(route: any) {
     const state = route?.state
@@ -11,6 +11,7 @@ function getNestedRouteName(route: any) {
 }
 
 export default function DevBottomBar({ state, navigation }: BottomTabBarProps) {
+    const styles = useStyles()
     const insets = useSafeAreaInsets()
 
     const activeTabRoute = state.routes[state.index]
@@ -62,40 +63,40 @@ export default function DevBottomBar({ state, navigation }: BottomTabBarProps) {
     )
 }
 
-const { colors } = theme
-
-const styles = StyleSheet.create({
-    wrap: {
-        backgroundColor: colors.mainWhite,
-        paddingHorizontal: 15,
-        paddingTop: 8,
-    },
-    bar: {
-        height: 46,
-        borderRadius: 16,
-        borderWidth: 1,
-        borderColor: colors.lineGray,
-        backgroundColor: colors.mainWhite,
-        flexDirection: 'row',
-        overflow: 'hidden',
-    },
-    btn: {
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    btnActive: {
-        backgroundColor: colors.backgroundWhite,
-    },
-    text: {
-        fontSize: 14,
-        fontFamily: 'Epilogue-Regular',
-    },
-    textActive: {
-        color: colors.mainPink,
-        fontFamily: 'Epilogue-SemiBold',
-    },
-    textIdle: {
-        color: colors.mainGray,
-    },
-})
+const useStyles = createThemedStyles(theme =>
+    StyleSheet.create({
+        wrap: {
+            backgroundColor: theme.colors.surface,
+            paddingHorizontal: 15,
+            paddingTop: 8,
+        },
+        bar: {
+            height: 46,
+            borderRadius: 16,
+            borderWidth: 1,
+            borderColor: theme.colors.border,
+            backgroundColor: theme.colors.surface,
+            flexDirection: 'row',
+            overflow: 'hidden',
+        },
+        btn: {
+            flex: 1,
+            alignItems: 'center',
+            justifyContent: 'center',
+        },
+        btnActive: {
+            backgroundColor: theme.colors.background,
+        },
+        text: {
+            fontSize: 14,
+            fontFamily: 'Epilogue-Regular',
+        },
+        textActive: {
+            color: theme.colors.brand,
+            fontFamily: 'Epilogue-SemiBold',
+        },
+        textIdle: {
+            color: theme.colors.textMuted,
+        },
+    }),
+)

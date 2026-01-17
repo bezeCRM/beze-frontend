@@ -4,13 +4,14 @@ import type { Product } from '@/shared/types/types'
 import { useNavigation } from '@react-navigation/native'
 import type { StackNavigationProp } from '@react-navigation/stack'
 import Button from '@/shared/ui/button/button'
-import { theme } from '@/shared/theme'
 import { AppStackParamList } from '@/core/navigation/app-navigation'
+import { createThemedStyles } from '@/shared/theme/create-themed-styles'
 
 type Props = { items: Product[] }
 type Nav = StackNavigationProp<AppStackParamList>
 
 export default function ProductsList({ items }: Props) {
+    const styles = useStyles()
     const navigation = useNavigation<Nav>()
 
     const renderEmpty = () => (
@@ -49,22 +50,22 @@ export default function ProductsList({ items }: Props) {
     )
 }
 
-const { colors } = theme
-
-const styles = StyleSheet.create({
-    list: { flex: 1 },
-    emptyContent: {
-        paddingTop: 30,
-        flexGrow: 1,
-        paddingHorizontal: 20,
-        paddingBottom: 30,
-    },
-    emptyWrap: {
-        rowGap: 20,
-        alignItems: 'center',
-    },
-    emptyTitle: {
-        fontSize: 16,
-        color: colors.mainGray,
-    },
-})
+const useStyles = createThemedStyles(theme =>
+    StyleSheet.create({
+        list: { flex: 1 },
+        emptyContent: {
+            paddingTop: 30,
+            flexGrow: 1,
+            paddingHorizontal: 20,
+            paddingBottom: 30,
+        },
+        emptyWrap: {
+            rowGap: 20,
+            alignItems: 'center',
+        },
+        emptyTitle: {
+            fontSize: 16,
+            color: theme.colors.textMuted,
+        },
+    }),
+)

@@ -2,9 +2,9 @@ import React from 'react'
 import { View, Text, StyleSheet } from 'react-native'
 import ModalHeader from '@/modules/modal/base/modal-header'
 import ModalFooter from '@/modules/modal/base/modal-footer'
-import { theme } from '@/shared/theme'
 import CheckIcon from '@/assets/images/success-icon.svg'
 import { BaseModalProps } from '@/modules/modal/types/base-modal-props'
+import { createThemedStyles } from '@/shared/theme/create-themed-styles'
 
 export type StatusModalProps = BaseModalProps & {
     title: string
@@ -18,6 +18,7 @@ export default function StatusModal({
     success,
     onClose,
 }: StatusModalProps) {
+    const styles = useStyles()
     return (
         <View style={styles.container}>
             <ModalHeader title={title} onClose={onClose} />
@@ -34,21 +35,21 @@ export default function StatusModal({
     )
 }
 
-const { colors } = theme
-
-const styles = StyleSheet.create({
-    container: {
-        alignItems: 'center',
-    },
-    text: {
-        fontSize: 15,
-        color: colors.mainBlack,
-        textAlign: 'center',
-    },
-    textSuccess: {
-        color: colors.mainBlack,
-        fontSize: 16,
-        fontFamily: 'Epilogue-SemiBold',
-    },
-    iconContainer: { marginTop: 15, marginBottom: 20 },
-})
+const useStyles = createThemedStyles(theme =>
+    StyleSheet.create({
+        container: {
+            alignItems: 'center',
+        },
+        text: {
+            fontSize: 15,
+            color: theme.colors.text,
+            textAlign: 'center',
+        },
+        textSuccess: {
+            color: theme.colors.text,
+            fontSize: 16,
+            fontFamily: 'Epilogue-SemiBold',
+        },
+        iconContainer: { marginTop: 15, marginBottom: 20 },
+    }),
+)

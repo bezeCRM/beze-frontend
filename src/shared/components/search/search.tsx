@@ -10,7 +10,8 @@ import {
 import SearchIcon from '@/assets/images/search.svg'
 import SearchBlueIcon from '@/assets/images/search-blue.svg'
 import ClearSearchIcon from '@/assets/images/clear-search-icon.svg'
-import { theme } from '@/shared/theme'
+import { createThemedStyles } from '@/shared/theme/create-themed-styles'
+import { useTheme } from '@/shared/theme/useTheme'
 
 type Props = {
     value: string
@@ -28,6 +29,8 @@ export default function Search({
     onSubmit,
     ...rest
 }: Props) {
+    const styles = useStyles()
+    const colors = useTheme().theme.colors
     const inputRef = useRef<TextInput>(null)
 
     const trimmed = value.trim()
@@ -68,7 +71,7 @@ export default function Search({
                 value={value}
                 onChangeText={onChangeText}
                 placeholder={placeholder}
-                placeholderTextColor={theme.colors.mainGray}
+                placeholderTextColor={colors.textMuted}
                 editable={editable}
                 returnKeyType="search"
                 onSubmitEditing={handleSubmit}
@@ -88,32 +91,34 @@ export default function Search({
     )
 }
 
-const styles = StyleSheet.create({
-    container: {
-        height: 40,
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: theme.colors.mainWhite,
-        borderRadius: 999,
-        paddingHorizontal: 14,
-        marginBottom: 12,
-        borderColor: theme.colors.lineGray,
-        borderWidth: 1,
-    },
-    leftBtn: {
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    input: {
-        flex: 1,
-        height: '100%',
-        fontSize: 14,
-        marginHorizontal: 10,
-        fontFamily: 'Epilogue-Regular',
-        color: theme.colors.mainBlack,
-    },
-    clearBtn: {
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-})
+const useStyles = createThemedStyles(theme =>
+    StyleSheet.create({
+        container: {
+            height: 40,
+            flexDirection: 'row',
+            alignItems: 'center',
+            backgroundColor: theme.colors.surface,
+            borderRadius: 999,
+            paddingHorizontal: 14,
+            marginBottom: 12,
+            borderColor: theme.colors.border,
+            borderWidth: 1,
+        },
+        leftBtn: {
+            justifyContent: 'center',
+            alignItems: 'center',
+        },
+        input: {
+            flex: 1,
+            height: '100%',
+            fontSize: 14,
+            marginHorizontal: 10,
+            fontFamily: 'Epilogue-Regular',
+            color: theme.colors.text,
+        },
+        clearBtn: {
+            justifyContent: 'center',
+            alignItems: 'center',
+        },
+    }),
+)

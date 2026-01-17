@@ -3,15 +3,16 @@ import { View, Image, StyleSheet, Pressable } from 'react-native'
 
 import SectionCard from '@/shared/ui/section/section-card'
 import PlaceholderImage from '@/assets/images/product-card-placeholder.png'
-import { theme } from '@/shared/theme'
 import type { PhotoItem } from '@/shared/types/types'
 import { useImageViewer } from '@/shared/hooks/useImageViewer'
+import { createThemedStyles } from '@/shared/theme/create-themed-styles'
 
 type Props = {
     photoes?: PhotoItem[]
 }
 
 export default function ProductPhotoes({ photoes }: Props) {
+    const styles = useStyles()
     const input = useMemo(
         () =>
             (photoes ?? [])
@@ -40,18 +41,18 @@ export default function ProductPhotoes({ photoes }: Props) {
     )
 }
 
-const { colors } = theme
-
-const styles = StyleSheet.create({
-    row: {
-        flexDirection: 'row',
-        gap: 10,
-        marginTop: 5,
-    },
-    photo: {
-        width: 80,
-        height: 80,
-        borderRadius: 15,
-        backgroundColor: colors.mainPink,
-    },
-})
+const useStyles = createThemedStyles(theme =>
+    StyleSheet.create({
+        row: {
+            flexDirection: 'row',
+            gap: 10,
+            marginTop: 5,
+        },
+        photo: {
+            width: 80,
+            height: 80,
+            borderRadius: 15,
+            backgroundColor: theme.colors.brand,
+        },
+    }),
+)

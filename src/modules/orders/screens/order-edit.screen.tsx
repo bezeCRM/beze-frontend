@@ -15,7 +15,6 @@ import ScreenContainer from '@/shared/components/layout/screen-container'
 import { ToastViewport, useToast } from '@/shared/components/toast/toast-provider'
 import { useOrdersStore } from '../store/orders.store'
 import { useProductsStore } from '@/modules/products/store/products.store'
-import { theme } from '@/shared/theme'
 import type { PhotoItem } from '@/shared/types/types'
 import TextareaField from '@/shared/ui/fields/textarea-field'
 
@@ -33,6 +32,7 @@ import { useOrderProductPicker } from '../hooks/useOrderProductPicker'
 import { useOrderReferences } from '../hooks/useOrderReferences'
 import { useOrderTotalPrice } from '../hooks/useOrderTotalPrice'
 import { buildNewOrderPayload } from '../utils/buildNewOrderPayload'
+import { createThemedStyles } from '@/shared/theme/create-themed-styles'
 
 const MAX_REFERENCES = 3
 const ORDER_INFO_TOAST_SCOPE = 'orderInfo'
@@ -41,6 +41,7 @@ type R = RouteProp<OrdersStackParamList, 'OrderEdit'>
 type Nav = StackNavigationProp<OrdersStackParamList, 'OrderEdit'>
 
 export default function OrderEditScreen() {
+    const styles = useStyles()
     const { bottom } = useSafeAreaInsets()
     const navigation = useNavigation<Nav>()
     const route = useRoute<R>()
@@ -281,35 +282,37 @@ export default function OrderEditScreen() {
     )
 }
 
-const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: theme.colors.backgroundWhite },
-    stickyTopBar: { backgroundColor: theme.colors.backgroundWhite },
-    scroll: { flex: 1 },
-    titleWrap: {},
-    formList: { rowGap: 15 },
+const useStyles = createThemedStyles(theme =>
+    StyleSheet.create({
+        container: { flex: 1, backgroundColor: theme.colors.background },
+        stickyTopBar: { backgroundColor: theme.colors.background },
+        scroll: { flex: 1 },
+        titleWrap: {},
+        formList: { rowGap: 15 },
 
-    totalRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: 3,
-        marginBottom: 7,
-    },
-    totalLabel: {
-        fontSize: 16,
-        color: theme.colors.mainBlack,
-        fontFamily: 'Epilogue-SemiBold',
-    },
-    totalValue: {
-        fontSize: 16,
-        color: theme.colors.mainBlack,
-        fontFamily: 'Epilogue-SemiBold',
-    },
+        totalRow: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            paddingHorizontal: 3,
+            marginBottom: 7,
+        },
+        totalLabel: {
+            fontSize: 16,
+            color: theme.colors.text,
+            fontFamily: 'Epilogue-SemiBold',
+        },
+        totalValue: {
+            fontSize: 16,
+            color: theme.colors.text,
+            fontFamily: 'Epilogue-SemiBold',
+        },
 
-    emptyBody: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-    emptyText: {
-        fontSize: 14,
-        color: theme.colors.mainGray,
-        fontFamily: 'Epilogue-Regular',
-    },
-})
+        emptyBody: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+        emptyText: {
+            fontSize: 14,
+            color: theme.colors.textMuted,
+            fontFamily: 'Epilogue-Regular',
+        },
+    }),
+)

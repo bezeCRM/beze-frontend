@@ -1,12 +1,14 @@
 import React from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 import SectionCard from '@/shared/ui/section/section-card'
-import { theme } from '@/shared/theme'
 import type { Order } from '@/shared/types/types'
+import { createThemedStyles } from '@/shared/theme/create-themed-styles'
 
 type Props = { order: Order }
 
 export default function OrderClientInfo({ order }: Props) {
+    const styles = useStyles()
+
     return (
         <SectionCard title="Информация о клиенте" style={{ marginTop: 5 }}>
             <View style={styles.row}>
@@ -34,22 +36,24 @@ export default function OrderClientInfo({ order }: Props) {
 
 const LINE_H = 20
 
-const styles = StyleSheet.create({
-    lastRow: { marginBottom: 0 },
+const useStyles = createThemedStyles(theme =>
+    StyleSheet.create({
+        lastRow: { marginBottom: 0 },
 
-    label: {
-        fontSize: 16,
-        lineHeight: LINE_H,
-        fontFamily: 'Epilogue-Regular',
-        color: theme.colors.mainBlack,
-        includeFontPadding: false, // android
-    },
-    value: {
-        fontSize: 16,
-        lineHeight: LINE_H,
-        fontFamily: 'Epilogue-SemiBold',
-        color: theme.colors.mainBlack,
-        includeFontPadding: false, // android
-    },
-    row: { marginBottom: 8 },
-})
+        label: {
+            fontSize: 16,
+            lineHeight: LINE_H,
+            fontFamily: 'Epilogue-Regular',
+            color: theme.colors.text,
+            includeFontPadding: false, // android
+        },
+        value: {
+            fontSize: 16,
+            lineHeight: LINE_H,
+            fontFamily: 'Epilogue-SemiBold',
+            color: theme.colors.text,
+            includeFontPadding: false, // android
+        },
+        row: { marginBottom: 8 },
+    }),
+)

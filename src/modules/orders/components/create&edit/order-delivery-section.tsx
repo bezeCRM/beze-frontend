@@ -1,7 +1,8 @@
 import React, { useCallback } from 'react'
 import { StyleSheet, Switch, Text, TextInput, View } from 'react-native'
 import SectionCard from '@/shared/ui/section/section-card'
-import { theme } from '@/shared/theme'
+import { createThemedStyles } from '@/shared/theme/create-themed-styles'
+import { useTheme } from '@/shared/theme/useTheme'
 
 type Props = {
     isPickup: boolean
@@ -86,6 +87,8 @@ export default function OrderDeliverySection({
     dateError,
     timeError,
 }: Props) {
+    const styles = useStyles()
+    const colors = useTheme().theme.colors
     const addressDisabled = isPickup
 
     const handleDateChange = useCallback(
@@ -105,11 +108,11 @@ export default function OrderDeliverySection({
                     value={isPickup}
                     onValueChange={onTogglePickup}
                     trackColor={{
-                        false: theme.colors.lineGray,
-                        true: theme.colors.mainPink,
+                        false: colors.border,
+                        true: colors.brand,
                     }}
-                    thumbColor={theme.colors.mainWhite}
-                    ios_backgroundColor={theme.colors.lineGray}
+                    thumbColor={colors.surface}
+                    ios_backgroundColor={colors.border}
                 />
             </View>
 
@@ -117,7 +120,7 @@ export default function OrderDeliverySection({
                 value={address}
                 onChangeText={onChangeAddress}
                 placeholder="Адрес доставки"
-                placeholderTextColor={theme.colors.mainGray}
+                placeholderTextColor={colors.textMuted}
                 editable={!addressDisabled}
                 style={[
                     styles.input,
@@ -135,7 +138,7 @@ export default function OrderDeliverySection({
                         onChangeText={handleDateChange}
                         onBlur={() => onChangeDate(normalizeDate(date))}
                         placeholder="ДД.MM.ГГ"
-                        placeholderTextColor={theme.colors.mainGray}
+                        placeholderTextColor={colors.textMuted}
                         style={[
                             styles.input,
                             styles.dtInput,
@@ -156,7 +159,7 @@ export default function OrderDeliverySection({
                         onChangeText={handleTimeChange}
                         onBlur={() => onChangeTime(normalizeTime(time))}
                         placeholder="ЧЧ:MM"
-                        placeholderTextColor={theme.colors.mainGray}
+                        placeholderTextColor={colors.textMuted}
                         style={[
                             styles.input,
                             styles.dtInput,
@@ -174,50 +177,52 @@ export default function OrderDeliverySection({
     )
 }
 
-const styles = StyleSheet.create({
-    rowTop: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        columnGap: 15,
-        marginBottom: 10,
-    },
-    pickupLabel: {
-        fontSize: 14,
-        color: theme.colors.mainBlack,
-        fontFamily: 'Epilogue-Regular',
-    },
-    input: {
-        backgroundColor: theme.colors.mainWhite,
-        height: 40,
-        borderRadius: 15,
-        paddingHorizontal: 15,
-        paddingVertical: 10,
-        borderWidth: 1,
-        borderColor: theme.colors.lineGray,
-        fontSize: 14,
-        color: theme.colors.mainBlack,
-        fontFamily: 'Epilogue-Regular',
-    },
-    inputDisabled: {
-        backgroundColor: theme.colors.lineGray,
-        borderColor: theme.colors.lineGray,
-        color: theme.colors.mainGray,
-    },
-    inputError: { borderColor: theme.colors.errorRed },
+const useStyles = createThemedStyles(theme =>
+    StyleSheet.create({
+        rowTop: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            columnGap: 15,
+            marginBottom: 10,
+        },
+        pickupLabel: {
+            fontSize: 14,
+            color: theme.colors.text,
+            fontFamily: 'Epilogue-Regular',
+        },
+        input: {
+            backgroundColor: theme.colors.surface,
+            height: 40,
+            borderRadius: 15,
+            paddingHorizontal: 15,
+            paddingVertical: 10,
+            borderWidth: 1,
+            borderColor: theme.colors.border,
+            fontSize: 14,
+            color: theme.colors.text,
+            fontFamily: 'Epilogue-Regular',
+        },
+        inputDisabled: {
+            backgroundColor: theme.colors.border,
+            borderColor: theme.colors.border,
+            color: theme.colors.textMuted,
+        },
+        inputError: { borderColor: theme.colors.danger },
 
-    dtRow: {
-        flexDirection: 'row',
-        columnGap: 20,
-        marginTop: 15,
-    },
-    dtCol: { flexDirection: 'row', alignItems: 'center', columnGap: 8 },
-    dtLabel: {
-        fontSize: 13,
-        color: theme.colors.mainBlack,
-        fontFamily: 'Epilogue-Regular',
-        marginBottom: 6,
-        marginLeft: 2,
-        textTransform: 'lowercase',
-    },
-    dtInput: { textAlign: 'center' },
-})
+        dtRow: {
+            flexDirection: 'row',
+            columnGap: 20,
+            marginTop: 15,
+        },
+        dtCol: { flexDirection: 'row', alignItems: 'center', columnGap: 8 },
+        dtLabel: {
+            fontSize: 13,
+            color: theme.colors.text,
+            fontFamily: 'Epilogue-Regular',
+            marginBottom: 6,
+            marginLeft: 2,
+            textTransform: 'lowercase',
+        },
+        dtInput: { textAlign: 'center' },
+    }),
+)

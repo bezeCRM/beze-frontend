@@ -27,13 +27,14 @@ import OrderNotesInfo from '../components/info/order-notes-info'
 import OrderReferencesInfo from '../components/info/order-references-info'
 import OrderPlannerToggle from '../components/info/order-planner-toggle'
 import OrderTotalRow from '../components/info/order-total-row'
-import { theme } from '@/shared/theme'
+import { createThemedStyles } from '@/shared/theme/create-themed-styles'
 
 type R = RouteProp<OrdersStackParamList, 'OrderInfo'>
 type Nav = StackNavigationProp<OrdersStackParamList, 'OrderInfo'>
 const ORDER_INFO_TOAST_SCOPE = 'orderInfo'
 
 export default function OrderInfoScreen() {
+    const styles = useStyles()
     const { bottom } = useSafeAreaInsets()
     const navigation = useNavigation<Nav>()
     const route = useRoute<R>()
@@ -149,15 +150,17 @@ export default function OrderInfoScreen() {
     )
 }
 
-const styles = StyleSheet.create({
-    container: { flex: 1 },
-    stickyTopBar: {},
-    created: {
-        marginTop: -15,
-        fontSize: 13,
-        color: theme.colors.mainGray,
-        fontFamily: 'Epilogue-Regular',
-        marginLeft: 2,
-    },
-    content: { rowGap: 15, marginTop: 15 },
-})
+const useStyles = createThemedStyles(theme =>
+    StyleSheet.create({
+        container: { flex: 1 },
+        stickyTopBar: {},
+        created: {
+            marginTop: -15,
+            fontSize: 13,
+            color: theme.colors.textMuted,
+            fontFamily: 'Epilogue-Regular',
+            marginLeft: 2,
+        },
+        content: { rowGap: 15, marginTop: 15 },
+    }),
+)

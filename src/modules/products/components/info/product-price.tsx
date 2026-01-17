@@ -1,7 +1,7 @@
 import { Text, StyleSheet } from 'react-native'
 import SectionCard from '@/shared/ui/section/section-card'
 import type { ProductUnit } from '@/shared/types/types'
-import { theme } from '@/shared/theme'
+import { createThemedStyles } from '@/shared/theme/create-themed-styles'
 
 type Props = {
     price: number
@@ -19,6 +19,7 @@ function unitLabel(unit: ProductUnit) {
 }
 
 export default function ProductPrice({ price, unit }: Props) {
+    const styles = useStyles()
     return (
         <SectionCard title="Цена">
             <Text style={styles.price}>
@@ -28,13 +29,13 @@ export default function ProductPrice({ price, unit }: Props) {
     )
 }
 
-const { colors } = theme
-
-const styles = StyleSheet.create({
-    price: {
-        color: colors.mainBlack,
-        fontSize: 18,
-        fontFamily: 'Epilogue-SemiBold',
-        lineHeight: 21.6,
-    },
-})
+const useStyles = createThemedStyles(theme =>
+    StyleSheet.create({
+        price: {
+            color: theme.colors.text,
+            fontSize: 18,
+            fontFamily: 'Epilogue-SemiBold',
+            lineHeight: 21.6,
+        },
+    }),
+)

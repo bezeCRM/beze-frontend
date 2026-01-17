@@ -1,8 +1,8 @@
 import { View, Text, StyleSheet } from 'react-native'
 import ModalHeader from '@/modules/modal/base/modal-header'
 import ModalFooter from '@/modules/modal/base/modal-footer'
-import { theme } from '@/shared/theme'
 import { BaseModalProps } from '@/modules/modal/types/base-modal-props'
+import { createThemedStyles } from '@/shared/theme/create-themed-styles'
 
 export type ConfirmModalProps = BaseModalProps & {
     title: string
@@ -22,6 +22,7 @@ export default function ConfirmModal({
     cancelText = 'Отмена',
     onClose,
 }: ConfirmModalProps) {
+    const styles = useStyles()
     return (
         <View style={styles.container}>
             <ModalHeader title={title} onClose={onClose} />
@@ -38,16 +39,17 @@ export default function ConfirmModal({
     )
 }
 
-const { colors } = theme
-const styles = StyleSheet.create({
-    container: { paddingBottom: 18 },
-    text: {
-        fontSize: 16,
-        paddingHorizontal: 40,
-        textAlign: 'center',
-        color: colors.mainBlack,
-        fontFamily: 'Epilogue-Semibold',
-        lineHeight: 19.2,
-        marginBottom: 25,
-    },
-})
+const useStyles = createThemedStyles(theme =>
+    StyleSheet.create({
+        container: { paddingBottom: 18 },
+        text: {
+            fontSize: 16,
+            paddingHorizontal: 40,
+            textAlign: 'center',
+            color: theme.colors.text,
+            fontFamily: 'Epilogue-Semibold',
+            lineHeight: 19.2,
+            marginBottom: 25,
+        },
+    }),
+)

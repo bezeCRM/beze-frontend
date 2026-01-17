@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet, Pressable, ViewStyle, TextStyle } from 'react-native'
 import BackIcon from '@/assets/images/back-icon.svg'
-import { theme } from '@/shared/theme'
+import { useTheme } from '@/shared/theme/useTheme'
+import { createThemedStyles } from '@/shared/theme/create-themed-styles'
 
 type CommonProps = {
     onBack?: () => void
@@ -15,12 +16,14 @@ export function InternalHeaderTopBar({
     showAction = false,
     actionText = 'Изменить',
 }: CommonProps) {
+    const colors = useTheme().theme.colors
+    const styles = useStyles()
     return (
         <View style={styles.topBar}>
             <Pressable
                 onPress={onBack}
                 style={styles.backBtn}
-                android_ripple={{ color: theme.colors.mainPink }}
+                android_ripple={{ color: colors.brand }}
                 hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             >
                 <BackIcon width={12} height={21} />
@@ -31,7 +34,7 @@ export function InternalHeaderTopBar({
                 <Pressable
                     onPress={onActionPress}
                     style={styles.editBtn}
-                    android_ripple={{ color: theme.colors.mainPink }}
+                    android_ripple={{ color: colors.brand }}
                     hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                 >
                     <Text style={styles.editText}>{actionText}</Text>
@@ -50,6 +53,7 @@ export function InternalHeaderTitle({
     title: string
     titleStyle?: TextStyle
 }) {
+    const styles = useStyles()
     return <Text style={[styles.title, titleStyle]}>{title}</Text>
 }
 
@@ -71,6 +75,7 @@ export default function InternalHeader({
     containerStyle,
     titleStyle,
 }: FullProps) {
+    const styles = useStyles()
     return (
         <View style={[styles.container, containerStyle]}>
             <InternalHeaderTopBar
@@ -84,44 +89,44 @@ export default function InternalHeader({
     )
 }
 
-const { colors } = theme
-
-const styles = StyleSheet.create({
-    container: {},
-    topBar: {
-        height: 50,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        marginBottom: 7,
-    },
-    backBtn: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 10,
-    },
-    backText: {
-        color: colors.mainPink,
-        fontSize: 16,
-        fontFamily: 'Epilogue-Regular',
-    },
-    editBtn: {
-        paddingHorizontal: 6,
-        paddingVertical: 4,
-    },
-    editText: {
-        color: colors.mainPink,
-        fontSize: 16,
-        fontFamily: 'Epilogue-Regular',
-    },
-    editSpacer: {
-        width: 70,
-    },
-    title: {
-        color: colors.mainBlack,
-        fontSize: 28,
-        fontFamily: 'Epilogue-SemiBold',
-        lineHeight: 33.6,
-        marginBottom: 25,
-    },
-})
+const useStyles = createThemedStyles(theme =>
+    StyleSheet.create({
+        container: {},
+        topBar: {
+            height: 50,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: 7,
+        },
+        backBtn: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 10,
+        },
+        backText: {
+            color: theme.colors.brand,
+            fontSize: 16,
+            fontFamily: 'Epilogue-Regular',
+        },
+        editBtn: {
+            paddingHorizontal: 6,
+            paddingVertical: 4,
+        },
+        editText: {
+            color: theme.colors.brand,
+            fontSize: 16,
+            fontFamily: 'Epilogue-Regular',
+        },
+        editSpacer: {
+            width: 70,
+        },
+        title: {
+            color: theme.colors.text,
+            fontSize: 28,
+            fontFamily: 'Epilogue-SemiBold',
+            lineHeight: 33.6,
+            marginBottom: 25,
+        },
+    }),
+)

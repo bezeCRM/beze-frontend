@@ -27,7 +27,6 @@ import { pickImagesFromLibrary } from '@/shared/components/media'
 import { useCategoryStore } from '../store/categories.store'
 import type { NewProductInput } from '../store/products.store'
 import { useProductsStore } from '../store/products.store'
-import { theme } from '@/shared/theme'
 
 import { useCopyIngredientsFromProduct } from '../hooks/useCopyIngredientsFromProduct'
 import {
@@ -35,6 +34,8 @@ import {
     useProductCreateForm,
 } from '../hooks/useProductCreateForm'
 import { AppStackParamList } from '@/core/navigation/app-navigation'
+import { createThemedStyles } from '@/shared/theme/create-themed-styles'
+import { useTheme } from '@/shared/theme/useTheme'
 
 const MAX_PHOTOES = 3
 const PRODUCTS_LIST_TOAST_SCOPE = 'productsList'
@@ -43,6 +44,8 @@ type Navigation = StackNavigationProp<AppStackParamList, 'ProductCreate'>
 type Route = RouteProp<AppStackParamList, 'ProductCreate'>
 
 export default function ProductCreateScreen() {
+    const styles = useStyles()
+    const colors = useTheme().theme.colors
     const { bottom } = useSafeAreaInsets()
     const navigation = useNavigation<Navigation>()
     const route = useRoute<Route>()
@@ -207,7 +210,7 @@ export default function ProductCreateScreen() {
                                     setValue('name', t, { shouldValidate: true })
                                 }
                                 placeholder="Шоколадный торт"
-                                placeholderTextColor={theme.colors.mainGray}
+                                placeholderTextColor={colors.textMuted}
                                 style={[styles.input, errors.name && styles.inputError]}
                                 returnKeyType="done"
                             />
@@ -260,7 +263,7 @@ export default function ProductCreateScreen() {
                                         ? 'Введите цену за 1 шт'
                                         : 'Введите цену за 1 кг'
                                 }
-                                placeholderTextColor={theme.colors.mainGray}
+                                placeholderTextColor={colors.textMuted}
                                 style={[styles.input, errors.price && styles.inputError]}
                                 keyboardType="numeric"
                                 returnKeyType="done"
@@ -292,22 +295,24 @@ export default function ProductCreateScreen() {
     )
 }
 
-const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: theme.colors.backgroundWhite },
-    stickyTopBar: { backgroundColor: theme.colors.backgroundWhite },
-    scroll: { flex: 1 },
-    titleWrap: {},
-    formList: { rowGap: 15 },
-    input: {
-        backgroundColor: theme.colors.mainWhite,
-        height: 40,
-        borderRadius: 15,
-        paddingHorizontal: 15,
-        paddingVertical: 10,
-        borderWidth: 1,
-        borderColor: theme.colors.lineGray,
-        fontSize: 14,
-        color: theme.colors.mainBlack,
-    },
-    inputError: { borderColor: theme.colors.errorRed },
-})
+const useStyles = createThemedStyles(theme =>
+    StyleSheet.create({
+        container: { flex: 1, backgroundColor: theme.colors.background },
+        stickyTopBar: { backgroundColor: theme.colors.background },
+        scroll: { flex: 1 },
+        titleWrap: {},
+        formList: { rowGap: 15 },
+        input: {
+            backgroundColor: theme.colors.surface,
+            height: 40,
+            borderRadius: 15,
+            paddingHorizontal: 15,
+            paddingVertical: 10,
+            borderWidth: 1,
+            borderColor: theme.colors.border,
+            fontSize: 14,
+            color: theme.colors.text,
+        },
+        inputError: { borderColor: theme.colors.danger },
+    }),
+)

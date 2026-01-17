@@ -2,16 +2,17 @@ import { FlatList, View, Text, StyleSheet } from 'react-native'
 import type { Order } from '@/shared/types/types'
 import Button from '@/shared/ui/button/button'
 import OrderCard from './order-card'
-import { theme } from '@/shared/theme'
 import { useNavigation } from '@react-navigation/native'
 import type { StackNavigationProp } from '@react-navigation/stack'
 import type { OrdersStackParamList } from '@/core/navigation/orders-stack'
+import { createThemedStyles } from '@/shared/theme/create-themed-styles'
 
 type Props = { items: Order[] }
 
 type Nav = StackNavigationProp<OrdersStackParamList>
 
 export default function OrdersList({ items }: Props) {
+    const styles = useStyles()
     const navigation = useNavigation<Nav>()
 
     const renderEmpty = () => (
@@ -42,23 +43,23 @@ export default function OrdersList({ items }: Props) {
     )
 }
 
-const { colors } = theme
-
-const styles = StyleSheet.create({
-    list: { flex: 1 },
-    emptyContent: {
-        paddingTop: 30,
-        flexGrow: 1,
-        paddingHorizontal: 20,
-        paddingBottom: 30,
-    },
-    emptyWrap: {
-        rowGap: 20,
-        alignItems: 'center',
-    },
-    emptyTitle: {
-        fontSize: 16,
-        color: colors.mainGray,
-        fontFamily: 'Epilogue-Regular',
-    },
-})
+const useStyles = createThemedStyles(theme =>
+    StyleSheet.create({
+        list: { flex: 1 },
+        emptyContent: {
+            paddingTop: 30,
+            flexGrow: 1,
+            paddingHorizontal: 20,
+            paddingBottom: 30,
+        },
+        emptyWrap: {
+            rowGap: 20,
+            alignItems: 'center',
+        },
+        emptyTitle: {
+            fontSize: 16,
+            color: theme.colors.textMuted,
+            fontFamily: 'Epilogue-Regular',
+        },
+    }),
+)

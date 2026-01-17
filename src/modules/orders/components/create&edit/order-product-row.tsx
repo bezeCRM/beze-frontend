@@ -10,11 +10,11 @@ import {
 } from 'react-native'
 import PlaceholderImage from '@/assets/images/product-card-placeholder.png'
 import DeleteItemIcon from '@/assets/images/delete_item-icon.svg'
-import { theme } from '@/shared/theme'
 import type { OrderCreateItem } from '../../hooks/useOrderCreateForm'
 import type { PhotoItem } from '@/shared/types/types'
 import Minus from '@/assets/images/minus.svg'
 import Plus from '@/assets/images/plus.svg'
+import { createThemedStyles } from '@/shared/theme/create-themed-styles'
 
 type Props = {
     item: OrderCreateItem
@@ -43,6 +43,7 @@ export default function OrderProductRow({
     onChangeWeight,
     onRemove,
 }: Props) {
+    const styles = useStyles()
     const product = item.product
     const unit = product.unit
 
@@ -117,99 +118,101 @@ export default function OrderProductRow({
     )
 }
 
-const styles = StyleSheet.create({
-    row: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
+const useStyles = createThemedStyles(theme =>
+    StyleSheet.create({
+        row: {
+            flexDirection: 'row',
+            alignItems: 'center',
+        },
 
-    removeBtn: {
-        width: 30,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginRight: 2,
-    },
+        removeBtn: {
+            width: 30,
+            justifyContent: 'center',
+            alignItems: 'center',
+            marginRight: 2,
+        },
 
-    image: {
-        width: 55,
-        height: 55,
-        borderRadius: 15,
-        backgroundColor: theme.colors.mainPink,
-    },
+        image: {
+            width: 55,
+            height: 55,
+            borderRadius: 15,
+            backgroundColor: theme.colors.brand,
+        },
 
-    info: {
-        flex: 1,
-        marginLeft: 14,
-        marginRight: 12,
-        gap: 4,
-    },
+        info: {
+            flex: 1,
+            marginLeft: 14,
+            marginRight: 12,
+            gap: 4,
+        },
 
-    name: {
-        fontSize: 14,
-        color: theme.colors.mainBlack,
-        fontFamily: 'Epilogue-SemiBold',
-    },
-    filling: {
-        fontSize: 12,
-        color: theme.colors.mainPink,
-        fontFamily: 'Epilogue-Regular',
-    },
-    price: {
-        fontSize: 13,
-        color: theme.colors.mainGray,
-        fontFamily: 'Epilogue-Regular',
-    },
+        name: {
+            fontSize: 14,
+            color: theme.colors.text,
+            fontFamily: 'Epilogue-SemiBold',
+        },
+        filling: {
+            fontSize: 12,
+            color: theme.colors.brand,
+            fontFamily: 'Epilogue-Regular',
+        },
+        price: {
+            fontSize: 13,
+            color: theme.colors.textMuted,
+            fontFamily: 'Epilogue-Regular',
+        },
 
-    kgWrap: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        columnGap: 8,
-    },
-    kgInput: {
-        width: 54,
-        height: 40,
-        borderRadius: 10,
-        borderWidth: 1,
-        borderColor: theme.colors.lineGray,
-        backgroundColor: theme.colors.mainWhite,
-        textAlign: 'center',
-        fontSize: 16,
-        color: theme.colors.mainBlack,
-        fontFamily: 'Epilogue-Regular',
-        paddingHorizontal: 8,
-        paddingVertical: 8,
-    },
-    kgText: {
-        fontSize: 16,
-        color: theme.colors.mainBlack,
-        fontFamily: 'Epilogue-Regular',
-    },
+        kgWrap: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            columnGap: 8,
+        },
+        kgInput: {
+            width: 54,
+            height: 40,
+            borderRadius: 10,
+            borderWidth: 1,
+            borderColor: theme.colors.border,
+            backgroundColor: theme.colors.surface,
+            textAlign: 'center',
+            fontSize: 16,
+            color: theme.colors.text,
+            fontFamily: 'Epilogue-Regular',
+            paddingHorizontal: 8,
+            paddingVertical: 8,
+        },
+        kgText: {
+            fontSize: 16,
+            color: theme.colors.text,
+            fontFamily: 'Epilogue-Regular',
+        },
 
-    stepper: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        columnGap: 4,
-    },
-    stepBtn: {
-        width: 32,
-        height: 32,
-        borderRadius: 17,
-        backgroundColor: theme.colors.mainGray,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    stepSymbol: {
-        fontSize: 24,
-        lineHeight: 18,
-        color: theme.colors.mainWhite,
-        fontFamily: 'Epilogue-SemiBold',
-        marginTop: 5,
-    },
-    count: {
-        width: 25.5,
-        textAlign: 'center',
-        fontSize: 16,
-        color: theme.colors.mainBlack,
-        fontFamily: 'Epilogue-Regular',
-    },
-})
+        stepper: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            columnGap: 4,
+        },
+        stepBtn: {
+            width: 32,
+            height: 32,
+            borderRadius: 17,
+            backgroundColor: theme.colors.textMuted,
+            alignItems: 'center',
+            justifyContent: 'center',
+        },
+        stepSymbol: {
+            fontSize: 24,
+            lineHeight: 18,
+            color: theme.colors.surface,
+            fontFamily: 'Epilogue-SemiBold',
+            marginTop: 5,
+        },
+        count: {
+            width: 25.5,
+            textAlign: 'center',
+            fontSize: 16,
+            color: theme.colors.text,
+            fontFamily: 'Epilogue-Regular',
+        },
+    }),
+)

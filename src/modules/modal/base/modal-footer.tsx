@@ -1,3 +1,5 @@
+import { createThemedStyles } from '@/shared/theme/create-themed-styles'
+import { useTheme } from '@/shared/theme/useTheme'
 import React from 'react'
 import {
     View,
@@ -8,7 +10,6 @@ import {
     type ViewStyle,
     type PressableStateCallbackType,
 } from 'react-native'
-import { theme } from '@/shared/theme'
 
 type Props = {
     primaryTitle?: string
@@ -29,13 +30,16 @@ export default function ModalFooter({
     danger,
     gap = 20,
 }: Props) {
+    const colors = useTheme().theme.colors
+    const styles = useStyles()
+
     const buttonsCount = Number(!!primaryTitle) + Number(!!secondaryTitle)
     const isDouble = buttonsCount === 2
 
     const radius = isDouble ? 15 : 0
 
-    const primaryBg = danger ? colors.errorRed : colors.mainPink
-    const primaryBorder = danger ? colors.errorRed : colors.mainPink
+    const primaryBg = danger ? colors.danger : colors.brand
+    const primaryBorder = danger ? colors.danger : colors.brand
 
     const baseDynamicStyle: ViewStyle = {
         borderRadius: radius,
@@ -89,50 +93,50 @@ export default function ModalFooter({
     )
 }
 
-const { colors } = theme
+const useStyles = createThemedStyles(theme =>
+    StyleSheet.create({
+        container: {
+            flexDirection: 'row',
+            justifyContent: 'center',
+        },
 
-const styles = StyleSheet.create({
-    container: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-    },
+        buttonBase: {
+            height: 45,
+            alignItems: 'center',
+            justifyContent: 'center',
+            overflow: 'hidden',
+            flex: 1,
+        },
 
-    buttonBase: {
-        height: 45,
-        alignItems: 'center',
-        justifyContent: 'center',
-        overflow: 'hidden',
-        flex: 1,
-    },
+        secondaryButton: {
+            backgroundColor: theme.colors.surface,
+            borderWidth: 1,
+            borderColor: theme.colors.brand,
+        },
 
-    secondaryButton: {
-        backgroundColor: colors.mainWhite,
-        borderWidth: 1,
-        borderColor: colors.mainPink,
-    },
+        primaryButton: {
+            borderWidth: 1,
+        },
 
-    primaryButton: {
-        borderWidth: 1,
-    },
+        secondaryText: {
+            fontSize: 16,
+            color: theme.colors.brand,
+            fontFamily: 'Epilogue-Regular',
+        },
 
-    secondaryText: {
-        fontSize: 16,
-        color: colors.mainPink,
-        fontFamily: 'Epilogue-Regular',
-    },
+        primaryText: {
+            fontSize: 16,
+            color: theme.colors.surface,
+            fontFamily: 'Epilogue-Semibold',
+        },
 
-    primaryText: {
-        fontSize: 16,
-        color: colors.mainWhite,
-        fontFamily: 'Epilogue-Semibold',
-    },
+        pressed: {
+            opacity: 0.85,
+        },
 
-    pressed: {
-        opacity: 0.85,
-    },
-
-    primaryDisabled: {
-        backgroundColor: colors.mainGray,
-        borderColor: 'transparent',
-    },
-})
+        primaryDisabled: {
+            backgroundColor: theme.colors.textMuted,
+            borderColor: 'transparent',
+        },
+    }),
+)

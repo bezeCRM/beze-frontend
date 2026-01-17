@@ -2,13 +2,14 @@ import React, { useMemo } from 'react'
 import { Image, StyleSheet, View, Text, Pressable } from 'react-native'
 
 import SectionCard from '@/shared/ui/section/section-card'
-import { theme } from '@/shared/theme'
 import type { Order, PhotoItem } from '@/shared/types/types'
 import { useImageViewer } from '@/shared/hooks/useImageViewer'
+import { createThemedStyles } from '@/shared/theme/create-themed-styles'
 
 type Props = { order: Order }
 
 export default function OrderReferencesInfo({ order }: Props) {
+    const styles = useStyles()
     const input = useMemo(
         () =>
             (order.references ?? [])
@@ -44,25 +45,27 @@ export default function OrderReferencesInfo({ order }: Props) {
     )
 }
 
-const styles = StyleSheet.create({
-    row: { flexDirection: 'row', gap: 10, marginTop: 3 },
-    photo: {
-        width: 80,
-        height: 80,
-        borderRadius: 15,
-        backgroundColor: theme.colors.mainPink,
-    },
-    emptyWrap: {
-        paddingTop: 10,
-        paddingBottom: 12,
-        alignItems: 'center',
-        justifyContent: 'center',
-        width: '100%',
-    },
-    emptyText: {
-        fontSize: 14,
-        color: theme.colors.mainGray,
-        fontFamily: 'Epilogue-Regular',
-        textAlign: 'center',
-    },
-})
+const useStyles = createThemedStyles(theme =>
+    StyleSheet.create({
+        row: { flexDirection: 'row', gap: 10, marginTop: 3 },
+        photo: {
+            width: 80,
+            height: 80,
+            borderRadius: 15,
+            backgroundColor: theme.colors.brand,
+        },
+        emptyWrap: {
+            paddingTop: 10,
+            paddingBottom: 12,
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '100%',
+        },
+        emptyText: {
+            fontSize: 14,
+            color: theme.colors.textMuted,
+            fontFamily: 'Epilogue-Regular',
+            textAlign: 'center',
+        },
+    }),
+)

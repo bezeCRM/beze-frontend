@@ -1,10 +1,11 @@
-import { View, StyleSheet, TextInput, TouchableOpacity } from 'react-native'
-import SectionCard from '@/shared/ui/section/section-card'
-import Button from '@/shared/ui/button/button'
-import DeleteItemIcon from '@/assets/images/delete_item-icon.svg'
 import CopyIcon from '@/assets/images/copy-ingredients-icon.svg'
-import { theme } from '@/shared/theme'
+import DeleteItemIcon from '@/assets/images/delete_item-icon.svg'
+import { createThemedStyles } from '@/shared/theme/create-themed-styles'
+import { useTheme } from '@/shared/theme/useTheme'
 import { Ingredient } from '@/shared/types/types'
+import Button from '@/shared/ui/button/button'
+import SectionCard from '@/shared/ui/section/section-card'
+import { StyleSheet, TextInput, TouchableOpacity, View } from 'react-native'
 
 type Props = {
     ingredients: Ingredient[]
@@ -25,6 +26,8 @@ export default function IngredientsEditor({
     onCopyPress,
     errorsById,
 }: Props) {
+    const styles = useStyles()
+    const colors = useTheme().theme.colors
     return (
         <SectionCard title="Ингредиенты">
             <TouchableOpacity
@@ -52,7 +55,7 @@ export default function IngredientsEditor({
                                 value={ing.name ?? ''}
                                 onChangeText={t => onChangeName?.(ing.id, t)}
                                 placeholder="Название"
-                                placeholderTextColor={theme.colors.mainGray}
+                                placeholderTextColor={colors.textMuted}
                                 style={[
                                     styles.inputName,
                                     rowErr?.name && styles.inputError,
@@ -64,7 +67,7 @@ export default function IngredientsEditor({
                                 value={ing.weightGrams ?? ''}
                                 onChangeText={t => onChangeAmount?.(ing.id, t)}
                                 placeholder="Вес, г"
-                                placeholderTextColor={theme.colors.mainGray}
+                                placeholderTextColor={colors.textMuted}
                                 style={[
                                     styles.inputAmount,
                                     rowErr?.weightGrams && styles.inputError,
@@ -81,55 +84,55 @@ export default function IngredientsEditor({
     )
 }
 
-const { colors } = theme
+const useStyles = createThemedStyles(theme =>
+    StyleSheet.create({
+        copyBtn: { position: 'absolute', right: 0, top: -27 },
 
-const styles = StyleSheet.create({
-    copyBtn: { position: 'absolute', right: 0, top: -27 },
+        list: { gap: 10 },
 
-    list: { gap: 10 },
+        row: {
+            flexDirection: 'row',
+            alignItems: 'center',
+        },
 
-    row: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
+        deleteBtn: {
+            width: 30,
+            height: 40,
+            justifyContent: 'center',
+            alignItems: 'center',
+            marginRight: 2,
+        },
 
-    deleteBtn: {
-        width: 30,
-        height: 40,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginRight: 2,
-    },
+        // имя занимает всё оставшееся место
+        inputName: {
+            flex: 1,
+            minWidth: 120, // не схлопывается на совсем узких экранах
+            backgroundColor: theme.colors.surface,
+            borderRadius: 15,
+            height: 40,
+            paddingHorizontal: 16,
+            borderWidth: 1,
+            borderColor: theme.colors.border,
+            fontSize: 14,
+            fontFamily: 'Epilogue-Regular',
+            color: theme.colors.text,
+            marginRight: 10,
+        },
 
-    // имя занимает всё оставшееся место
-    inputName: {
-        flex: 1,
-        minWidth: 120, // не схлопывается на совсем узких экранах
-        backgroundColor: colors.mainWhite,
-        borderRadius: 15,
-        height: 40,
-        paddingHorizontal: 16,
-        borderWidth: 1,
-        borderColor: colors.lineGray,
-        fontSize: 14,
-        fontFamily: 'Epilogue-Regular',
-        color: colors.mainBlack,
-        marginRight: 10,
-    },
-
-    inputAmount: {
-        width: '32%',
-        minWidth: 88,
-        maxWidth: 150,
-        backgroundColor: colors.mainWhite,
-        borderRadius: 15,
-        height: 40,
-        paddingHorizontal: 15,
-        borderWidth: 1,
-        borderColor: colors.lineGray,
-        fontSize: 14,
-        fontFamily: 'Epilogue-Regular',
-        color: colors.mainBlack,
-    },
-    inputError: { borderColor: colors.errorRed },
-})
+        inputAmount: {
+            width: '32%',
+            minWidth: 88,
+            maxWidth: 150,
+            backgroundColor: theme.colors.surface,
+            borderRadius: 15,
+            height: 40,
+            paddingHorizontal: 15,
+            borderWidth: 1,
+            borderColor: theme.colors.border,
+            fontSize: 14,
+            fontFamily: 'Epilogue-Regular',
+            color: theme.colors.text,
+        },
+        inputError: { borderColor: theme.colors.danger },
+    }),
+)

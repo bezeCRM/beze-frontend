@@ -1,6 +1,6 @@
+import { createThemedStyles } from '@/shared/theme/create-themed-styles'
 import React from 'react'
 import { TouchableOpacity, Text, StyleSheet, ViewStyle } from 'react-native'
-import { theme } from '@/shared/theme'
 
 type Props = {
     small?: boolean
@@ -23,6 +23,7 @@ export default function Button({
     style,
     disabled,
 }: Props) {
+    const styles = useStyles()
     return (
         <TouchableOpacity
             activeOpacity={0.8}
@@ -43,27 +44,29 @@ export default function Button({
     )
 }
 
-const styles = StyleSheet.create({
-    btn: {
-        height: 50,
-        backgroundColor: theme.colors.mainPink,
-        width: '100%',
-        borderRadius: 16,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    smallBtn: { height: 40 },
-    blueBtn: { backgroundColor: theme.colors.mainBlue },
-    redBtn: { backgroundColor: theme.colors.errorRed },
-    modalWideBtn: {
-        height: 50,
-        borderRadius: 0,
-    },
-    text: {
-        color: theme.colors.mainWhite,
-        fontSize: 16,
-        fontFamily: 'Epilogue-SemiBold',
-    },
-    smallText: { fontSize: 14 },
-    disabled: { backgroundColor: theme.colors.mainGray },
-})
+const useStyles = createThemedStyles(theme =>
+    StyleSheet.create({
+        btn: {
+            height: 50,
+            backgroundColor: theme.colors.brand,
+            width: '100%',
+            borderRadius: 16,
+            alignItems: 'center',
+            justifyContent: 'center',
+        },
+        smallBtn: { height: 40 },
+        blueBtn: { backgroundColor: theme.colors.info },
+        redBtn: { backgroundColor: theme.colors.danger },
+        modalWideBtn: {
+            height: 50,
+            borderRadius: 0,
+        },
+        text: {
+            color: theme.colors.fixedWhite,
+            fontSize: 16,
+            fontFamily: 'Epilogue-SemiBold',
+        },
+        smallText: { fontSize: 14 },
+        disabled: { backgroundColor: theme.colors.textMuted },
+    }),
+)

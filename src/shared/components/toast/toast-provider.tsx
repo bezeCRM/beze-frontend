@@ -9,9 +9,9 @@ import {
 } from 'react'
 import { View, StyleSheet, Animated, PanResponder, Easing, Text } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { theme } from '@/shared/theme'
 import ErrorIcon from '@/assets/images/error-icon.svg'
 import SuccessIcon from '@/assets/images/success-icon.svg'
+import { createThemedStyles } from '@/shared/theme/create-themed-styles'
 
 type ToastVariant = 'error' | 'info' | 'success'
 type ToastItem = {
@@ -89,6 +89,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
 }
 
 function ToastCard({ item, onDismiss }: { item: ToastItem; onDismiss: () => void }) {
+    const styles = useStyles()
     const onDismissRef = useRef(onDismiss)
     const translateY = useRef(new Animated.Value(16)).current
     const opacity = useRef(new Animated.Value(0)).current
@@ -194,6 +195,7 @@ export function ToastViewport({
     bottomOffset?: number
     horizontalInset?: number
 }) {
+    const styles = useStyles()
     const { items, dismiss, clearScope } = useToast()
     const { bottom } = useSafeAreaInsets()
     const scoped = items.filter(i => i.scope === scope)
@@ -229,33 +231,34 @@ export function ToastViewport({
     )
 }
 
-const { colors } = theme
-const styles = StyleSheet.create({
-    stack: { gap: 8 },
-    card: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingVertical: 10,
-        paddingHorizontal: 15,
-        borderRadius: 18,
-        backgroundColor: colors.mainWhite,
-        shadowColor: 'rgba(0, 0, 0, 0.1)',
-        shadowOpacity: 0.12,
-        shadowRadius: 10,
-        shadowOffset: { width: 0, height: 2 },
-        elevation: 8,
-    },
+const useStyles = createThemedStyles(theme =>
+    StyleSheet.create({
+        stack: { gap: 8 },
+        card: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            paddingVertical: 10,
+            paddingHorizontal: 15,
+            borderRadius: 18,
+            backgroundColor: theme.colors.surface,
+            shadowColor: 'rgba(0, 0, 0, 0.1)',
+            shadowOpacity: 0.12,
+            shadowRadius: 10,
+            shadowOffset: { width: 0, height: 2 },
+            elevation: 8,
+        },
 
-    errorCard: { borderWidth: 1, borderColor: colors.lineGray },
-    successCard: { borderWidth: 1, borderColor: colors.lineGray },
+        errorCard: { borderWidth: 1, borderColor: theme.colors.border },
+        successCard: { borderWidth: 1, borderColor: theme.colors.border },
 
-    icon: { marginRight: 12 },
+        icon: { marginRight: 12 },
 
-    message: {
-        flex: 1,
-        fontSize: 16,
-        lineHeight: 19.2,
-        color: colors.mainBlack,
-        fontFamily: 'Epilogue-SemiBold',
-    },
-})
+        message: {
+            flex: 1,
+            fontSize: 16,
+            lineHeight: 19.2,
+            color: theme.colors.text,
+            fontFamily: 'Epilogue-SemiBold',
+        },
+    }),
+)

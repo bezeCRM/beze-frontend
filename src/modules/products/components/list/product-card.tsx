@@ -8,8 +8,8 @@ import {
     ImageSourcePropType,
 } from 'react-native'
 import PlaceholderImage from '@/assets/images/product-card-placeholder.png'
-import { theme } from '@/shared/theme'
 import type { Product, PhotoItem } from '@/shared/types/types'
+import { createThemedStyles } from '@/shared/theme/create-themed-styles'
 
 type ProductCardProps = Pick<
     Product,
@@ -37,6 +37,7 @@ export default function ProductCard({
     photoes,
     onPress,
 }: ProductCardProps) {
+    const styles = useStyles()
     const imageSource: ImageSourcePropType = useMemo(() => {
         const firstUri = getFirstPhotoUri(photoes as unknown as PhotoItem[])
         return firstUri ? { uri: firstUri } : PlaceholderImage
@@ -60,39 +61,41 @@ export default function ProductCard({
     )
 }
 
-const styles = StyleSheet.create({
-    card: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: theme.colors.backgroundWhite,
-        borderRadius: 15,
-        paddingVertical: 8,
-    },
-    image: {
-        width: 56,
-        height: 56,
-        borderRadius: 12,
-        backgroundColor: theme.colors.mainPink,
-    },
-    info: {
-        flex: 1,
-        marginHorizontal: 15,
-    },
-    name: {
-        fontSize: 16,
-        lineHeight: 17.6,
-        color: theme.colors.mainBlack,
-        fontFamily: 'Epilogue-SemiBold',
-    },
-    fillings: {
-        fontSize: 14,
-        color: theme.colors.mainPink,
-        fontFamily: 'Epilogue-Regular',
-        marginTop: 5,
-    },
-    price: {
-        fontSize: 16,
-        color: theme.colors.mainBlack,
-        fontFamily: 'Epilogue-Regular',
-    },
-})
+const useStyles = createThemedStyles(theme =>
+    StyleSheet.create({
+        card: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            backgroundColor: theme.colors.background,
+            borderRadius: 15,
+            paddingVertical: 8,
+        },
+        image: {
+            width: 56,
+            height: 56,
+            borderRadius: 12,
+            backgroundColor: theme.colors.brand,
+        },
+        info: {
+            flex: 1,
+            marginHorizontal: 15,
+        },
+        name: {
+            fontSize: 16,
+            lineHeight: 17.6,
+            color: theme.colors.text,
+            fontFamily: 'Epilogue-SemiBold',
+        },
+        fillings: {
+            fontSize: 14,
+            color: theme.colors.brand,
+            fontFamily: 'Epilogue-Regular',
+            marginTop: 5,
+        },
+        price: {
+            fontSize: 16,
+            color: theme.colors.text,
+            fontFamily: 'Epilogue-Regular',
+        },
+    }),
+)

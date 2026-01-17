@@ -24,12 +24,13 @@ import PhotoesPicker from '@/modules/products/components/create&edit/photoes-pic
 import { pickImagesFromLibrary } from '@/shared/components/media'
 import { useCategoryStore } from '../store/categories.store'
 import { useProductsStore } from '../store/products.store'
-import { theme } from '@/shared/theme'
 import { useCopyIngredientsFromProduct } from '../hooks/useCopyIngredientsFromProduct'
 import type { ProductCreateFormValues } from '../hooks/useProductCreateForm'
 import { useProductEditForm } from '../hooks/useProductEditForm'
 import { AppStackParamList } from '@/core/navigation/app-navigation'
 import { StackNavigationProp } from '@react-navigation/stack'
+import { createThemedStyles } from '@/shared/theme/create-themed-styles'
+import { useTheme } from '@/shared/theme/useTheme'
 
 const MAX_PHOTOES = 3
 const PRODUCT_INFO_TOAST_SCOPE = 'productInfo'
@@ -38,6 +39,8 @@ type Navigation = StackNavigationProp<AppStackParamList, 'ProductEdit'>
 type Route = RouteProp<AppStackParamList, 'ProductEdit'>
 
 export default function ProductEditScreen() {
+    const styles = useStyles()
+    const colors = useTheme().theme.colors
     // объявление ключевых функций
     const { bottom } = useSafeAreaInsets()
     const navigation = useNavigation<Navigation>()
@@ -197,7 +200,7 @@ export default function ProductEditScreen() {
                                     setValue('name', t, { shouldValidate: true })
                                 }
                                 placeholder="Шоколадный торт"
-                                placeholderTextColor={theme.colors.mainGray}
+                                placeholderTextColor={colors.textMuted}
                                 style={[styles.input, errors.name && styles.inputError]}
                                 returnKeyType="done"
                             />
@@ -250,7 +253,7 @@ export default function ProductEditScreen() {
                                         ? 'Введите цену за 1 шт'
                                         : 'Введите цену за 1 кг'
                                 }
-                                placeholderTextColor={theme.colors.mainGray}
+                                placeholderTextColor={colors.textMuted}
                                 style={[styles.input, errors.price && styles.inputError]}
                                 keyboardType="numeric"
                                 returnKeyType="done"
@@ -277,22 +280,24 @@ export default function ProductEditScreen() {
     )
 }
 
-const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: theme.colors.backgroundWhite },
-    stickyTopBar: { backgroundColor: theme.colors.backgroundWhite },
-    scroll: { flex: 1 },
-    titleWrap: {},
-    formList: { rowGap: 15 },
-    input: {
-        backgroundColor: theme.colors.mainWhite,
-        height: 40,
-        borderRadius: 15,
-        paddingHorizontal: 15,
-        paddingVertical: 10,
-        borderWidth: 1,
-        borderColor: theme.colors.lineGray,
-        fontSize: 14,
-        color: theme.colors.mainBlack,
-    },
-    inputError: { borderColor: theme.colors.errorRed },
-})
+const useStyles = createThemedStyles(theme =>
+    StyleSheet.create({
+        container: { flex: 1, backgroundColor: theme.colors.background },
+        stickyTopBar: { backgroundColor: theme.colors.background },
+        scroll: { flex: 1 },
+        titleWrap: {},
+        formList: { rowGap: 15 },
+        input: {
+            backgroundColor: theme.colors.surface,
+            height: 40,
+            borderRadius: 15,
+            paddingHorizontal: 15,
+            paddingVertical: 10,
+            borderWidth: 1,
+            borderColor: theme.colors.border,
+            fontSize: 14,
+            color: theme.colors.text,
+        },
+        inputError: { borderColor: theme.colors.danger },
+    }),
+)

@@ -1,12 +1,13 @@
 import React from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 import SectionCard from '@/shared/ui/section/section-card'
-import { theme } from '@/shared/theme'
 import type { Order } from '@/shared/types/types'
+import { createThemedStyles } from '@/shared/theme/create-themed-styles'
 
 type Props = { order: Order }
 
 export default function OrderNotesInfo({ order }: Props) {
+    const styles = useStyles()
     const notes = order.notes?.trim() ?? ''
     return (
         <SectionCard title="Примечания">
@@ -17,21 +18,23 @@ export default function OrderNotesInfo({ order }: Props) {
     )
 }
 
-const styles = StyleSheet.create({
-    box: {
-        borderWidth: 1,
-        borderColor: theme.colors.lineGray,
-        borderRadius: 15,
-        paddingHorizontal: 15,
-        paddingVertical: 10,
-        backgroundColor: theme.colors.mainWhite,
-        minHeight: 64,
-    },
-    text: {
-        fontSize: 14,
-        color: theme.colors.mainBlack,
-        fontFamily: 'Epilogue-Regular',
-        lineHeight: 18,
-    },
-    muted: { color: theme.colors.mainGray },
-})
+const useStyles = createThemedStyles(theme =>
+    StyleSheet.create({
+        box: {
+            borderWidth: 1,
+            borderColor: theme.colors.border,
+            borderRadius: 15,
+            paddingHorizontal: 15,
+            paddingVertical: 10,
+            backgroundColor: theme.colors.surface,
+            minHeight: 64,
+        },
+        text: {
+            fontSize: 14,
+            color: theme.colors.text,
+            fontFamily: 'Epilogue-Regular',
+            lineHeight: 18,
+        },
+        muted: { color: theme.colors.textMuted },
+    }),
+)

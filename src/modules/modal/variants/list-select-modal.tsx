@@ -3,7 +3,6 @@ import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from 'react
 
 import ModalHeader from '@/modules/modal/base/modal-header'
 import ModalFooter from '@/modules/modal/base/modal-footer'
-import { theme } from '@/shared/theme'
 import type { BaseModalProps } from '@/modules/modal/types/base-modal-props'
 
 import Search from '@/shared/components/search/search'
@@ -12,6 +11,7 @@ import {
     runSearch,
     type SearchConfig,
 } from '@/shared/components/search/engine'
+import { createThemedStyles } from '@/shared/theme/create-themed-styles'
 
 export type ListSelectItem = {
     id: string
@@ -44,6 +44,7 @@ export default function ListSelectModal({
     searchConfig,
     closeOnSelect = true,
 }: ListSelectModalProps) {
+    const styles = useStyles()
     const [query, setQuery] = useState('')
     const [selectedId, setSelectedId] = useState<string | null>(null)
 
@@ -182,63 +183,63 @@ export default function ListSelectModal({
     )
 }
 
-const { colors } = theme
+const useStyles = createThemedStyles(theme =>
+    StyleSheet.create({
+        container: { paddingBottom: 0 },
 
-const styles = StyleSheet.create({
-    container: { paddingBottom: 0 },
+        searchWrap: { paddingHorizontal: 15, paddingBottom: 0 },
 
-    searchWrap: { paddingHorizontal: 15, paddingBottom: 0 },
+        listWrap: { height: ITEM_HEIGHT * 3, marginBottom: 12 },
+        list: { flex: 1 },
+        listContent: { paddingVertical: 0 },
 
-    listWrap: { height: ITEM_HEIGHT * 3, marginBottom: 12 },
-    list: { flex: 1 },
-    listContent: { paddingVertical: 0 },
+        item: {
+            height: ITEM_HEIGHT,
+            flexDirection: 'row',
+            alignItems: 'center',
+            paddingHorizontal: 15,
+        },
+        itemLast: { borderBottomWidth: 0 },
+        itemSelected: { backgroundColor: 'rgba(255, 209, 232, 1)' },
 
-    item: {
-        height: ITEM_HEIGHT,
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: 15,
-    },
-    itemLast: { borderBottomWidth: 0 },
-    itemSelected: { backgroundColor: 'rgba(255, 209, 232, 1)' },
+        thumb: {
+            width: THUMB_SIZE,
+            height: THUMB_SIZE,
+            borderRadius: 15,
+            marginRight: 14,
+        },
+        thumbPlaceholder: {
+            backgroundColor: theme.colors.brand,
+            opacity: 0.6,
+        },
 
-    thumb: {
-        width: THUMB_SIZE,
-        height: THUMB_SIZE,
-        borderRadius: 15,
-        marginRight: 14,
-    },
-    thumbPlaceholder: {
-        backgroundColor: colors.mainPink,
-        opacity: 0.6,
-    },
+        itemText: { flex: 1, gap: 4 },
+        name: {
+            fontSize: 16,
+            color: theme.colors.text,
+            fontFamily: 'Epilogue-SemiBold',
+        },
+        price: {
+            fontSize: 14,
+            color: theme.colors.text,
+            fontFamily: 'Epilogue-Regular',
+            opacity: 0.85,
+        },
 
-    itemText: { flex: 1, gap: 4 },
-    name: {
-        fontSize: 16,
-        color: colors.mainBlack,
-        fontFamily: 'Epilogue-SemiBold',
-    },
-    price: {
-        fontSize: 14,
-        color: colors.mainBlack,
-        fontFamily: 'Epilogue-Regular',
-        opacity: 0.85,
-    },
+        chevron: {
+            fontSize: 26,
+            lineHeight: 26,
+            color: theme.colors.textMuted,
+            marginLeft: 10,
+            marginTop: -2,
+        },
 
-    chevron: {
-        fontSize: 26,
-        lineHeight: 26,
-        color: colors.mainGray,
-        marginLeft: 10,
-        marginTop: -2,
-    },
-
-    listContentEmpty: {
-        flexGrow: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    emptyWrap: { alignItems: 'center', paddingHorizontal: 20 },
-    emptyTitle: { fontSize: 16, color: colors.mainGray },
-})
+        listContentEmpty: {
+            flexGrow: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+        },
+        emptyWrap: { alignItems: 'center', paddingHorizontal: 20 },
+        emptyTitle: { fontSize: 16, color: theme.colors.textMuted },
+    }),
+)

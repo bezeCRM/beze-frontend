@@ -2,8 +2,8 @@ import React, { useMemo } from 'react'
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import ModalHeader from '@/modules/modal/base/modal-header'
 import ModalFooter from '@/modules/modal/base/modal-footer'
-import { theme } from '@/shared/theme'
 import type { BaseModalProps } from '@/modules/modal/types/base-modal-props'
+import { createThemedStyles } from '@/shared/theme/create-themed-styles'
 
 type Option = { id: string; name: string; selected?: boolean }
 
@@ -25,6 +25,7 @@ export default function ChipSelectModal({
     onBack,
     onClose,
 }: ChipSelectModalProps) {
+    const styles = useStyles()
     const primaryDisabled = useMemo(() => !options.some(o => o.selected), [options])
 
     return (
@@ -65,52 +66,52 @@ export default function ChipSelectModal({
     )
 }
 
-const { colors } = theme
+const useStyles = createThemedStyles(theme =>
+    StyleSheet.create({
+        container: {
+            paddingBottom: 0,
+        },
 
-const styles = StyleSheet.create({
-    container: {
-        paddingBottom: 0,
-    },
+        top: {
+            paddingHorizontal: 15,
+            justifyContent: 'center',
+            marginTop: -5,
+        },
+        headline: {
+            fontSize: 16,
+            color: theme.colors.text,
+            fontFamily: 'Epilogue-SemiBold',
+            textAlign: 'center',
+            marginBottom: 15,
+        },
 
-    top: {
-        paddingHorizontal: 15,
-        justifyContent: 'center',
-        marginTop: -5,
-    },
-    headline: {
-        fontSize: 16,
-        color: colors.mainBlack,
-        fontFamily: 'Epilogue-SemiBold',
-        textAlign: 'center',
-        marginBottom: 15,
-    },
+        body: {
+            paddingHorizontal: 15,
+            paddingBottom: 20,
+        },
+        bodyContent: {
+            alignItems: 'center',
+        },
 
-    body: {
-        paddingHorizontal: 15,
-        paddingBottom: 20,
-    },
-    bodyContent: {
-        alignItems: 'center',
-    },
-
-    chips: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        gap: 7,
-        justifyContent: 'center',
-    },
-    chip: {
-        backgroundColor: colors.mainGray,
-        borderRadius: 999,
-        paddingVertical: 8,
-        paddingHorizontal: 15,
-    },
-    chipSelected: {
-        backgroundColor: colors.mainPink,
-    },
-    chipText: {
-        color: colors.mainWhite,
-        fontSize: 14,
-        fontFamily: 'Epilogue-SemiBold',
-    },
-})
+        chips: {
+            flexDirection: 'row',
+            flexWrap: 'wrap',
+            gap: 7,
+            justifyContent: 'center',
+        },
+        chip: {
+            backgroundColor: theme.colors.textMuted,
+            borderRadius: 999,
+            paddingVertical: 8,
+            paddingHorizontal: 15,
+        },
+        chipSelected: {
+            backgroundColor: theme.colors.brand,
+        },
+        chipText: {
+            color: theme.colors.surface,
+            fontSize: 14,
+            fontFamily: 'Epilogue-SemiBold',
+        },
+    }),
+)

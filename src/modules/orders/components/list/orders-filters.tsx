@@ -1,6 +1,5 @@
 import Filters from '@/shared/components/filters'
 import { Category } from '@/shared/types/types'
-import React from 'react'
 
 export type OrdersFilterId = 'all' | 'new' | 'inWork' | 'ready' | 'delivered' | 'canceled'
 

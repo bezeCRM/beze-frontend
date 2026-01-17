@@ -1,5 +1,5 @@
-import { theme } from '@/shared/theme'
-import React, { ReactNode, useEffect } from 'react'
+import { createThemedStyles } from '@/shared/theme/create-themed-styles'
+import { ReactNode, useEffect } from 'react'
 import {
     BackHandler,
     Modal,
@@ -23,6 +23,7 @@ export default function BaseModal({
     dismissOnBackdrop = true,
     blocking = false,
 }: Props) {
+    const styles = useStyles()
     // handle Android back
     useEffect(() => {
         const sub = BackHandler.addEventListener('hardwareBackPress', () => {
@@ -60,30 +61,30 @@ export default function BaseModal({
     )
 }
 
-const { colors } = theme
-
-const styles = StyleSheet.create({
-    backdrop: {
-        flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.45)',
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-    },
-    center: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingHorizontal: 20,
-        paddingBottom: 50,
-    },
-    card: {
-        width: '100%',
-        maxWidth: 420,
-        backgroundColor: colors.backgroundWhite,
-        borderRadius: 25,
-        overflow: 'hidden',
-    },
-})
+const useStyles = createThemedStyles(theme =>
+    StyleSheet.create({
+        backdrop: {
+            flex: 1,
+            backgroundColor: 'rgba(0,0,0,0.45)',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+        },
+        center: {
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            paddingHorizontal: 20,
+            paddingBottom: 50,
+        },
+        card: {
+            width: '100%',
+            maxWidth: 420,
+            backgroundColor: theme.colors.background,
+            borderRadius: 25,
+            overflow: 'hidden',
+        },
+    }),
+)

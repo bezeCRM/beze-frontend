@@ -15,7 +15,6 @@ import ScreenContainer from '@/shared/components/layout/screen-container'
 import { ToastViewport, useToast } from '@/shared/components/toast/toast-provider'
 import { useOrdersStore } from '../store/orders.store'
 import { useProductsStore } from '@/modules/products/store/products.store'
-import { theme } from '@/shared/theme'
 import type { PhotoItem } from '@/shared/types/types'
 import Button from '@/shared/ui/button/button'
 import SelectField from '@/shared/ui/fields/select-field'
@@ -45,6 +44,8 @@ import { useOrderReferences } from '../hooks/useOrderReferences'
 import { buildNewOrderPayload } from '../utils/buildNewOrderPayload'
 import { formatMoneyRu } from '../utils/money'
 import { ORDER_PAYMENT_OPTIONS, ORDER_STATUS_OPTIONS } from '../utils/order-options'
+import { createThemedStyles } from '@/shared/theme/create-themed-styles'
+import { useTheme } from '@/shared/theme/useTheme'
 
 const MAX_REFERENCES = 3
 const ORDERS_LIST_TOAST_SCOPE = 'ordersList'
@@ -53,6 +54,9 @@ type Nav = StackNavigationProp<OrdersStackParamList, 'OrderCreate'>
 type R = RouteProp<OrdersStackParamList, 'OrderCreate'>
 
 export default function OrderCreateScreen() {
+    const styles = useStyles()
+    const colors = useTheme().theme.colors
+
     const { bottom } = useSafeAreaInsets()
     const navigation = useNavigation<Nav>()
     const route = useRoute<R>()
@@ -319,11 +323,11 @@ export default function OrderCreateScreen() {
                                     value={inPlanner}
                                     onValueChange={togglePlanner}
                                     trackColor={{
-                                        false: theme.colors.lineGray,
-                                        true: theme.colors.mainPink,
+                                        false: colors.border,
+                                        true: colors.brand,
                                     }}
-                                    thumbColor={theme.colors.mainWhite}
-                                    ios_backgroundColor={theme.colors.lineGray}
+                                    thumbColor={colors.surface}
+                                    ios_backgroundColor={colors.border}
                                 />
                             </View>
                         </View>
@@ -348,45 +352,47 @@ export default function OrderCreateScreen() {
     )
 }
 
-const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: theme.colors.backgroundWhite },
-    stickyTopBar: { backgroundColor: theme.colors.backgroundWhite },
-    scroll: { flex: 1 },
-    titleWrap: {},
-    formList: { rowGap: 15 },
+const useStyles = createThemedStyles(theme =>
+    StyleSheet.create({
+        container: { flex: 1, backgroundColor: theme.colors.background },
+        stickyTopBar: { backgroundColor: theme.colors.background },
+        scroll: { flex: 1 },
+        titleWrap: {},
+        formList: { rowGap: 15 },
 
-    plannerRowFinal: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingRight: 15,
-        paddingLeft: 18,
-        backgroundColor: theme.colors.mainWhite,
-        paddingVertical: 11,
-        borderRadius: 25,
-        marginBottom: 5,
-    },
-    plannerLabel: {
-        fontSize: 14,
-        color: theme.colors.mainBlack,
-        fontFamily: 'Epilogue-Regular',
-    },
+        plannerRowFinal: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            paddingRight: 15,
+            paddingLeft: 18,
+            backgroundColor: theme.colors.surface,
+            paddingVertical: 11,
+            borderRadius: 25,
+            marginBottom: 5,
+        },
+        plannerLabel: {
+            fontSize: 14,
+            color: theme.colors.text,
+            fontFamily: 'Epilogue-Regular',
+        },
 
-    totalRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: 3,
-        marginBottom: 7,
-    },
-    totalLabel: {
-        fontSize: 16,
-        color: theme.colors.mainBlack,
-        fontFamily: 'Epilogue-SemiBold',
-    },
-    totalValue: {
-        fontSize: 18,
-        color: theme.colors.mainBlack,
-        fontFamily: 'Epilogue-SemiBold',
-    },
-})
+        totalRow: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            paddingHorizontal: 3,
+            marginBottom: 7,
+        },
+        totalLabel: {
+            fontSize: 16,
+            color: theme.colors.text,
+            fontFamily: 'Epilogue-SemiBold',
+        },
+        totalValue: {
+            fontSize: 18,
+            color: theme.colors.text,
+            fontFamily: 'Epilogue-SemiBold',
+        },
+    }),
+)

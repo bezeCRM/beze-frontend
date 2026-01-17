@@ -3,8 +3,9 @@ import { View, StyleSheet, TextInput, TouchableOpacity } from 'react-native'
 import SectionCard from '@/shared/ui/section/section-card'
 import Button from '@/shared/ui/button/button'
 import DeleteItemIcon from '@/assets/images/delete_item-icon.svg'
-import { theme } from '@/shared/theme'
 import { Filling } from '@/shared/types/types'
+import { createThemedStyles } from '@/shared/theme/create-themed-styles'
+import { useTheme } from '@/shared/theme/useTheme'
 
 type Props = {
     fillings: Filling[]
@@ -19,6 +20,8 @@ export default function FillingsEditor({
     onAddPress,
     onRemovePress,
 }: Props) {
+    const styles = useStyles()
+    const colors = useTheme().theme.colors
     return (
         <SectionCard title="Начинки">
             <View style={styles.list}>
@@ -36,7 +39,7 @@ export default function FillingsEditor({
                             value={filling.name ?? ''}
                             onChangeText={t => onChangeName?.(filling.id, t)}
                             placeholder="Начинка"
-                            placeholderTextColor={theme.colors.mainGray}
+                            placeholderTextColor={colors.textMuted}
                             style={styles.input}
                             returnKeyType="done"
                         />
@@ -49,23 +52,23 @@ export default function FillingsEditor({
     )
 }
 
-const { colors } = theme
-
-const styles = StyleSheet.create({
-    list: { gap: 10 },
-    row: { flexDirection: 'row', alignItems: 'center', gap: 2 },
-    deleteBtn: { width: 30, alignItems: 'center' },
-    input: {
-        flex: 1,
-        backgroundColor: colors.mainWhite,
-        borderRadius: 15,
-        height: 40,
-        paddingHorizontal: 15,
-        paddingVertical: 10,
-        borderWidth: 1,
-        borderColor: colors.lineGray,
-        fontSize: 14,
-        fontFamily: 'Epilogue-Regular',
-        color: colors.mainBlack,
-    },
-})
+const useStyles = createThemedStyles(theme =>
+    StyleSheet.create({
+        list: { gap: 10 },
+        row: { flexDirection: 'row', alignItems: 'center', gap: 2 },
+        deleteBtn: { width: 30, alignItems: 'center' },
+        input: {
+            flex: 1,
+            backgroundColor: theme.colors.surface,
+            borderRadius: 15,
+            height: 40,
+            paddingHorizontal: 15,
+            paddingVertical: 10,
+            borderWidth: 1,
+            borderColor: theme.colors.border,
+            fontSize: 14,
+            fontFamily: 'Epilogue-Regular',
+            color: theme.colors.text,
+        },
+    }),
+)
