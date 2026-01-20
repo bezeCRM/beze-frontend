@@ -6,6 +6,7 @@ import { StatusModalProps } from '../variants/status-modal'
 import { ListSelectModalProps } from '../variants/list-select-modal'
 import { ChipSelectModalProps } from '../variants/chip-select-modal'
 import { WizardModalProps } from '../variants/wizard-modal'
+import { PlannerTaskModalProps } from '../variants/planner-task-modal'
 
 export type ModalPropsMap = {
     confirm: ConfirmModalProps
@@ -14,6 +15,7 @@ export type ModalPropsMap = {
     'list-select': ListSelectModalProps
     'chip-select': ChipSelectModalProps
     wizard: WizardModalProps
+    plannerTask: PlannerTaskModalProps
 }
 
 export type ModalType = keyof ModalPropsMap
@@ -36,11 +38,11 @@ export const useModalStore = create<ModalState>(set => ({
     props: undefined,
     content: undefined,
 
-    open: (type, props) => set({ type, props, visible: true }),
-    openCustom: content => set({ content, visible: true }),
+    open: (type, props) => set({ type, props, content: undefined, visible: true }),
+    openCustom: content => set({ content, type: null, props: undefined, visible: true }),
     update: props =>
         set(state => ({
-            props: { ...state.props, ...props } as ModalPropsMap[ModalType],
+            props: { ...(state.props as any), ...props } as any,
         })),
     close: () => set({ visible: false }),
     reset: () =>

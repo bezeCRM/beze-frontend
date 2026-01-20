@@ -10,6 +10,7 @@ export type Colors = {
   danger: string
   warning: string
   fixedWhite: string
+  outMonth: string
 }
 
 export const lightColors: Colors = {
@@ -18,6 +19,7 @@ export const lightColors: Colors = {
   surface: '#FFFFFF',
   text: '#020202',
   textMuted: '#A6A6A6',
+  outMonth: '#d3d3d3',
   border: '#E9E9E9',
   info: '#879FFF',
   success: '#53BD5A',
@@ -31,13 +33,14 @@ export const darkColors: Colors = {
   background: '#0B0B0D',
   surface: '#202027',
   text: '#F5F5F6',
-  textMuted: '#A1A1A8',
+  textMuted: '#646469',
   border: '#313131',
   info: '#748fff',
   success: '#53BD5A',
   danger: '#FF6B6B',
   warning: '#FFAE52',
   fixedWhite: '#FFFFFF',
+  outMonth: '#333333',
 }
 
 export type ThemeScheme = 'light' | 'dark'

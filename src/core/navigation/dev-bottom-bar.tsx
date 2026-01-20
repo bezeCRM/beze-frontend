@@ -10,6 +10,13 @@ function getNestedRouteName(route: any) {
     return state.routes[idx]?.name ?? null
 }
 
+function getLabel(tabName: string) {
+    if (tabName === 'Products') return 'Товары'
+    if (tabName === 'Orders') return 'Заказы'
+    if (tabName === 'Planner') return 'Планер'
+    return tabName
+}
+
 export default function DevBottomBar({ state, navigation }: BottomTabBarProps) {
     const styles = useStyles()
     const insets = useSafeAreaInsets()
@@ -18,7 +25,10 @@ export default function DevBottomBar({ state, navigation }: BottomTabBarProps) {
     const nestedName = getNestedRouteName(activeTabRoute)
 
     const shouldShow =
-        !nestedName || nestedName === 'ProductsList' || nestedName === 'OrdersList'
+        !nestedName ||
+        nestedName === 'ProductsList' ||
+        nestedName === 'OrdersList' ||
+        nestedName === 'PlannerHome'
 
     if (!shouldShow) return null
 
@@ -27,7 +37,7 @@ export default function DevBottomBar({ state, navigation }: BottomTabBarProps) {
             <View style={styles.bar}>
                 {state.routes.map((route, index) => {
                     const focused = state.index === index
-                    const label = route.name === 'Products' ? 'Товары' : 'Заказы'
+                    const label = getLabel(route.name)
 
                     const onPress = () => {
                         const event = navigation.emit({

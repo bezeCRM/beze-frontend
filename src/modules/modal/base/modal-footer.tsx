@@ -126,7 +126,7 @@ const useStyles = createThemedStyles(theme =>
 
         primaryText: {
             fontSize: 16,
-            color: theme.colors.surface,
+            color: theme.colors.fixedWhite,
             fontFamily: 'Epilogue-Semibold',
         },
 

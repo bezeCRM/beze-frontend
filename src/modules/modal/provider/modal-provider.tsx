@@ -8,11 +8,11 @@ import StatusModal from '@/modules/modal/variants/status-modal'
 import ListSelectModal from '@/modules/modal/variants/list-select-modal'
 import ChipSelectModal from '@/modules/modal/variants/chip-select-modal'
 import WizardModal from '@/modules/modal/variants/wizard-modal'
+import PlannerTaskModal from '@/modules/modal/variants/planner-task-modal'
 
 export function ModalProvider() {
     const { type, visible, props, content, close, reset } = useModalStore()
 
-    // скрывать контент при закрытии
     useEffect(() => {
         if (!visible) {
             const timer = setTimeout(reset, 200)
@@ -36,18 +36,18 @@ export function ModalProvider() {
                 return <ChipSelectModal {...(props as any)} onClose={close} />
             case 'wizard':
                 return <WizardModal {...(props as any)} onClose={close} />
+            case 'plannerTask':
+                return <PlannerTaskModal {...(props as any)} onClose={close} />
             default:
                 return null
         }
     }
 
+    const blocking = !!(props as any)?.blocking
+
     return (
         <View style={StyleSheet.absoluteFill}>
-            <BaseModal
-                visible={visible}
-                onClose={close}
-                dismissOnBackdrop={!props?.blocking}
-            >
+            <BaseModal visible={visible} onClose={close} dismissOnBackdrop={!blocking}>
                 {renderContent()}
             </BaseModal>
         </View>

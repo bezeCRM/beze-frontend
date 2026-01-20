@@ -92,3 +92,36 @@ export type Order = {
     createdAt: string
     updatedAt: string
 }
+
+// планер
+export type PlannerTask = {
+    id: string
+    title: string
+    date: string // yyyy-mm-dd
+    time?: string // hh:mm
+    createdAt: string
+    updatedAt: string
+}
+
+export type PlannerTaskKind = 'manual' | 'order'
+
+export type PlannerListItemBase = {
+    id: string
+    kind: PlannerTaskKind
+    title: string
+    date: string // yyyy-mm-dd
+    time?: string // hh:mm
+}
+
+export type PlannerManualListItem = PlannerListItemBase & {
+    kind: 'manual'
+    taskId: string
+}
+
+export type PlannerOrderListItem = PlannerListItemBase & {
+    kind: 'order'
+    orderId: string
+    deliveryType: OrderDeliveryType
+}
+
+export type PlannerListItem = PlannerManualListItem | PlannerOrderListItem
