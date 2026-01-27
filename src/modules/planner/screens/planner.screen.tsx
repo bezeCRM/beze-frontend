@@ -19,6 +19,8 @@ import { addMonths, formatSelectedDayTitle } from '../utils/planner-date'
 import PlannerHeader from '../components/header/planner-header'
 import MainHeader from '@/shared/components/headers/main-header'
 import Button from '@/shared/ui/button/button'
+import { AppStackParamList } from '@/core/navigation/app-navigation'
+import { StackNavigationProp } from '@react-navigation/stack'
 
 LogBox.ignoreLogs(['VirtualizedLists should never be nested inside plain ScrollViews'])
 
@@ -26,7 +28,7 @@ export default function PlannerScreen() {
     const styles = useStyles()
     const colors = useTheme().theme.colors
     const { bottom } = useSafeAreaInsets()
-    const navigation = useNavigation<any>()
+    const navigation = useNavigation<StackNavigationProp<AppStackParamList>>()
     const { open } = useModalStore()
 
     const {

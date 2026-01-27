@@ -27,7 +27,7 @@ export function useMonthGridCache(anchorMonthKey: string) {
         get(addMonths(anchorMonthKey, -1))
         get(addMonths(anchorMonthKey, 1))
 
-        // чуть дальше на будущее, чтобы “впервые” тоже не лагало
+        // чтобы впервые тоже не лагало
         get(addMonths(anchorMonthKey, -2))
         get(addMonths(anchorMonthKey, 2))
     }, [anchorMonthKey, get])
