@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons'
 import { useMemo } from 'react'
-import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native'
+import { LogBox, Pressable, StyleSheet, Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
 
@@ -18,6 +18,9 @@ import { usePlannerScreen } from '../hooks/usePlannerScreen'
 import { addMonths, formatSelectedDayTitle } from '../utils/planner-date'
 import PlannerHeader from '../components/header/planner-header'
 import MainHeader from '@/shared/components/headers/main-header'
+import Button from '@/shared/ui/button/button'
+
+LogBox.ignoreLogs(['VirtualizedLists should never be nested inside plain ScrollViews'])
 
 export default function PlannerScreen() {
     const styles = useStyles()
@@ -50,6 +53,7 @@ export default function PlannerScreen() {
         setSectionExpanded,
         toggleCompleted,
         addTask,
+        removeTask,
     } = usePlannerScreen()
 
     const selectedTitle = useMemo(
@@ -81,8 +85,17 @@ export default function PlannerScreen() {
         setSelectedDate(dateKey)
     }
 
-    type AllTasksContainerItem = { id: 'content' }
-    const ALL_TASKS_LIST_DATA: AllTasksContainerItem[] = [{ id: 'content' }]
+    const toggleUpcomingExpanded = () => {
+        const next = !upcomingExpanded
+        setSectionExpanded('upcoming', next)
+        if (next) setSectionExpanded('past', false)
+    }
+
+    const togglePastExpanded = () => {
+        const next = !pastExpanded
+        setSectionExpanded('past', next)
+        if (next) setSectionExpanded('upcoming', false)
+    }
 
     return (
         <ScreenContainer>
@@ -113,7 +126,7 @@ export default function PlannerScreen() {
                         <View style={styles.dayRow}>
                             <Text style={styles.dayTitle}>{selectedTitle}</Text>
                             <Pressable onPress={openAddTaskModal} style={styles.plusBtn}>
-                                <Ionicons name="add" size={22} color={colors.brand} />
+                                <Ionicons name="add" size={36} color={colors.brand} />
                             </Pressable>
                         </View>
 
@@ -130,56 +143,42 @@ export default function PlannerScreen() {
                         />
                     </View>
                 ) : (
-                    <FlatList<AllTasksContainerItem>
-                        data={ALL_TASKS_LIST_DATA}
-                        keyExtractor={item => item.id}
-                        renderItem={() => null}
-                        showsVerticalScrollIndicator={false}
-                        contentContainerStyle={{ paddingBottom: bottom + 20 }}
-                        ListHeaderComponent={
-                            <View style={styles.allTasksTab}>
-                                <TasksSection
-                                    title="Ближайшие задачи"
-                                    variant="upcoming"
-                                    expanded={upcomingExpanded}
-                                    selectedDate={selectedDate}
-                                    items={upcoming as any}
-                                    onToggleExpanded={() =>
-                                        setSectionExpanded('upcoming', !upcomingExpanded)
-                                    }
-                                    onToggleCompleted={toggleCompleted}
-                                    onPressItem={onPressTask}
-                                />
+                    <View style={[styles.allTasksTab, { paddingBottom: bottom }]}>
+                        <View style={styles.sectionsWrap}>
+                            <TasksSection
+                                title="Ближайшие задачи"
+                                variant="upcoming"
+                                expanded={upcomingExpanded}
+                                selectedDate={selectedDate}
+                                items={upcoming as any}
+                                onToggleExpanded={toggleUpcomingExpanded}
+                                onToggleCompleted={toggleCompleted}
+                                onPressItem={onPressTask}
+                                onDeleteTask={removeTask}
+                            />
 
-                                <View style={{ height: 12 }} />
+                            <View style={{ height: 12 }} />
 
-                                <TasksSection
-                                    title="Прошедшие задачи"
-                                    variant="past"
-                                    expanded={pastExpanded}
-                                    selectedDate={selectedDate}
-                                    items={past as any}
-                                    onToggleExpanded={() =>
-                                        setSectionExpanded('past', !pastExpanded)
-                                    }
-                                    onToggleCompleted={toggleCompleted}
-                                    onPressItem={onPressTask}
-                                />
+                            <TasksSection
+                                title="Прошедшие задачи"
+                                variant="past"
+                                expanded={pastExpanded}
+                                selectedDate={selectedDate}
+                                items={past as any}
+                                onToggleExpanded={togglePastExpanded}
+                                onToggleCompleted={toggleCompleted}
+                                onPressItem={onPressTask}
+                                onDeleteTask={removeTask}
+                            />
+                        </View>
 
-                                <View style={{ height: 18 }} />
-                            </View>
-                        }
-                        ListFooterComponent={
-                            <View style={styles.footerWrap}>
-                                <Pressable
-                                    onPress={openAddTaskModal}
-                                    style={styles.addBtn}
-                                >
-                                    <Text style={styles.addBtnText}>Добавить задачу</Text>
-                                </Pressable>
-                            </View>
-                        }
-                    />
+                        <View style={styles.footerWrap}>
+                            <Button
+                                title={'Добавить задачу'}
+                                onPress={openAddTaskModal}
+                            />
+                        </View>
+                    </View>
                 )}
             </View>
         </ScreenContainer>
@@ -191,14 +190,8 @@ const useStyles = createThemedStyles(theme =>
         container: {
             flex: 1,
         },
-        stickyTopBar: {
-            paddingTop: 10,
-        },
-        headerTitle: {
-            marginBottom: 10,
-        },
         calendarTab: {
-            paddingTop: 4,
+            paddingTop: 5,
             gap: 12,
         },
         dayRow: {
@@ -225,22 +218,15 @@ const useStyles = createThemedStyles(theme =>
             color: theme.colors.text,
         },
         allTasksTab: {
-            paddingTop: 8,
+            flex: 1,
+            paddingTop: 5,
+            justifyContent: 'space-between',
         },
-        addBtn: {
-            backgroundColor: theme.colors.brand,
-            height: 56,
-            borderRadius: 20,
-            alignItems: 'center',
-            justifyContent: 'center',
-        },
-        addBtnText: {
-            fontFamily: 'Epilogue-Semibold',
-            fontSize: 16,
-            color: theme.colors.fixedWhite,
+        sectionsWrap: {
+            paddingTop: 0,
         },
         footerWrap: {
-            paddingHorizontal: 20,
+            paddingTop: 18,
         },
     }),
 )

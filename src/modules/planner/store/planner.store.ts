@@ -26,6 +26,7 @@ type State = {
 
     addTask: (payload: { title: string; date: string; time?: string }) => void
     toggleCompleted: (taskId: string) => void
+    removeTask: (taskId: string) => void
 
     cleanupArchive: (today: string) => void
     pruneCompletedIds: (validIds: string[]) => void
@@ -128,6 +129,15 @@ export const usePlannerStore = create<State>()(
                     if (has) delete next[taskId]
                     else next[taskId] = true
                     return { completedById: next }
+                })
+            },
+
+            removeTask: taskId => {
+                set(s => {
+                    const nextTasks = s.tasks.filter(t => t.id !== taskId)
+                    const nextCompleted = { ...s.completedById }
+                    if (nextCompleted[taskId]) delete nextCompleted[taskId]
+                    return { tasks: nextTasks, completedById: nextCompleted }
                 })
             },
 

@@ -10,9 +10,13 @@ type Props = {
     isPast: boolean
     onToggle: () => void
     onPress: () => void
+    onLongPress?: () => void
 }
 
-export default function TaskRow({ item, isPast, onToggle, onPress }: Props) {
+const ROW_HEIGHT = 66
+export { ROW_HEIGHT }
+
+export default function TaskRow({ item, isPast, onToggle, onPress, onLongPress }: Props) {
     const styles = useStyles()
     const colors = useTheme().theme.colors
 
@@ -32,13 +36,18 @@ export default function TaskRow({ item, isPast, onToggle, onPress }: Props) {
 
     return (
         <View style={styles.row}>
-            <Pressable onPress={onToggle} style={checkStyle}>
+            <Pressable onPress={onToggle} style={checkStyle} hitSlop={15}>
                 {item.completed && (
-                    <Ionicons name="checkmark" size={14} color={colors.fixedWhite} />
+                    <Ionicons name="checkmark" size={18} color={colors.fixedWhite} />
                 )}
             </Pressable>
 
-            <Pressable onPress={onPress} style={styles.content}>
+            <Pressable
+                onPress={onPress}
+                onLongPress={onLongPress}
+                delayLongPress={250}
+                style={styles.content}
+            >
                 <Text
                     style={[styles.title, isPast && styles.titlePast]}
                     numberOfLines={3}
@@ -66,27 +75,23 @@ export default function TaskRow({ item, isPast, onToggle, onPress }: Props) {
     )
 }
 
-const ROW_HEIGHT = 86
-export { ROW_HEIGHT }
-
 const useStyles = createThemedStyles(theme =>
     StyleSheet.create({
         row: {
             flexDirection: 'row',
             alignItems: 'flex-start',
-            minHeight: ROW_HEIGHT,
-            paddingVertical: 10,
+            maxHeight: ROW_HEIGHT,
         },
         check: {
-            width: 18,
-            height: 18,
+            width: 22,
+            height: 22,
             borderRadius: 999,
             borderWidth: 1,
             borderColor: theme.colors.brand,
             backgroundColor: 'transparent',
             alignItems: 'center',
             justifyContent: 'center',
-            marginTop: 6,
+            marginTop: 2,
             marginRight: 12,
         },
         checkPast: {
@@ -100,36 +105,40 @@ const useStyles = createThemedStyles(theme =>
         },
         content: {
             flex: 1,
+            paddingTop: 3,
         },
         title: {
             fontFamily: 'Epilogue-Regular',
             fontSize: 14,
-            lineHeight: 16,
+            lineHeight: 15,
             color: theme.colors.text,
         },
         titlePast: {
             color: theme.colors.textMuted,
         },
         metaRow: {
-            marginTop: 6,
+            marginTop: 7,
             flexDirection: 'row',
             alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: 10,
+            gap: 12,
         },
         meta: {
-            flex: 1,
-            fontFamily: 'Epilogue-Regular',
-            fontSize: 13,
-            color: theme.colors.textMuted,
+            flexShrink: 1,
+            fontFamily: 'Epilogue-SemiBold',
+            fontSize: 14,
+            lineHeight: 14,
+            color: theme.colors.text,
         },
         metaPast: {
             color: theme.colors.textMuted,
         },
         chip: {
-            paddingHorizontal: 10,
-            paddingVertical: 4,
+            flexShrink: 0,
+            paddingHorizontal: 8,
+            paddingTop: 5,
+            paddingBottom: 3,
             borderRadius: 999,
+            marginTop: -2,
             backgroundColor: theme.colors.warning,
         },
         chipPast: {
@@ -137,7 +146,8 @@ const useStyles = createThemedStyles(theme =>
         },
         chipText: {
             fontFamily: 'Epilogue-Semibold',
-            fontSize: 10,
+            fontSize: 12,
+            lineHeight: 12,
             color: theme.colors.fixedWhite,
         },
     }),

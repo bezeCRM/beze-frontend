@@ -28,6 +28,7 @@ export function usePlannerScreen() {
 
     const toggleCompleted = usePlannerStore(s => s.toggleCompleted)
     const addTask = usePlannerStore(s => s.addTask)
+    const removeTask = usePlannerStore(s => s.removeTask)
     const cleanupArchive = usePlannerStore(s => s.cleanupArchive)
 
     const { upcoming, past, items } = usePlannerItems(today)
@@ -73,5 +74,6 @@ export function usePlannerScreen() {
         setSectionExpanded,
         toggleCompleted,
         addTask,
+        removeTask,
     }
 }

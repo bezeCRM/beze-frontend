@@ -50,16 +50,22 @@ export function findUpcomingScrollIndex(
     sortedUpcoming: PlannerListItem[],
     selected: string,
 ) {
-    const idx = sortedUpcoming.findIndex(it => it.date >= selected)
+    const selectedTs = parseDateTime(selected, '00:00').getTime()
+    const idx = sortedUpcoming.findIndex(it => {
+        const ts = parseDateTime(it.date, it.time).getTime()
+        return ts >= selectedTs
+    })
     return idx >= 0 ? idx : 0
 }
 
 export function findPastScrollIndex(sortedPast: PlannerListItem[], selected: string) {
-    // past list is sorted desc (closest to today is first)
+    const selectedTs = parseDateTime(selected, '00:00').getTime()
+
     let lastIdx = -1
     for (let i = 0; i < sortedPast.length; i++) {
-        if (sortedPast[i].date >= selected) lastIdx = i
+        const ts = parseDateTime(sortedPast[i].date, sortedPast[i].time).getTime()
+        if (ts >= selectedTs) lastIdx = i
     }
-    if (lastIdx >= 0) return lastIdx
-    return 0
+
+    return lastIdx >= 0 ? lastIdx : 0
 }

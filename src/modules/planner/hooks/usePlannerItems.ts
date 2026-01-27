@@ -8,7 +8,7 @@ import { normalizeToDateKey } from '../utils/planner-date'
 const EMPTY_ORDERS: Order[] = []
 
 function orderTitle(o: Order) {
-    return o.name?.trim() || o.clientName?.trim() || `Заказ ${o.id}`
+    return o.name?.trim() || `Заказ #${o.id}`
 }
 
 function mapOrdersToPlannerItems(orders: Order[]): PlannerListItem[] {
