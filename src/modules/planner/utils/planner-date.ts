@@ -34,7 +34,7 @@ export const RU_MONTHS_SHORT = [
     'фев',
     'мар',
     'апр',
-    'май',
+    'мая',
     'июн',
     'июл',
     'авг',
@@ -90,7 +90,7 @@ export function addMonths(monthStart: string, delta: number) {
 }
 
 export function parseDateTime(date: string, time?: string) {
-    const t = time || '23:59'
+    const t = time || '00:00'
     const [hh, mm] = t.split(':').map(Number)
     const d = fromDateKey(date)
     d.setHours(hh || 0, mm || 0, 0, 0)

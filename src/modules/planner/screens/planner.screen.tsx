@@ -43,11 +43,8 @@ export default function PlannerScreen() {
         upcoming,
         past,
         marks,
-        nextUpcoming,
-        nearbyUpcomingCount,
 
         setShowAllTasks,
-        openAllTasksFocusUpcoming,
 
         setSelectedDate,
         setVisibleMonth,
@@ -56,6 +53,11 @@ export default function PlannerScreen() {
         toggleCompleted,
         addTask,
         removeTask,
+        nearbyMode,
+        nearbyTask,
+        nearbyCount,
+
+        openAllTasksFocusNearby,
     } = usePlannerScreen()
 
     const selectedTitle = useMemo(
@@ -132,16 +134,16 @@ export default function PlannerScreen() {
                             </Pressable>
                         </View>
 
-                        <Text style={styles.blockTitle}>Ближайшие задачи</Text>
+                        <Text style={styles.blockTitle}>
+                            {nearbyMode === 'past'
+                                ? 'Прошедшие задачи'
+                                : 'Ближайшие задачи'}
+                        </Text>
 
                         <NearbyTasksCard
-                            nextTask={nextUpcoming as any}
-                            upcomingCount={nearbyUpcomingCount}
-                            onPress={() => {
-                                openAllTasksFocusUpcoming()
-                                setSectionExpanded('upcoming', true)
-                                setSectionExpanded('past', false)
-                            }}
+                            nextTask={nearbyTask as any}
+                            upcomingCount={nearbyCount}
+                            onPress={openAllTasksFocusNearby}
                         />
                     </View>
                 ) : (
