@@ -4,6 +4,7 @@ import type { Order, OrderStatus } from '@/shared/types/types'
 import PaymentStatus from './payment-status'
 import { useTheme } from '@/shared/theme/useTheme'
 import { createThemedStyles } from '@/shared/theme/create-themed-styles'
+import { formatDeliveryDateTime } from '../../utils/order-format'
 
 type Props = {
     order: Order
@@ -37,7 +38,11 @@ export default function OrderCard({ order, onPress }: Props) {
                 </View>
             </View>
 
-            {!!order.date && <Text style={styles.date}>{`К ${order.date}`}</Text>}
+            {!!order.date && (
+                <Text
+                    style={styles.date}
+                >{`к ${formatDeliveryDateTime(order.date, order.time)}`}</Text>
+            )}
 
             <View style={styles.bottomRow}>
                 <Text style={styles.price}>
@@ -84,8 +89,8 @@ const useStyles = createThemedStyles(theme =>
             fontFamily: 'Epilogue-SemiBold',
         },
         date: {
-            marginTop: 8,
-            fontSize: 13,
+            marginTop: 7,
+            fontSize: 14,
             color: theme.colors.textMuted,
             fontFamily: 'Epilogue-Regular',
         },

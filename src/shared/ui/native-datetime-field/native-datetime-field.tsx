@@ -81,7 +81,7 @@ export default function NativeDateTimeField({
     onChange,
     minDate,
     maxDate,
-    width = 'auto',
+    width,
 
     displayValue,
     variant = 'default',
@@ -122,13 +122,18 @@ export default function NativeDateTimeField({
         styles.value,
         variant === 'ghost' && styles.valueGhost,
         textStyle,
-        isPlaceholder && variant !== 'ghost' && { color: colors.textMuted },
-        isPlaceholder && variant === 'ghost' && { color: colors.textMuted },
+        isPlaceholder && { color: colors.textMuted },
+    ]
+
+    const wrapCombinedStyle = [
+        styles.wrap,
+        containerStyle,
+        width != null ? { width } : null,
     ]
 
     if (Platform.OS === 'android') {
         return (
-            <View style={[styles.wrap, containerStyle, { width }]}>
+            <View style={wrapCombinedStyle}>
                 <Pressable style={fieldCombinedStyle} onPress={open}>
                     <Text style={textCombinedStyle}>{shownText}</Text>
                 </Pressable>
@@ -140,7 +145,7 @@ export default function NativeDateTimeField({
                         display="default"
                         minimumDate={minDate}
                         maximumDate={maxDate}
-                        onChange={(e, selected) => {
+                        onChange={(_, selected) => {
                             setVisible(false)
                             if (selected) commit(selected)
                         }}
@@ -151,7 +156,7 @@ export default function NativeDateTimeField({
     }
 
     return (
-        <View style={[styles.wrap, containerStyle, { width }]}>
+        <View style={wrapCombinedStyle}>
             <Pressable style={fieldCombinedStyle} onPress={open}>
                 <Text style={textCombinedStyle}>{shownText}</Text>
             </Pressable>
@@ -194,22 +199,34 @@ export default function NativeDateTimeField({
 
 const useStyles = createThemedStyles(theme =>
     StyleSheet.create({
-        wrap: {},
+        wrap: {
+            alignSelf: 'stretch',
+            flexGrow: 1,
+        },
         field: {
+            alignSelf: 'stretch',
+            flexGrow: 1,
+            width: '100%',
+
             backgroundColor: theme.colors.surface,
             borderColor: theme.colors.border,
             borderWidth: 1,
             borderRadius: 15,
-            height: 45,
+            height: 50,
             paddingHorizontal: 15,
             justifyContent: 'center',
+            alignItems: 'center',
         },
         fieldGhost: {
             backgroundColor: 'transparent',
             borderWidth: 0,
             paddingHorizontal: 0,
-            height: 44,
+            height: 50,
             justifyContent: 'center',
+
+            alignSelf: 'stretch',
+            flexGrow: 1,
+            width: '100%',
         },
         value: {
             fontFamily: 'Epilogue-Regular',
@@ -222,12 +239,14 @@ const useStyles = createThemedStyles(theme =>
         backdrop: {
             flex: 1,
             backgroundColor: 'rgba(0,0,0,0.35)',
+            width: '100%',
         },
         iosSheet: {
             backgroundColor: theme.colors.background,
             borderTopLeftRadius: 18,
             borderTopRightRadius: 18,
             paddingBottom: 10,
+            width: '100%',
         },
         iosTop: {
             flexDirection: 'row',
@@ -242,10 +261,11 @@ const useStyles = createThemedStyles(theme =>
         iosBtnText: {
             color: theme.colors.info,
             fontFamily: 'Epilogue-Semibold',
-            fontSize: 14,
+            fontSize: 16,
         },
         iosPicker: {
             backgroundColor: theme.colors.background,
+            width: '100%',
         },
     }),
 )

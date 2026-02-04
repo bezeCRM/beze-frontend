@@ -1,8 +1,10 @@
-import React, { useCallback } from 'react'
+import React from 'react'
 import { StyleSheet, Switch, Text, TextInput, View } from 'react-native'
 import SectionCard from '@/shared/ui/section/section-card'
 import { createThemedStyles } from '@/shared/theme/create-themed-styles'
 import { useTheme } from '@/shared/theme/useTheme'
+import NativeDateTimeField from '@/shared/ui/native-datetime-field/native-datetime-field'
+import { isoToDotsShort } from '../../utils/order-format'
 
 type Props = {
     isPickup: boolean
@@ -16,62 +18,6 @@ type Props = {
     addressError?: boolean
     dateError?: boolean
     timeError?: boolean
-}
-
-function onlyDigits(text: string) {
-    return (text ?? '').replace(/\D/g, '')
-}
-
-function formatDate(text: string) {
-    const d = onlyDigits(text).slice(0, 6)
-    const dd = d.slice(0, 2)
-    const mm = d.slice(2, 4)
-    const yy = d.slice(4, 6)
-
-    let out = dd
-    if (mm.length) out += `.${mm}`
-    if (yy.length) out += `.${yy}`
-    return out
-}
-
-function formatTime(text: string) {
-    const d = onlyDigits(text).slice(0, 4)
-    const hh = d.slice(0, 2)
-    const mm = d.slice(2, 4)
-
-    let out = hh
-    if (mm.length) out += `:${mm}`
-    return out
-}
-
-function clamp(n: number, min: number, max: number) {
-    return Math.min(max, Math.max(min, n))
-}
-
-function normalizeDate(text: string) {
-    const d = onlyDigits(text)
-    if (d.length !== 6) return formatDate(text)
-
-    const day = clamp(Number(d.slice(0, 2)) || 0, 1, 31)
-    const month = clamp(Number(d.slice(2, 4)) || 0, 1, 12)
-    const yy = clamp(Number(d.slice(4, 6)) || 0, 0, 99)
-
-    const ddStr = String(day).padStart(2, '0')
-    const mmStr = String(month).padStart(2, '0')
-    const yyStr = String(yy).padStart(2, '0')
-    return `${ddStr}.${mmStr}.${yyStr}`
-}
-
-function normalizeTime(text: string) {
-    const d = onlyDigits(text)
-    if (d.length !== 4) return formatTime(text)
-
-    const hh = clamp(Number(d.slice(0, 2)) || 0, 0, 23)
-    const mm = clamp(Number(d.slice(2, 4)) || 0, 0, 59)
-
-    const hhStr = String(hh).padStart(2, '0')
-    const mmStr = String(mm).padStart(2, '0')
-    return `${hhStr}:${mmStr}`
 }
 
 export default function OrderDeliverySection({
@@ -91,15 +37,6 @@ export default function OrderDeliverySection({
     const colors = useTheme().theme.colors
     const addressDisabled = isPickup
 
-    const handleDateChange = useCallback(
-        (t: string) => onChangeDate(formatDate(t)),
-        [onChangeDate],
-    )
-    const handleTimeChange = useCallback(
-        (t: string) => onChangeTime(formatTime(t)),
-        [onChangeTime],
-    )
-
     return (
         <SectionCard title="Доставка *">
             <View style={styles.rowTop}>
@@ -107,10 +44,7 @@ export default function OrderDeliverySection({
                 <Switch
                     value={isPickup}
                     onValueChange={onTogglePickup}
-                    trackColor={{
-                        false: colors.border,
-                        true: colors.brand,
-                    }}
+                    trackColor={{ false: colors.border, true: colors.brand }}
                     thumbColor={colors.surface}
                     ios_backgroundColor={colors.border}
                 />
@@ -133,44 +67,45 @@ export default function OrderDeliverySection({
             <View style={styles.dtRow}>
                 <View style={styles.dtCol}>
                     <Text style={styles.dtLabel}>дата</Text>
-                    <TextInput
-                        value={date}
-                        onChangeText={handleDateChange}
-                        onBlur={() => onChangeDate(normalizeDate(date))}
-                        placeholder="ДД.MM.ГГ"
-                        placeholderTextColor={colors.textMuted}
+
+                    <View
                         style={[
                             styles.input,
-                            styles.dtInput,
+                            styles.dtField,
                             dateError && styles.inputError,
                         ]}
-                        keyboardType="number-pad"
-                        maxLength={8}
-                        returnKeyType="done"
-                        autoCorrect={false}
-                        autoCapitalize="none"
-                    />
+                    >
+                        <NativeDateTimeField
+                            mode="date"
+                            value={date}
+                            placeholder="ДД.MM.ГГ"
+                            onChange={onChangeDate}
+                            displayValue={date ? isoToDotsShort(date) : undefined}
+                            width="100%"
+                            variant="ghost"
+                        />
+                    </View>
                 </View>
 
                 <View style={styles.dtCol}>
                     <Text style={styles.dtLabel}>время</Text>
-                    <TextInput
-                        value={time}
-                        onChangeText={handleTimeChange}
-                        onBlur={() => onChangeTime(normalizeTime(time))}
-                        placeholder="ЧЧ:MM"
-                        placeholderTextColor={colors.textMuted}
+
+                    <View
                         style={[
                             styles.input,
-                            styles.dtInput,
+                            styles.dtField,
                             timeError && styles.inputError,
                         ]}
-                        keyboardType="number-pad"
-                        maxLength={5}
-                        returnKeyType="done"
-                        autoCorrect={false}
-                        autoCapitalize="none"
-                    />
+                    >
+                        <NativeDateTimeField
+                            mode="time"
+                            value={time}
+                            placeholder="ЧЧ:MM"
+                            onChange={onChangeTime}
+                            width="100%"
+                            variant="ghost"
+                        />
+                    </View>
                 </View>
             </View>
         </SectionCard>
@@ -214,15 +149,21 @@ const useStyles = createThemedStyles(theme =>
             columnGap: 20,
             marginTop: 15,
         },
-        dtCol: { flexDirection: 'row', alignItems: 'center', columnGap: 8 },
+        dtCol: {
+            flex: 1,
+        },
         dtLabel: {
             fontSize: 13,
             color: theme.colors.text,
             fontFamily: 'Epilogue-Regular',
-            marginBottom: 6,
+            marginBottom: 7,
             marginLeft: 2,
             textTransform: 'lowercase',
         },
-        dtInput: { textAlign: 'center' },
+
+        dtField: {
+            justifyContent: 'center',
+            paddingVertical: 0,
+        },
     }),
 )

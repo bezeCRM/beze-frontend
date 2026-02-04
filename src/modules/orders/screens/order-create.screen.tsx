@@ -223,7 +223,7 @@ export default function OrderCreateScreen() {
                                 setValue('delivery.address', t, { shouldValidate: true })
                             }
                             onChangeDate={t =>
-                                setValue('delivery.date', t, { shouldValidate: true })
+                                setValue('delivery.date', t, { shouldValidate: false })
                             }
                             onChangeTime={t =>
                                 setValue('delivery.time', t, { shouldValidate: true })

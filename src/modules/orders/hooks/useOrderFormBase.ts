@@ -34,19 +34,23 @@ function makeId() {
     return `${Date.now()}-${Math.random().toString(16).slice(2)}`
 }
 
-function isValidDateString(value: string) {
+function isValidIsoDateString(value: string) {
     const v = (value ?? '').trim()
-    if (!/^\d{2}\.\d{2}\.\d{2}$/.test(v)) return false
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(v)) return false
 
-    const day = Number(v.slice(0, 2))
-    const month = Number(v.slice(3, 5))
+    const [yStr, mStr, dStr] = v.split('-')
+    const y = Number(yStr)
+    const m = Number(mStr)
+    const d = Number(dStr)
 
-    if (!Number.isFinite(day) || !Number.isFinite(month)) return false
-    if (month < 1 || month > 12) return false
-    if (day < 1) return false
+    if (!Number.isFinite(y) || !Number.isFinite(m) || !Number.isFinite(d)) return false
+    if (m < 1 || m > 12) return false
+    if (d < 1) return false
 
-    const daysInMonth = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-    return day <= daysInMonth[month - 1]
+    const daysInMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+    const isLeap = (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0
+    const maxDay = m === 2 && isLeap ? 29 : daysInMonth[m - 1]
+    return d <= maxDay
 }
 
 function isValidTimeString(value: string) {
@@ -105,7 +109,7 @@ export const OrderFormSchema = z
                 path: ['delivery', 'date'],
                 message: 'обязательное поле',
             })
-        } else if (!isValidDateString(date)) {
+        } else if (!isValidIsoDateString(date)) {
             ctx.addIssue({
                 code: 'custom',
                 path: ['delivery', 'date'],

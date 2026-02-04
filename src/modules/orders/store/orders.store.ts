@@ -74,6 +74,32 @@ function resolvePaidAmount(
     return clampPaidAmount(total, base)
 }
 
+function normalizeOrderDate(input: unknown): string | undefined {
+    const v = String(input ?? '').trim()
+    if (!v) return undefined
+
+    // already iso
+    if (/^\d{4}-\d{2}-\d{2}$/.test(v)) return v
+
+    // dd.mm.yy
+    if (/^\d{2}\.\d{2}\.\d{2}$/.test(v)) {
+        const dd = v.slice(0, 2)
+        const mm = v.slice(3, 5)
+        const yy = v.slice(6, 8)
+        return `20${yy}-${mm}-${dd}`
+    }
+
+    // dd.mm.yyyy (на всякий)
+    if (/^\d{2}\.\d{2}\.\d{4}$/.test(v)) {
+        const dd = v.slice(0, 2)
+        const mm = v.slice(3, 5)
+        const yyyy = v.slice(6, 10)
+        return `${yyyy}-${mm}-${dd}`
+    }
+
+    return undefined
+}
+
 export const useOrdersStore = create<OrdersStore>((set, get) => ({
     orders: [...mockOrders],
 
@@ -100,8 +126,13 @@ export const useOrdersStore = create<OrdersStore>((set, get) => ({
 
         const references = (data.references ?? []).filter(p => !!p?.uri)
 
+        const date = normalizeOrderDate((data as any).date)
+        const time = (data as any).time?.trim()
+
         const base: NewOrderInput = {
             ...data,
+            ...(date ? { date } : {}),
+            ...(time ? { time } : {}),
             ...(name ? { name } : {}),
             clientName,
             ...(clientPhone ? { clientPhone } : {}),
@@ -193,6 +224,11 @@ export const useOrdersStore = create<OrdersStore>((set, get) => ({
         if ('references' in p) {
             const arr = (p.references ?? []).filter(r => !!r?.uri)
             p.references = arr.length ? arr : undefined
+        }
+
+        if ('date' in p) {
+            const d = normalizeOrderDate((p as any).date)
+            ;(p as any).date = d ? d : undefined
         }
 
         const affectsTotal =
