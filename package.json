@@ -11,7 +11,8 @@
         "lint": "expo lint",
         "type-check": "tsc --noEmit",
         "format": "prettier --write .",
-        "format:check": "prettier --check ."
+        "format:check": "prettier --check .",
+        "icons:optimize": "node ./src/scripts/icons-svgo.mjs"
     },
     "dependencies": {
         "@expo/react-native-action-sheet": "^4.1.1",
@@ -74,6 +75,7 @@
         "eslint-plugin-react-native": "^5.0.0",
         "prettier": "^3.6.2",
         "react-native-svg-transformer": "^1.5.1",
+        "svgo": "^4.0.0",
         "ts-node": "^10.9.2",
         "tsx": "^4.21.0",
         "typescript": "~5.9.2"

@@ -109,7 +109,7 @@ const useStyles = createThemedStyles(theme =>
             backgroundColor: theme.colors.brand,
         },
         chipText: {
-            color: theme.colors.surface,
+            color: theme.colors.fixedWhite,
             fontSize: 14,
             fontFamily: 'Epilogue-SemiBold',
         },

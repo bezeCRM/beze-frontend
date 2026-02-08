@@ -203,7 +203,7 @@ export default function ProductCreateScreen() {
                     </View>
 
                     <View style={styles.formList}>
-                        <SectionCard title="Название товара *">
+                        <SectionCard title="Название товара" required>
                             <TextInput
                                 value={name}
                                 onChangeText={t =>
@@ -252,7 +252,7 @@ export default function ProductCreateScreen() {
 
                         <UnitField value={unit} onChange={u => setUnit(u)} />
 
-                        <SectionCard title="Цена *">
+                        <SectionCard title="Цена" required>
                             <TextInput
                                 value={price}
                                 onChangeText={t =>

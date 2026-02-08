@@ -12,6 +12,8 @@ import {
     type SearchConfig,
 } from '@/shared/components/search/engine'
 import { createThemedStyles } from '@/shared/theme/create-themed-styles'
+import { Icon } from '@/shared/ui/icon/icon'
+import { useTheme } from '@/shared/theme/useTheme'
 
 export type ListSelectItem = {
     id: string
@@ -45,6 +47,8 @@ export default function ListSelectModal({
     closeOnSelect = true,
 }: ListSelectModalProps) {
     const styles = useStyles()
+    const colors = useTheme().theme.colors
+
     const [query, setQuery] = useState('')
     const [selectedId, setSelectedId] = useState<string | null>(null)
 
@@ -154,7 +158,16 @@ export default function ListSelectModal({
                                     )}
                                 </View>
 
-                                {item.next ? <Text style={styles.chevron}>›</Text> : null}
+                                {item.next ? (
+                                    <Text style={styles.chevron}>
+                                        <Icon
+                                            name="arrow-icon"
+                                            height={14}
+                                            color={colors.textMuted}
+                                            rotateDeg={180}
+                                        />
+                                    </Text>
+                                ) : null}
                             </TouchableOpacity>
                         )
                     }}
@@ -200,7 +213,7 @@ const useStyles = createThemedStyles(theme =>
             paddingHorizontal: 15,
         },
         itemLast: { borderBottomWidth: 0 },
-        itemSelected: { backgroundColor: 'rgba(255, 209, 232, 1)' },
+        itemSelected: { backgroundColor: theme.colors.border },
 
         thumb: {
             width: THUMB_SIZE,

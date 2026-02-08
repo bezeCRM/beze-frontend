@@ -1,4 +1,4 @@
-import { useCallback, useRef, useMemo } from 'react'
+import { useCallback, useRef } from 'react'
 import {
     View,
     TextInput,
@@ -7,11 +7,9 @@ import {
     TouchableOpacity,
     Keyboard,
 } from 'react-native'
-import SearchIcon from '@/assets/images/search.svg'
-import SearchBlueIcon from '@/assets/images/search-blue.svg'
-import ClearSearchIcon from '@/assets/images/clear-search-icon.svg'
 import { createThemedStyles } from '@/shared/theme/create-themed-styles'
 import { useTheme } from '@/shared/theme/useTheme'
+import { Icon } from '@/shared/ui/icon/icon'
 
 type Props = {
     value: string
@@ -52,8 +50,6 @@ export default function Search({
         blurAndDismiss()
     }, [canSubmit, onSubmit, blurAndDismiss])
 
-    const LeftIcon = useMemo(() => (canSubmit ? SearchBlueIcon : SearchIcon), [canSubmit])
-
     return (
         <View style={styles.container}>
             <TouchableOpacity
@@ -63,7 +59,12 @@ export default function Search({
                 hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                 style={styles.leftBtn}
             >
-                <LeftIcon width={16} height={16} />
+                <Icon
+                    name="search-icon"
+                    size={16}
+                    color={canSubmit ? colors.info : colors.textMuted}
+                    rotateDeg={0}
+                />
             </TouchableOpacity>
 
             <TextInput
@@ -85,7 +86,12 @@ export default function Search({
                 hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                 style={styles.clearBtn}
             >
-                <ClearSearchIcon width={12} height={12} />
+                <Icon
+                    name="x-icon"
+                    size={12}
+                    color={canSubmit ? colors.danger : colors.textMuted}
+                    rotateDeg={0}
+                />
             </TouchableOpacity>
         </View>
     )

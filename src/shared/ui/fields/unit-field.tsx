@@ -20,7 +20,7 @@ export default function UnitField({ value, onChange, style, disabled }: Props) {
     ]
 
     return (
-        <SectionCard title="Единица измерения *">
+        <SectionCard title="Единица измерения" required>
             <View style={[styles.row, style]} accessibilityRole="radiogroup">
                 {options.map(opt => {
                     const checked = value === opt.value

@@ -193,7 +193,7 @@ export default function ProductEditScreen() {
                     </View>
 
                     <View style={styles.formList}>
-                        <SectionCard title="Название товара *">
+                        <SectionCard title="Название товара" required>
                             <TextInput
                                 value={name}
                                 onChangeText={t =>

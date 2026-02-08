@@ -1,9 +1,8 @@
-import CopyIcon from '@/assets/images/copy-ingredients-icon.svg'
-import DeleteItemIcon from '@/assets/images/delete_item-icon.svg'
 import { createThemedStyles } from '@/shared/theme/create-themed-styles'
 import { useTheme } from '@/shared/theme/useTheme'
 import { Ingredient } from '@/shared/types/types'
 import Button from '@/shared/ui/button/button'
+import { Icon } from '@/shared/ui/icon/icon'
 import SectionCard from '@/shared/ui/section/section-card'
 import { StyleSheet, TextInput, TouchableOpacity, View } from 'react-native'
 
@@ -35,7 +34,7 @@ export default function IngredientsEditor({
                 style={styles.copyBtn}
                 hitSlop={{ top: 5, bottom: 5, left: 5, right: 5 }}
             >
-                <CopyIcon width={16} height={16} />
+                <Icon name="copy_ingredients-icon" size={16} />
             </TouchableOpacity>
 
             <View style={styles.list}>
@@ -48,7 +47,7 @@ export default function IngredientsEditor({
                                 style={styles.deleteBtn}
                                 hitSlop={{ top: 5, bottom: 5, left: 5, right: 5 }}
                             >
-                                <DeleteItemIcon width={20} height={20} />
+                                <Icon name="delete_item-icon" size={20} rotateDeg={0} />
                             </TouchableOpacity>
 
                             <TextInput
@@ -125,6 +124,7 @@ const useStyles = createThemedStyles(theme =>
             maxWidth: 150,
             backgroundColor: theme.colors.surface,
             borderRadius: 15,
+            textAlign: 'center',
             height: 40,
             paddingHorizontal: 15,
             borderWidth: 1,

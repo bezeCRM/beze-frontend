@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 import { createThemedStyles } from '@/shared/theme/create-themed-styles'
 import { formatTaskMeta } from '../../utils/planner-date'
+import { formatTasksWord } from '../../utils/planner-tasks'
 
 type Props = {
     nextTask: any | null
@@ -24,19 +25,27 @@ export default function NearbyTasksCard({ nextTask, upcomingCount, onPress }: Pr
     return (
         <Pressable onPress={onPress} style={styles.card}>
             <View style={styles.row}>
-                <Text style={styles.meta} numberOfLines={1}>
-                    {formatTaskMeta(nextTask.date, nextTask.time)
-                        .split(', ')
-                        .slice(0, 2)
-                        .join(', ')}
-                </Text>
+                <View style={styles.metaBox}>
+                    <Text style={styles.metaWeekDay} numberOfLines={2}>
+                        {formatTaskMeta(nextTask.date, nextTask.time).split(', ')[0] +
+                            ','}
+                    </Text>
+                    <Text style={styles.metaDate} numberOfLines={1}>
+                        {formatTaskMeta(nextTask.date, nextTask.time).split(', ')[1]}
+                    </Text>
+                </View>
 
-                <Text style={styles.title} numberOfLines={1}>
-                    {nextTask.title}
-                </Text>
+                <View style={styles.titleBox}>
+                    <Text style={styles.titleText} numberOfLines={1}>
+                        {nextTask.title}
+                    </Text>
+                    {more > 0 && (
+                        <Text
+                            style={styles.more}
+                        >{`+${more} ${formatTasksWord(more)}`}</Text>
+                    )}
+                </View>
             </View>
-
-            {more > 0 && <Text style={styles.more}>{`+${more} задачи`}</Text>}
         </Pressable>
     )
 }
@@ -46,29 +55,43 @@ const useStyles = createThemedStyles(theme =>
         card: {
             backgroundColor: theme.colors.surface,
             borderRadius: 20,
-            paddingHorizontal: 15,
+            paddingHorizontal: 20,
             paddingVertical: 14,
         },
         row: {
             flexDirection: 'row',
             alignItems: 'center',
-            gap: 10,
+            gap: 15,
         },
-        meta: {
+        metaBox: {
+            justifyContent: 'center',
+            alignItems: 'flex-start',
+            rowGap: 3,
+        },
+        metaWeekDay: {
+            fontFamily: 'Epilogue-SemiBold',
+            fontSize: 16,
+            color: theme.colors.text,
+        },
+        metaDate: {
             fontFamily: 'Epilogue-Regular',
-            fontSize: 13,
+            fontSize: 16,
             color: theme.colors.textMuted,
         },
-        title: {
-            flex: 1,
+        titleBox: {
             fontFamily: 'Epilogue-Regular',
-            fontSize: 13,
+            justifyContent: 'center',
+            alignItems: 'flex-start',
+            rowGap: 3,
+        },
+        titleText: {
+            fontFamily: 'Epilogue-Regular',
+            fontSize: 16,
             color: theme.colors.text,
         },
         more: {
-            marginTop: 6,
-            fontFamily: 'Epilogue-Regular',
-            fontSize: 13,
+            fontFamily: 'Epilogue-SemiBold',
+            fontSize: 16,
             color: theme.colors.info,
         },
         emptyCard: {

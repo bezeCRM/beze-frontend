@@ -2,10 +2,10 @@ import React from 'react'
 import { View, StyleSheet, TextInput, TouchableOpacity } from 'react-native'
 import SectionCard from '@/shared/ui/section/section-card'
 import Button from '@/shared/ui/button/button'
-import DeleteItemIcon from '@/assets/images/delete_item-icon.svg'
 import { Filling } from '@/shared/types/types'
 import { createThemedStyles } from '@/shared/theme/create-themed-styles'
 import { useTheme } from '@/shared/theme/useTheme'
+import { Icon } from '@/shared/ui/icon/icon'
 
 type Props = {
     fillings: Filling[]
@@ -32,7 +32,7 @@ export default function FillingsEditor({
                             style={styles.deleteBtn}
                             hitSlop={{ top: 5, bottom: 5, left: 5, right: 5 }}
                         >
-                            <DeleteItemIcon width={20} height={20} />
+                            <Icon name="delete_item-icon" size={20} rotateDeg={0} />
                         </TouchableOpacity>
 
                         <TextInput

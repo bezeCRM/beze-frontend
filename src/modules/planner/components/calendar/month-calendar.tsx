@@ -1,4 +1,3 @@
-import { Ionicons } from '@expo/vector-icons'
 import { Pressable, StyleSheet, Text, View, Animated } from 'react-native'
 import { createThemedStyles } from '@/shared/theme/create-themed-styles'
 import { formatMonthTitle, monthStartKey } from '../../utils/planner-date'
@@ -7,6 +6,8 @@ import NativeDateTimeField from '@/shared/ui/native-datetime-field/native-dateti
 import { useMonthGridTransition } from '../../hooks/useMonthGridTransition'
 import { useMemo, useCallback } from 'react'
 import { useMonthGridCache } from '../../hooks/useMonthGridCache'
+import { Icon } from '@/shared/ui/icon/icon'
+import { useTheme } from '@/shared/theme/useTheme'
 
 type Props = {
     monthStart: string
@@ -34,6 +35,7 @@ export default function MonthCalendar({
     onNextMonth,
 }: Props) {
     const styles = useStyles()
+    const colors = useTheme().theme.colors
 
     const monthKey = monthStartKey(monthStart)
     const { get } = useMonthGridCache(monthKey)
@@ -70,7 +72,7 @@ export default function MonthCalendar({
                     style={styles.iconBtn}
                     hitSlop={20}
                 >
-                    <Ionicons name="chevron-back" size={18} />
+                    <Icon name={'arrow-icon'} color={colors.text} height={14} />
                 </Pressable>
 
                 <View style={styles.monthCenter}>
@@ -95,7 +97,12 @@ export default function MonthCalendar({
                     style={styles.iconBtn}
                     hitSlop={20}
                 >
-                    <Ionicons name="chevron-forward" size={18} />
+                    <Icon
+                        name={'arrow-icon'}
+                        color={colors.text}
+                        rotateDeg={180}
+                        height={14}
+                    />
                 </Pressable>
             </View>
 

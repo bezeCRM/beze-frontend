@@ -9,6 +9,7 @@ import ProductEditScreen from '@/modules/products/screens/product-edit.screen'
 import ProductCreateScreen from '@/modules/products/screens/product-create.screen'
 import OrderInfoScreen from '@/modules/orders/screens/order-info.screen'
 import OrderEditScreen from '@/modules/orders/screens/order-edit.screen'
+import OrderCreateScreen from '@/modules/orders/screens/order-create.screen'
 
 export type AppStackParamList = {
     Tabs: undefined
@@ -17,6 +18,7 @@ export type AppStackParamList = {
     OrderInfo: { orderId: string }
     OrderEdit: { orderId: string }
     ProductCreate: undefined
+    OrderCreate: undefined
 }
 
 const Stack = createStackNavigator<AppStackParamList>()
@@ -37,6 +39,7 @@ export default function AppNavigation() {
             <Stack.Screen name="OrderInfo" component={OrderInfoScreen} />
             <Stack.Screen name="ProductEdit" component={ProductEditScreen} />
             <Stack.Screen name="ProductCreate" component={ProductCreateScreen} />
+            <Stack.Screen name="OrderCreate" component={OrderCreateScreen} />
             <Stack.Screen name="OrderEdit" component={OrderEditScreen} />
         </Stack.Navigator>
     )

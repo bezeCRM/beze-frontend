@@ -1,8 +1,8 @@
 import React from 'react'
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
-import CloseIcon from '@/assets/images/close-icon.svg'
-import BackIcon from '@/assets/images/modal-back-icon.svg'
 import { createThemedStyles } from '@/shared/theme/create-themed-styles'
+import { Icon } from '@/shared/ui/icon/icon'
+import { useTheme } from '@/shared/theme/useTheme'
 
 type Props = {
     title: string
@@ -12,11 +12,17 @@ type Props = {
 
 export default function ModalHeader({ title, onClose, onBack }: Props) {
     const styles = useStyles()
+    const colors = useTheme().theme.colors
     return (
         <View style={styles.container}>
             {onBack ? (
                 <TouchableOpacity onPress={onBack} style={styles.backBtn}>
-                    <BackIcon width={24} height={24} />
+                    <Icon
+                        name="arrow-icon"
+                        height={16}
+                        color={colors.text}
+                        rotateDeg={0}
+                    />
                 </TouchableOpacity>
             ) : (
                 <View style={styles.backBtn} />
@@ -27,7 +33,7 @@ export default function ModalHeader({ title, onClose, onBack }: Props) {
                 hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                 style={styles.closeBtn}
             >
-                <CloseIcon width={24} height={24} />
+                <Icon name="x-icon" size={14} color={colors.text} />
             </TouchableOpacity>
         </View>
     )
@@ -37,10 +43,8 @@ const useStyles = createThemedStyles(theme =>
     StyleSheet.create({
         backBtn: {
             position: 'absolute',
-            left: 10,
-            top: 12,
-            width: 24,
-            height: 24,
+            left: 12,
+            top: 13,
             marginRight: 10,
         },
         container: {
@@ -60,8 +64,8 @@ const useStyles = createThemedStyles(theme =>
         },
         closeBtn: {
             position: 'absolute',
-            right: 10,
-            top: 12,
+            right: 15,
+            top: 15,
         },
     }),
 )

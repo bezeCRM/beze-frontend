@@ -1,15 +1,23 @@
 import { View, StyleSheet } from 'react-native'
 import Title from '@/shared/ui/title'
-import AddProductButton from '@/shared/ui/add-plus'
-import { useNavigation } from '@react-navigation/native'
+import { CompositeNavigationProp, useNavigation } from '@react-navigation/native'
+import AddPlus from '@/shared/ui/add-plus'
+import { AppStackParamList } from '@/core/navigation/app-navigation'
+import { ProductsStackParamList } from '@/core/navigation/products-stack'
+import { StackNavigationProp } from '@react-navigation/stack'
+
+type Nav = CompositeNavigationProp<
+    StackNavigationProp<ProductsStackParamList, 'ProductsList'>,
+    StackNavigationProp<AppStackParamList, 'Tabs'>
+>
 
 export default function OrdersHeader() {
-    const navigation = useNavigation<any>()
+    const navigation = useNavigation<Nav>()
 
     return (
         <View style={styles.row}>
             <Title text="Заказы" />
-            <AddProductButton onPress={() => navigation.navigate('OrderCreate')} />
+            <AddPlus onPress={() => navigation.navigate('OrderCreate')} />
         </View>
     )
 }

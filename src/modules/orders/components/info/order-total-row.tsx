@@ -18,20 +18,19 @@ export default function OrderTotalRow({ totalPrice }: Props) {
 const useStyles = createThemedStyles(theme =>
     StyleSheet.create({
         row: {
-            flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'space-between',
+            gap: 10,
             paddingHorizontal: 3,
-            marginTop: 3,
-            marginBottom: 5,
+            marginBottom: 7,
         },
         label: {
             fontSize: 16,
             color: theme.colors.text,
-            fontFamily: 'Epilogue-Regular',
+            fontFamily: 'Epilogue-SemiBold',
         },
         value: {
-            fontSize: 16,
+            fontSize: 24,
             color: theme.colors.text,
             fontFamily: 'Epilogue-SemiBold',
         },

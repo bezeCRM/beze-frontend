@@ -24,7 +24,7 @@ export default function OrderPlannerToggle({ value, onChange }: Props) {
                         false: theme.colors.border,
                         true: theme.colors.brand,
                     }}
-                    thumbColor={theme.colors.surface}
+                    thumbColor={theme.colors.fixedWhite}
                     ios_backgroundColor={theme.colors.border}
                 />
             </View>

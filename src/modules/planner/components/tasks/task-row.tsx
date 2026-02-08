@@ -1,9 +1,8 @@
-import { Ionicons } from '@expo/vector-icons'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 import { createThemedStyles } from '@/shared/theme/create-themed-styles'
 import type { PlannerListItem } from '@/shared/types/types'
 import { formatTaskMeta } from '../../utils/planner-date'
-import { useTheme } from '@/shared/theme/useTheme'
+import { Icon } from '@/shared/ui/icon/icon'
 
 type Props = {
     item: PlannerListItem & { completed: boolean }
@@ -18,7 +17,6 @@ export { ROW_HEIGHT }
 
 export default function TaskRow({ item, isPast, onToggle, onPress, onLongPress }: Props) {
     const styles = useStyles()
-    const colors = useTheme().theme.colors
 
     const chip =
         item.kind === 'order'
@@ -37,9 +35,7 @@ export default function TaskRow({ item, isPast, onToggle, onPress, onLongPress }
     return (
         <View style={styles.row}>
             <Pressable onPress={onToggle} style={checkStyle} hitSlop={15}>
-                {item.completed && (
-                    <Ionicons name="checkmark" size={18} color={colors.fixedWhite} />
-                )}
+                {item.completed && <Icon name={'checkmark-icon'} size={13} />}
             </Pressable>
 
             <Pressable
@@ -86,7 +82,7 @@ const useStyles = createThemedStyles(theme =>
             width: 22,
             height: 22,
             borderRadius: 999,
-            borderWidth: 1,
+            borderWidth: 2,
             borderColor: theme.colors.brand,
             backgroundColor: 'transparent',
             alignItems: 'center',

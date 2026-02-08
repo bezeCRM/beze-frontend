@@ -2,9 +2,10 @@ import React from 'react'
 import { View, Text, StyleSheet } from 'react-native'
 import ModalHeader from '@/modules/modal/base/modal-header'
 import ModalFooter from '@/modules/modal/base/modal-footer'
-import CheckIcon from '@/assets/images/success-icon.svg'
 import { BaseModalProps } from '@/modules/modal/types/base-modal-props'
 import { createThemedStyles } from '@/shared/theme/create-themed-styles'
+import { Icon } from '@/shared/ui/icon/icon'
+import { useTheme } from '@/shared/theme/useTheme'
 
 export type StatusModalProps = BaseModalProps & {
     title: string
@@ -19,6 +20,8 @@ export default function StatusModal({
     onClose,
 }: StatusModalProps) {
     const styles = useStyles()
+    const colors = useTheme().theme.colors
+
     return (
         <View style={styles.container}>
             <ModalHeader title={title} onClose={onClose} />
@@ -26,7 +29,12 @@ export default function StatusModal({
             <Text style={[styles.text, success && styles.textSuccess]}>{message}</Text>
             {success && (
                 <View style={styles.iconContainer}>
-                    <CheckIcon width={48} height={48} />
+                    <Icon
+                        name="success-icon"
+                        size={50}
+                        color={colors.success}
+                        rotateDeg={0}
+                    />
                 </View>
             )}
 

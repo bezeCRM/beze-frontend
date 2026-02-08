@@ -1,12 +1,10 @@
-import { Ionicons } from '@expo/vector-icons'
 import { useMemo } from 'react'
-import { LogBox, Pressable, StyleSheet, Text, View } from 'react-native'
+import { LogBox, StyleSheet, Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
 
 import ScreenContainer from '@/shared/components/layout/screen-container'
 import { createThemedStyles } from '@/shared/theme/create-themed-styles'
-import { useTheme } from '@/shared/theme/useTheme'
 
 import { useModalStore } from '@/modules/modal'
 
@@ -21,12 +19,12 @@ import MainHeader from '@/shared/components/headers/main-header'
 import Button from '@/shared/ui/button/button'
 import { AppStackParamList } from '@/core/navigation/app-navigation'
 import { StackNavigationProp } from '@react-navigation/stack'
+import AddPlus from '@/shared/ui/add-plus'
 
 LogBox.ignoreLogs(['VirtualizedLists should never be nested inside plain ScrollViews'])
 
 export default function PlannerScreen() {
     const styles = useStyles()
-    const colors = useTheme().theme.colors
     const { bottom } = useSafeAreaInsets()
     const navigation = useNavigation<StackNavigationProp<AppStackParamList>>()
     const { open } = useModalStore()
@@ -129,9 +127,7 @@ export default function PlannerScreen() {
 
                         <View style={styles.dayRow}>
                             <Text style={styles.dayTitle}>{selectedTitle}</Text>
-                            <Pressable onPress={openAddTaskModal} style={styles.plusBtn}>
-                                <Ionicons name="add" size={36} color={colors.brand} />
-                            </Pressable>
+                            <AddPlus onPress={openAddTaskModal} small />
                         </View>
 
                         <Text style={styles.blockTitle}>

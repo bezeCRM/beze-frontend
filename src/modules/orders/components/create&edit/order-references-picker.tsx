@@ -2,11 +2,11 @@ import React, { useMemo } from 'react'
 import { Image, StyleSheet, TouchableOpacity, View } from 'react-native'
 
 import SectionCard from '@/shared/ui/section/section-card'
-import AddPhotoIcon from '@/assets/images/add-photo-icon.svg'
-import DeletePhotoIcon from '@/assets/images/delete-photo-icon.svg'
 import type { PhotoItem } from '@/shared/types/types'
 import { useImageViewer } from '@/shared/hooks/useImageViewer'
 import { createThemedStyles } from '@/shared/theme/create-themed-styles'
+import { Icon } from '@/shared/ui/icon/icon'
+import { useTheme } from '@/shared/theme/useTheme'
 
 type Props = {
     items: PhotoItem[]
@@ -22,6 +22,8 @@ export default function OrderReferencesPicker({
     maxCount = 3,
 }: Props) {
     const styles = useStyles()
+    const colors = useTheme().theme.colors
+
     const input = useMemo(() => (items ?? []).map(p => p.uri).filter(Boolean), [items])
     const viewer = useImageViewer(input, maxCount)
 
@@ -46,7 +48,7 @@ export default function OrderReferencesPicker({
                             hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
                             activeOpacity={0.85}
                         >
-                            <DeletePhotoIcon width={24} height={24} />
+                            <Icon name="x-icon" size={12} color={colors.text} />
                         </TouchableOpacity>
                     </View>
                 ))}
@@ -58,7 +60,7 @@ export default function OrderReferencesPicker({
                         activeOpacity={0.85}
                     >
                         <View style={styles.addTile}>
-                            <AddPhotoIcon width={24} height={24} />
+                            <Icon name="add_image-icon" size={24} />
                         </View>
                     </TouchableOpacity>
                 )}
@@ -98,6 +100,8 @@ const useStyles = createThemedStyles(theme =>
             position: 'absolute',
             top: -4,
             right: -4,
+            justifyContent: 'center',
+            alignItems: 'center',
             width: DELETE_SIZE,
             height: DELETE_SIZE,
             borderRadius: 99,

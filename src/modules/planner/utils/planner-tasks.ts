@@ -69,3 +69,22 @@ export function findPastScrollIndex(sortedPast: PlannerListItem[], selected: str
 
     return lastIdx >= 0 ? lastIdx : 0
 }
+
+export function formatTasksWord(count: number) {
+    const rem10 = count % 10
+    const rem100 = count % 100
+
+    if (rem100 >= 11 && rem100 <= 14) {
+        return 'задач'
+    }
+
+    if (rem10 === 1) {
+        return 'задача'
+    }
+
+    if (rem10 >= 2 && rem10 <= 4) {
+        return 'задачи'
+    }
+
+    return 'задач'
+}

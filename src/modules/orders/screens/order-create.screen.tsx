@@ -183,7 +183,8 @@ export default function OrderCreateScreen() {
                         />
 
                         <OrderTextField
-                            title="Имя клиента *"
+                            title="Имя клиента"
+                            required
                             value={clientName}
                             onChangeText={t =>
                                 setValue('clientName', t, { shouldValidate: true })
@@ -326,7 +327,7 @@ export default function OrderCreateScreen() {
                                         false: colors.border,
                                         true: colors.brand,
                                     }}
-                                    thumbColor={colors.surface}
+                                    thumbColor={colors.fixedWhite}
                                     ios_backgroundColor={colors.border}
                                 />
                             </View>
@@ -378,9 +379,9 @@ const useStyles = createThemedStyles(theme =>
         },
 
         totalRow: {
-            flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'space-between',
+            gap: 10,
             paddingHorizontal: 3,
             marginBottom: 7,
         },
@@ -390,7 +391,7 @@ const useStyles = createThemedStyles(theme =>
             fontFamily: 'Epilogue-SemiBold',
         },
         totalValue: {
-            fontSize: 18,
+            fontSize: 24,
             color: theme.colors.text,
             fontFamily: 'Epilogue-SemiBold',
         },

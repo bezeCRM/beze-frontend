@@ -291,9 +291,9 @@ const useStyles = createThemedStyles(theme =>
         formList: { rowGap: 15 },
 
         totalRow: {
-            flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'space-between',
+            gap: 10,
             paddingHorizontal: 3,
             marginBottom: 7,
         },
@@ -303,7 +303,7 @@ const useStyles = createThemedStyles(theme =>
             fontFamily: 'Epilogue-SemiBold',
         },
         totalValue: {
-            fontSize: 16,
+            fontSize: 24,
             color: theme.colors.text,
             fontFamily: 'Epilogue-SemiBold',
         },

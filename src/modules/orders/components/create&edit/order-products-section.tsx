@@ -102,7 +102,7 @@ const useStyles = createThemedStyles(theme =>
         },
         emptyBtnText: {
             fontSize: 14,
-            color: theme.colors.surface,
+            color: theme.colors.fixedWhite,
             fontFamily: 'Epilogue-SemiBold',
         },
         emptyBtnDisabled: { backgroundColor: theme.colors.border },

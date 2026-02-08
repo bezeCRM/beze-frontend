@@ -2,10 +2,10 @@ import React, { useMemo } from 'react'
 import { View, StyleSheet, TouchableOpacity, Image } from 'react-native'
 
 import SectionCard from '@/shared/ui/section/section-card'
-import AddPhotoIcon from '@/assets/images/add-photo-icon.svg'
-import DeletePhotoIcon from '@/assets/images/delete-photo-icon.svg'
 import { useImageViewer } from '@/shared/hooks/useImageViewer'
 import { createThemedStyles } from '@/shared/theme/create-themed-styles'
+import { Icon } from '@/shared/ui/icon/icon'
+import { useTheme } from '@/shared/theme/useTheme'
 
 type Photo = { id: string; uri: string }
 
@@ -25,6 +25,8 @@ export default function PhotoesPicker({
     maxCount = 3,
 }: Props) {
     const styles = useStyles()
+    const colors = useTheme().theme.colors
+
     const input = useMemo(
         () => (photoes ?? []).map(p => p.uri).filter(Boolean),
         [photoes],
@@ -54,7 +56,7 @@ export default function PhotoesPicker({
                             onPress={() => onDeletePress?.(p.id)}
                             hitSlop={{ top: 5, bottom: 5, left: 5, right: 5 }}
                         >
-                            <DeletePhotoIcon width={24} height={24} />
+                            <Icon name="x-icon" size={12} color={colors.text} />
                         </TouchableOpacity>
                     </View>
                 ))}
@@ -66,7 +68,7 @@ export default function PhotoesPicker({
                         activeOpacity={0.85}
                     >
                         <View style={styles.addTile}>
-                            <AddPhotoIcon width={24} height={24} />
+                            <Icon name="add_image-icon" size={24} />
                         </View>
                     </TouchableOpacity>
                 )}
@@ -110,12 +112,14 @@ const useStyles = createThemedStyles(theme =>
             position: 'absolute',
             top: -4,
             right: -4,
+            justifyContent: 'center',
+            alignItems: 'center',
             width: DELETE_SIZE,
             height: DELETE_SIZE,
             borderRadius: 99,
             backgroundColor: theme.colors.surface,
             resizeMode: 'contain',
-            shadowColor: '#000',
+            shadowColor: theme.colors.surface,
             shadowOpacity: 0.1,
             shadowRadius: 10,
             shadowOffset: { width: 0, height: 0 },

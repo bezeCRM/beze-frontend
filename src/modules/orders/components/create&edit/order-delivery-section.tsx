@@ -38,14 +38,14 @@ export default function OrderDeliverySection({
     const addressDisabled = isPickup
 
     return (
-        <SectionCard title="Доставка *">
+        <SectionCard title="Доставка" required>
             <View style={styles.rowTop}>
                 <Text style={styles.pickupLabel}>Самовывоз</Text>
                 <Switch
                     value={isPickup}
                     onValueChange={onTogglePickup}
                     trackColor={{ false: colors.border, true: colors.brand }}
-                    thumbColor={colors.surface}
+                    thumbColor={colors.fixedWhite}
                     ios_backgroundColor={colors.border}
                 />
             </View>

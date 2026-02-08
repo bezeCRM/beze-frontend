@@ -13,6 +13,7 @@ type Props = {
     errorText?: string
     keyboardType?: KeyboardTypeOptions
     editable?: boolean
+    required?: boolean
 }
 
 export default function OrderTextField({
@@ -24,12 +25,13 @@ export default function OrderTextField({
     errorText,
     keyboardType,
     editable = true,
+    required = false,
 }: Props) {
     const styles = useStyles()
     const colors = useTheme().theme.colors
 
     return (
-        <SectionCard title={title}>
+        <SectionCard title={title} required={required}>
             <View>
                 <TextInput
                     value={value ?? ''}

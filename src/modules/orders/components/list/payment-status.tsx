@@ -1,42 +1,44 @@
 import React from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 import type { OrderPaymentStatus } from '@/shared/types/types'
-
-import ErrorIcon from '@/assets/images/error-icon.svg'
-import SuccessIcon from '@/assets/images/success-icon.svg'
-import PendingIcon from '@/assets/images/pending-icon.svg'
+import type { IconName } from '@/shared/ui/icon/icon'
 import { useTheme } from '@/shared/theme/useTheme'
 import { createThemedStyles } from '@/shared/theme/create-themed-styles'
+import { Icon } from '@/shared/ui/icon/icon'
 
 type Props = {
     status: OrderPaymentStatus
 }
+type GetMetaReturn = {
+    label: string
+    iconName: IconName
+    color: string
+}
 
-function GetMeta(status: OrderPaymentStatus) {
+function GetMeta(status: OrderPaymentStatus): GetMetaReturn {
     const colors = useTheme().theme.colors
 
     if (status === 'paid') {
-        return { label: 'Оплачено', color: colors.success, Icon: SuccessIcon }
+        return { label: 'Оплачено', iconName: 'success-icon', color: colors.success }
     }
     if (status === 'partial') {
         return {
             label: 'Частичная оплата',
+            iconName: 'pending-icon',
             color: colors.warning,
-            Icon: PendingIcon,
         }
     }
-    return { label: 'Не оплачено', color: colors.danger, Icon: ErrorIcon }
+    return { label: 'Не оплачено', iconName: 'error-icon', color: colors.danger }
 }
 
 export default function PaymentStatus({ status }: Props) {
     const styles = useStyles()
     const meta = GetMeta(status)
-    const Icon = meta.Icon
 
     return (
         <View style={styles.row}>
             <View style={styles.iconWrap}>
-                <Icon width={16} height={16} />
+                <Icon name={meta.iconName} size={16} />
             </View>
             <Text style={[styles.text, { color: meta.color }]} numberOfLines={1}>
                 {meta.label}

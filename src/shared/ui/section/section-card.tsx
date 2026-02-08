@@ -1,14 +1,25 @@
 import { createThemedStyles } from '@/shared/theme/create-themed-styles'
+import { useTheme } from '@/shared/theme/useTheme'
 import React, { PropsWithChildren } from 'react'
 import { View, Text, StyleSheet, ViewStyle } from 'react-native'
 
-type Props = PropsWithChildren<{ title?: string; style?: ViewStyle }>
+type Props = PropsWithChildren<{ title?: string; style?: ViewStyle; required?: boolean }>
 
-export default function SectionCard({ title, children, style }: Props) {
+function RequiredStar() {
+    const colors = useTheme().theme.colors
+    return <Text style={{ color: colors.danger }}>{} *</Text>
+}
+
+export default function SectionCard({ title, children, style, required }: Props) {
     const styles = useStyles()
     return (
         <View style={[styles.wrap, style]}>
-            {!!title && <Text style={styles.title}>{title}</Text>}
+            {!!title && (
+                <Text style={styles.title}>
+                    {title}
+                    {required ? <RequiredStar /> : null}
+                </Text>
+            )}
             <View style={styles.card}>{children}</View>
         </View>
     )
