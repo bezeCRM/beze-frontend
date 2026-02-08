@@ -1,7 +1,7 @@
-import { useMemo } from 'react'
-import { LogBox, StyleSheet, Text, View } from 'react-native'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
+import { useMemo } from 'react'
+import { LogBox, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import ScreenContainer from '@/shared/components/layout/screen-container'
 import { createThemedStyles } from '@/shared/theme/create-themed-styles'
@@ -12,14 +12,19 @@ import MonthCalendar from '../components/calendar/month-calendar'
 import NearbyTasksCard from '../components/calendar/nearby-tasks-card'
 import TasksSection from '../components/tasks/tasks-section'
 
-import { usePlannerScreen } from '../hooks/usePlannerScreen'
-import { addMonths, formatSelectedDayTitle } from '../utils/planner-date'
-import PlannerHeader from '../components/header/planner-header'
-import MainHeader from '@/shared/components/headers/main-header'
-import Button from '@/shared/ui/button/button'
 import { AppStackParamList } from '@/core/navigation/app-navigation'
-import { StackNavigationProp } from '@react-navigation/stack'
+import MainHeader from '@/shared/components/headers/main-header'
 import AddPlus from '@/shared/ui/add-plus'
+import Button from '@/shared/ui/button/button'
+import { StackNavigationProp } from '@react-navigation/stack'
+import DayTasksCard from '../components/calendar/day-tasks-card'
+import PlannerHeader from '../components/header/planner-header'
+import { usePlannerScreen } from '../hooks/usePlannerScreen'
+import {
+    addMonths,
+    formatSelectedDayTitle,
+    selectedDayTasksSubtitle,
+} from '../utils/planner-date'
 
 LogBox.ignoreLogs(['VirtualizedLists should never be nested inside plain ScrollViews'])
 
@@ -54,6 +59,7 @@ export default function PlannerScreen() {
         nearbyMode,
         nearbyTask,
         nearbyCount,
+        tasksForSelectedDate,
 
         openAllTasksFocusNearby,
     } = usePlannerScreen()
@@ -109,7 +115,16 @@ export default function PlannerScreen() {
                 />
 
                 {!showAllTasks ? (
-                    <View style={styles.calendarTab}>
+                    <ScrollView
+                        style={styles.scroll}
+                        contentContainerStyle={[
+                            styles.calendarTab,
+                            { paddingBottom: bottom + 16 },
+                        ]}
+                        showsVerticalScrollIndicator={false}
+                        keyboardShouldPersistTaps="handled"
+                        nestedScrollEnabled
+                    >
                         <MonthCalendar
                             monthStart={visibleMonth}
                             selectedDate={selectedDate}
@@ -131,6 +146,15 @@ export default function PlannerScreen() {
                         </View>
 
                         <Text style={styles.blockTitle}>
+                            {selectedDayTasksSubtitle(selectedDate, today)}
+                        </Text>
+
+                        <DayTasksCard
+                            tasks={tasksForSelectedDate as any}
+                            onPress={openAllTasksFocusNearby}
+                        />
+
+                        <Text style={styles.blockTitle}>
                             {nearbyMode === 'past'
                                 ? 'Прошедшие задачи'
                                 : 'Ближайшие задачи'}
@@ -141,7 +165,7 @@ export default function PlannerScreen() {
                             upcomingCount={nearbyCount}
                             onPress={openAllTasksFocusNearby}
                         />
-                    </View>
+                    </ScrollView>
                 ) : (
                     <View style={[styles.allTasksTab, { paddingBottom: bottom }]}>
                         <View style={styles.sectionsWrap}>
@@ -190,6 +214,9 @@ const useStyles = createThemedStyles(theme =>
         container: {
             flex: 1,
         },
+        scroll: {
+            flex: 1,
+        },
         calendarTab: {
             paddingTop: 5,
             gap: 12,
@@ -204,13 +231,6 @@ const useStyles = createThemedStyles(theme =>
             fontFamily: 'Epilogue-Semibold',
             fontSize: 20,
             color: theme.colors.text,
-        },
-        plusBtn: {
-            width: 36,
-            height: 36,
-            borderRadius: 999,
-            alignItems: 'center',
-            justifyContent: 'center',
         },
         blockTitle: {
             fontFamily: 'Epilogue-Semibold',

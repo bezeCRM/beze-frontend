@@ -126,3 +126,9 @@ export function formatTaskMeta(date: string, time?: string) {
     const mm = pad2(d.getMinutes())
     return `${wd}, ${day} ${month}, ${hh}:${mm}`
 }
+
+export function selectedDayTasksSubtitle(selectedDay: string, today: string) {
+    if (selectedDay === today) return 'Задачи на сегодня'
+    if (selectedDay === addDays(today, 1)) return 'Задачи на завтра'
+    return 'Задачи на этот день'
+}

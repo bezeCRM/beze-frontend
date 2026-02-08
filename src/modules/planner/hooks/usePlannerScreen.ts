@@ -1,5 +1,3 @@
-// usePlannerScreen.ts
-
 import { useEffect, useMemo } from 'react'
 import { usePlannerStore } from '../store/planner.store'
 import { pad2 } from '../utils/planner-date'
@@ -20,7 +18,6 @@ export function usePlannerScreen() {
 
     const setShowAllTasks = usePlannerStore(s => s.setShowAllTasks)
 
-    // важно: нужен экшен для перехода в "все задачи" с раскрытием конкретной секции
     const openAllTasksFocusUpcoming = usePlannerStore(s => s.openAllTasksFocusUpcoming)
     const openAllTasksFocusPast = usePlannerStore(s => (s as any).openAllTasksFocusPast)
 
@@ -38,13 +35,18 @@ export function usePlannerScreen() {
 
     const { upcoming, past, items } = usePlannerItems(today)
 
+    const tasksForSelectedDate = useMemo(
+        () => items.filter(t => t.date === selectedDate),
+        [items, selectedDate],
+    )
+
     useEffect(() => {
         cleanupArchive(today)
     }, [cleanupArchive, today])
 
     const marks = useMemo(() => uniqueDateSets(items as any, today), [items, today])
 
-    // как и раньше: ближайшая задача на/после выбранной даты (среди upcoming)
+    // ближайшая задача на/после выбранной даты (среди upcoming)
     const nearbyUpcoming = useMemo(() => {
         if (!upcoming.length) return []
         const idx = upcoming.findIndex(it => it.date >= selectedDate)
@@ -55,7 +57,7 @@ export function usePlannerScreen() {
     const nextUpcoming = useMemo(() => nearbyUpcoming[0] ?? null, [nearbyUpcoming])
     const nearbyUpcomingCount = useMemo(() => nearbyUpcoming.length, [nearbyUpcoming])
 
-    // новое: прошедшие задачи в диапазоне от selectedDate до today (включительно)
+    // прошедшие задачи в диапазоне от selectedDate до today (включительно)
     const nearbyPastInRange = useMemo(() => {
         if (!past.length) return []
         if (selectedDate >= today) return []
@@ -77,7 +79,6 @@ export function usePlannerScreen() {
         return sorted[sorted.length - 1] ?? null
     }, [nearbyPastInRange])
 
-    // итоговый режим карточки: past, если selectedDate < today и в диапазоне есть прошедшие задачи
     const nearbyMode = useMemo<'past' | 'upcoming'>(() => {
         if (selectedDate < today && nearbyPastCount > 0) return 'past'
         return 'upcoming'
@@ -91,16 +92,12 @@ export function usePlannerScreen() {
         return nearbyMode === 'past' ? nearbyPastCount : nearbyUpcomingCount
     }, [nearbyMode, nearbyPastCount, nearbyUpcomingCount])
 
-    // ключевая часть: единая функция нажатия по карточке,
-    // которая ведет в "все задачи" и открывает правильную секцию
     const openAllTasksFocusNearby = useMemo(() => {
         return () => {
             if (nearbyMode === 'past') {
                 if (typeof openAllTasksFocusPast === 'function') {
                     openAllTasksFocusPast()
                 } else {
-                    // если в сторе еще нет openAllTasksFocusPast, делаем эквивалент на экране:
-                    // включаем "все задачи" и раскрываем past секцию
                     setShowAllTasks(true, today)
                     setSectionExpanded('past', true)
                     setSectionExpanded('upcoming', false)
@@ -132,15 +129,10 @@ export function usePlannerScreen() {
         past,
         marks,
 
-        // новое
         nearbyMode,
         nearbyTask,
         nearbyCount,
         openAllTasksFocusNearby,
-
-        // старое можно оставить, если где-то используется
-        nextUpcoming,
-        nearbyUpcomingCount,
 
         setShowAllTasks: (nextVal: boolean) => setShowAllTasks(nextVal, today),
         openAllTasksFocusUpcoming,
@@ -152,5 +144,6 @@ export function usePlannerScreen() {
         toggleCompleted,
         addTask,
         removeTask,
+        tasksForSelectedDate,
     }
 }

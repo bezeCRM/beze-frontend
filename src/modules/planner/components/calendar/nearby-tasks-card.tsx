@@ -1,3 +1,4 @@
+// NearbyTasksCard.tsx
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 import { createThemedStyles } from '@/shared/theme/create-themed-styles'
 import { formatTaskMeta } from '../../utils/planner-date'
@@ -7,6 +8,16 @@ type Props = {
     nextTask: any | null
     upcomingCount: number
     onPress: () => void
+}
+
+function deliveryLabel(deliveryType: any) {
+    if (!deliveryType) return null
+    const v = String(deliveryType).toLowerCase()
+
+    if (v.includes('delivery') || v.includes('достав')) return 'доставка'
+    if (v.includes('pickup') || v.includes('self') || v.includes('выда')) return 'выдача'
+
+    return null
 }
 
 export default function NearbyTasksCard({ nextTask, upcomingCount, onPress }: Props) {
@@ -22,6 +33,9 @@ export default function NearbyTasksCard({ nextTask, upcomingCount, onPress }: Pr
 
     const more = Math.max(0, upcomingCount - 1)
 
+    const isOrder = nextTask.kind === 'order'
+    const label = isOrder ? deliveryLabel(nextTask.deliveryType) : null
+
     return (
         <Pressable onPress={onPress} style={styles.card}>
             <View style={styles.row}>
@@ -36,13 +50,17 @@ export default function NearbyTasksCard({ nextTask, upcomingCount, onPress }: Pr
                 </View>
 
                 <View style={styles.titleBox}>
-                    <Text style={styles.titleText} numberOfLines={1}>
+                    <Text
+                        style={label ? styles.titleTextMarked : styles.titleText}
+                        numberOfLines={1}
+                    >
                         {nextTask.title}
                     </Text>
+
                     {more > 0 && (
-                        <Text
-                            style={styles.more}
-                        >{`+${more} ${formatTasksWord(more)}`}</Text>
+                        <Text style={styles.more}>
+                            {`+${more} ${formatTasksWord(more)}`}
+                        </Text>
                     )}
                 </View>
             </View>
@@ -79,7 +97,6 @@ const useStyles = createThemedStyles(theme =>
             color: theme.colors.textMuted,
         },
         titleBox: {
-            fontFamily: 'Epilogue-Regular',
             justifyContent: 'center',
             alignItems: 'flex-start',
             rowGap: 3,
@@ -88,6 +105,11 @@ const useStyles = createThemedStyles(theme =>
             fontFamily: 'Epilogue-Regular',
             fontSize: 16,
             color: theme.colors.text,
+        },
+        titleTextMarked: {
+            fontFamily: 'Epilogue-Regular',
+            fontSize: 16,
+            color: theme.colors.warning,
         },
         more: {
             fontFamily: 'Epilogue-SemiBold',
