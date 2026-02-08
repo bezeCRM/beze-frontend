@@ -110,8 +110,9 @@ export default function PlannerScreen() {
             <View style={styles.container}>
                 <MainHeader />
                 <PlannerHeader
-                    TasksActive={showAllTasks}
-                    onTasksPress={() => setShowAllTasks(!showAllTasks)}
+                    tasksActive={showAllTasks}
+                    onTasksPress={() => setShowAllTasks(true)}
+                    onPlannerPress={() => setShowAllTasks(false)}
                 />
 
                 {!showAllTasks ? (
