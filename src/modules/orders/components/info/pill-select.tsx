@@ -1,4 +1,4 @@
-import SelectIcon from '@/assets/images/select-icon-white.svg'
+import { Icon } from '@/shared/ui/icon/icon'
 import { createThemedStyles } from '@/shared/theme/create-themed-styles'
 import { useTheme } from '@/shared/theme/useTheme'
 import { useMemo, useRef, useState } from 'react'
@@ -75,7 +75,12 @@ export default function PillSelect<T extends string>({
                     <Text style={styles.pillText} numberOfLines={1}>
                         {selected?.name ?? ''}
                     </Text>
-                    <SelectIcon width={12} height={7} color={colors.surface as any} />
+                    <Icon
+                        name="arrow-icon"
+                        rotateDeg={-90}
+                        size={12}
+                        color={colors.fixedWhite}
+                    />
                 </TouchableOpacity>
             </View>
 

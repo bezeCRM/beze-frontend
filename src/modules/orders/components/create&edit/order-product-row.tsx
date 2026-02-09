@@ -9,7 +9,7 @@ import {
     type ImageSourcePropType,
 } from 'react-native'
 import PlaceholderImage from '@/assets/images/product-card-placeholder.png'
-import DeleteItemIcon from '@/assets/images/delete_item-icon.svg'
+import { Icon } from '@/shared/ui/icon/icon'
 import type { OrderCreateItem } from '../../hooks/useOrderCreateForm'
 import type { PhotoItem } from '@/shared/types/types'
 import Minus from '@/assets/images/minus.svg'
@@ -60,7 +60,7 @@ export default function OrderProductRow({
                 style={styles.removeBtn}
                 hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             >
-                <DeleteItemIcon width={20} height={20} />
+                <Icon name="delete_item-icon" size={20} />
             </TouchableOpacity>
 
             <Image source={imageSource} style={styles.image} />

@@ -1,4 +1,4 @@
-import SelectIcon from '@/assets/images/select-icon.svg'
+import { Icon } from '../icon/icon'
 import { useModalStore } from '@/modules/modal'
 import { useCategoryStore } from '@/modules/products/store/categories.store'
 import { Category } from '@/shared/types/types'
@@ -16,6 +16,7 @@ import {
 } from 'react-native'
 import SectionCard from '../section/section-card'
 import { createThemedStyles } from '@/shared/theme/create-themed-styles'
+import { useTheme } from '@/shared/theme/useTheme'
 
 type Props = {
     label: string
@@ -37,6 +38,8 @@ export default function SelectField({
     addCategoryEnabled = true,
 }: Props) {
     const styles = useStyles()
+    const colors = useTheme().theme.colors
+
     const { height: screenH } = useWindowDimensions()
     const [openSelect, setOpenSelect] = useState(false)
     const [anchor, setAnchor] = useState<LayoutRectangle | null>(null)
@@ -131,7 +134,12 @@ export default function SelectField({
                     <Text style={[styles.value, !selected && styles.placeholder]}>
                         {selected ? selected.name : placeholder}
                     </Text>
-                    <SelectIcon width={14} height={8} />
+                    <Icon
+                        name="arrow-icon"
+                        rotateDeg={-90}
+                        size={14}
+                        color={colors.text}
+                    />
                 </TouchableOpacity>
             </View>
 

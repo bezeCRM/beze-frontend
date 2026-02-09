@@ -9,8 +9,7 @@ import {
 } from 'react'
 import { View, StyleSheet, Animated, PanResponder, Easing, Text } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import ErrorIcon from '@/assets/images/error-icon.svg'
-import SuccessIcon from '@/assets/images/success-icon.svg'
+import { Icon } from '@/shared/ui/icon/icon'
 import { createThemedStyles } from '@/shared/theme/create-themed-styles'
 
 type ToastVariant = 'error' | 'info' | 'success'
@@ -96,7 +95,10 @@ function ToastCard({ item, onDismiss }: { item: ToastItem; onDismiss: () => void
     const translateX = useRef(new Animated.Value(0)).current
     const timerRef = useRef<NodeJS.Timeout | null>(null)
 
-    const Icon = item.variant === 'success' ? SuccessIcon : ErrorIcon
+    const successIcon = <Icon name="success-icon" size={25} />
+    const errorIcon = <Icon name="error-icon" size={25} />
+
+    const StatusIcon = item.variant === 'success' ? successIcon : errorIcon
     const variantCardStyle =
         item.variant === 'success' ? styles.successCard : styles.errorCard
 
@@ -178,7 +180,7 @@ function ToastCard({ item, onDismiss }: { item: ToastItem; onDismiss: () => void
             ]}
             {...pan.panHandlers}
         >
-            <Icon width={25} height={25} style={styles.icon} />
+            {StatusIcon}
             <Text style={styles.message} numberOfLines={3}>
                 {item.message}
             </Text>
@@ -246,6 +248,7 @@ const useStyles = createThemedStyles(theme =>
             shadowRadius: 10,
             shadowOffset: { width: 0, height: 2 },
             elevation: 8,
+            columnGap: 12,
         },
 
         errorCard: { borderWidth: 1, borderColor: theme.colors.border },

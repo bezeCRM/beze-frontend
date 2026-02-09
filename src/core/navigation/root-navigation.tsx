@@ -1,7 +1,7 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import ProductsStack from './products-stack'
 import OrdersStack from './orders-stack'
-import DevBottomBar from './dev-bottom-bar'
+import DevBottomBar from './bottom-menu'
 import PlannerStack from './planner-stack'
 import ProfileStack from './profile-stack'
 

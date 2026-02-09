@@ -37,7 +37,7 @@ export default function ProductsHeader({
                     if (next === 'tasks') onTasksPress()
                     else onPlannerPress()
                 }}
-                height={40}
+                height={35}
                 radius={15}
                 inset={3}
                 itemGap={0}
@@ -53,6 +53,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingVertical: 7,
-        marginBottom: 10,
+        marginBottom: 9,
     },
 })

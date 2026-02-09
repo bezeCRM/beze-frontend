@@ -168,11 +168,7 @@ export default function PlannerScreen() {
                         />
                     </ScrollView>
                 ) : (
-                    <ScrollView
-                        style={[styles.allTasksTab, { paddingBottom: bottom + 90 }]}
-                        contentContainerStyle={{ justifyContent: 'space-between' }}
-                        showsVerticalScrollIndicator={false}
-                    >
+                    <View style={[styles.allTasksTab, { paddingBottom: bottom + 90 }]}>
                         <View style={styles.sectionsWrap}>
                             <TasksSection
                                 title="Ближайшие задачи"
@@ -207,7 +203,7 @@ export default function PlannerScreen() {
                                 onPress={openAddTaskModal}
                             />
                         </View>
-                    </ScrollView>
+                    </View>
                 )}
             </View>
         </ScreenContainer>
@@ -223,7 +219,6 @@ const useStyles = createThemedStyles(theme =>
             flex: 1,
         },
         calendarTab: {
-            paddingTop: 5,
             gap: 12,
         },
         dayRow: {
@@ -244,7 +239,7 @@ const useStyles = createThemedStyles(theme =>
         },
         allTasksTab: {
             flex: 1,
-            paddingTop: 5,
+            marginTop: -1,
         },
         sectionsWrap: {
             paddingTop: 0,

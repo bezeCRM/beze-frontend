@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet, Pressable, ViewStyle, TextStyle } from 'react-native'
-import BackIcon from '@/assets/images/back-icon.svg'
 import { useTheme } from '@/shared/theme/useTheme'
 import { createThemedStyles } from '@/shared/theme/create-themed-styles'
+import { Icon } from '@/shared/ui/icon/icon'
 
 type CommonProps = {
     onBack?: () => void
@@ -26,7 +26,7 @@ export function InternalHeaderTopBar({
                 android_ripple={{ color: colors.brand }}
                 hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             >
-                <BackIcon width={12} height={21} />
+                <Icon name="arrow-icon" height={21} color={colors.brand} />
                 <Text style={styles.backText}>Назад</Text>
             </Pressable>
 
@@ -102,7 +102,7 @@ const useStyles = createThemedStyles(theme =>
         backBtn: {
             flexDirection: 'row',
             alignItems: 'center',
-            gap: 10,
+            gap: 5,
         },
         backText: {
             color: theme.colors.brand,
