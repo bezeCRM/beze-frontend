@@ -13,6 +13,10 @@ import ArrowIcon from '@/assets/icons/arrow-icon.svg'
 import SearchIcon from '@/assets/icons/search-icon.svg'
 import XIcon from '@/assets/icons/x-icon.svg'
 import PlusIcon from '@/assets/icons/plus-icon.svg'
+import PlannerIcon from '@/assets/icons/planner-icon.svg'
+import ProductsIcon from '@/assets/icons/products-icon.svg'
+import OrdersIcon from '@/assets/icons/orders-icon.svg'
+import ProfileIcon from '@/assets/icons/profile-icon.svg'
 
 type IconComponent = React.FC<SvgProps>
 
@@ -28,6 +32,10 @@ export type IconName =
     | 'search-icon'
     | 'x-icon'
     | 'plus-icon'
+    | 'planner-icon'
+    | 'products-icon'
+    | 'orders-icon'
+    | 'profile-icon'
 
 const ICONS: Record<IconName, IconComponent> = {
     'checkmark-icon': CheckmarkIcon,
@@ -41,6 +49,10 @@ const ICONS: Record<IconName, IconComponent> = {
     'search-icon': SearchIcon,
     'x-icon': XIcon,
     'plus-icon': PlusIcon,
+    'planner-icon': PlannerIcon,
+    'products-icon': ProductsIcon,
+    'orders-icon': OrdersIcon,
+    'profile-icon': ProfileIcon,
 }
 
 export type IconProps = {

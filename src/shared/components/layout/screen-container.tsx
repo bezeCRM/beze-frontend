@@ -28,6 +28,7 @@ export default function ScreenContainer({
                         contentContainerStyle={[
                             styles.scrollContent,
                             contentContainerStyle,
+                            { paddingBottom: 90 },
                         ]}
                     >
                         {children}

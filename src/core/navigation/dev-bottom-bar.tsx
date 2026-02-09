@@ -1,20 +1,16 @@
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs'
-import { Pressable, StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { createThemedStyles } from '@/shared/theme/create-themed-styles'
+import { ModeSwitch } from '@/shared/components/mode-switch/mode-switch'
+import { useMemo } from 'react'
+import { Icon } from '@/shared/ui/icon/icon'
 
 function getNestedRouteName(route: any) {
     const state = route?.state
     if (!state?.routes?.length) return null
     const idx = state.index ?? 0
     return state.routes[idx]?.name ?? null
-}
-
-function getLabel(tabName: string) {
-    if (tabName === 'Products') return 'Товары'
-    if (tabName === 'Orders') return 'Заказы'
-    if (tabName === 'Planner') return 'Планер'
-    return tabName
 }
 
 export default function DevBottomBar({ state, navigation }: BottomTabBarProps) {
@@ -28,18 +24,61 @@ export default function DevBottomBar({ state, navigation }: BottomTabBarProps) {
         !nestedName ||
         nestedName === 'ProductsList' ||
         nestedName === 'OrdersList' ||
-        nestedName === 'PlannerHome'
+        nestedName === 'PlannerHome' ||
+        nestedName === 'ProfileHome'
+
+    const items = useMemo(
+        () => [
+            {
+                key: 'Planner',
+                label: 'Планер',
+                renderIcon: (color: string) => (
+                    <Icon name="planner-icon" color={color} height={23} />
+                ),
+            },
+            {
+                key: 'Orders',
+                label: 'Заказы',
+                renderIcon: (color: string) => (
+                    <Icon name="orders-icon" color={color} height={23} />
+                ),
+            },
+            {
+                key: 'Products',
+                label: 'Товары',
+                renderIcon: (color: string) => (
+                    <Icon name="products-icon" color={color} height={23} />
+                ),
+            },
+            {
+                key: 'Profile',
+                label: 'Профиль',
+                renderIcon: (color: string) => (
+                    <Icon name="profile-icon" color={color} height={23} />
+                ),
+            },
+        ],
+        [],
+    )
 
     if (!shouldShow) return null
 
-    return (
-        <View style={[styles.wrap, { paddingBottom: Math.max(insets.bottom, 10) }]}>
-            <View style={styles.bar}>
-                {state.routes.map((route, index) => {
-                    const focused = state.index === index
-                    const label = getLabel(route.name)
+    const value = state.routes[state.index]?.name
 
-                    const onPress = () => {
+    return (
+        <View pointerEvents="box-none" style={styles.fixedWrap}>
+            <View style={[styles.float, { bottom: Math.max(insets.bottom, 10) + 12 }]}>
+                <ModeSwitch
+                    layout="equal"
+                    variant="tabbar"
+                    items={items}
+                    value={value}
+                    onChange={routeName => {
+                        const route = state.routes.find(r => r.name === routeName)
+                        if (!route) return
+
+                        const focused = route.key === state.routes[state.index].key
+
                         const event = navigation.emit({
                             type: 'tabPress',
                             target: route.key,
@@ -47,66 +86,57 @@ export default function DevBottomBar({ state, navigation }: BottomTabBarProps) {
                         })
 
                         if (!focused && !event.defaultPrevented) {
-                            navigation.navigate(route.name)
+                            navigation.navigate(routeName as never)
                         }
-                    }
-
-                    return (
-                        <Pressable
-                            key={route.key}
-                            onPress={onPress}
-                            style={[styles.btn, focused && styles.btnActive]}
-                        >
-                            <Text
-                                style={[
-                                    styles.text,
-                                    focused ? styles.textActive : styles.textIdle,
-                                ]}
-                            >
-                                {label}
-                            </Text>
-                        </Pressable>
-                    )
-                })}
+                    }}
+                    height={62}
+                    radius={999}
+                    pillRadius={999}
+                    inset={3}
+                    containerStyle={styles.menu}
+                />
             </View>
         </View>
     )
 }
 
-const useStyles = createThemedStyles(theme =>
-    StyleSheet.create({
-        wrap: {
-            backgroundColor: theme.colors.surface,
-            paddingHorizontal: 15,
-            paddingTop: 8,
+const useStyles = createThemedStyles(theme => {
+    const s = StyleSheet.create({
+        fixedWrap: {
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            bottom: 0,
+            top: 0,
+        },
+        float: {
+            position: 'absolute',
+            left: 15,
+            right: 15,
         },
         bar: {
-            height: 46,
-            borderRadius: 16,
-            borderWidth: 1,
-            borderColor: theme.colors.border,
-            backgroundColor: theme.colors.surface,
-            flexDirection: 'row',
-            overflow: 'hidden',
+            borderWidth: 0,
+            shadowOpacity: 0.18,
+            shadowRadius: 18,
+            shadowOffset: { width: 0, height: 10 },
+            elevation: 10,
         },
-        btn: {
-            flex: 1,
-            alignItems: 'center',
-            justifyContent: 'center',
+        menu: {
+            borderWidth: 0,
+            shadowOpacity: 0.18,
+            shadowRadius: 18,
+            shadowOffset: { width: 0, height: 10 },
+            elevation: 10,
         },
-        btnActive: {
-            backgroundColor: theme.colors.background,
-        },
-        text: {
-            fontSize: 14,
-            fontFamily: 'Epilogue-Regular',
-        },
-        textActive: {
-            color: theme.colors.brand,
-            fontFamily: 'Epilogue-SemiBold',
-        },
-        textIdle: {
-            color: theme.colors.textMuted,
-        },
-    }),
-)
+    })
+
+    ;(s as any)._colors = {
+        surface: theme.colors.surface,
+        border: theme.colors.border,
+        brand: theme.colors.brand,
+        textMuted: theme.colors.textMuted,
+        onBrand: '#ffffff',
+    }
+
+    return s as typeof s & { _colors: any }
+})

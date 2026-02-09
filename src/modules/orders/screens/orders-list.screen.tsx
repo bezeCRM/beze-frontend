@@ -37,8 +37,8 @@ export default function OrdersListScreen() {
 
             <ToastViewport
                 scope={ORDERS_LIST_TOAST_SCOPE}
-                bottomOffset={75}
-                horizontalInset={15}
+                bottomOffset={90}
+                horizontalInset={20}
             />
         </ScreenContainer>
     )

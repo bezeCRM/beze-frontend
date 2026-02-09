@@ -20,7 +20,8 @@ import { useTheme } from '@/shared/theme/useTheme'
 export type SwitchItem<Key extends string = string> = {
     key: Key
     label: string
-    icon?: ReactNode
+    // вместо icon?: ReactNode делаем функцию, чтобы корректно менять цвет
+    renderIcon?: (color: string) => ReactNode
 }
 
 type Props<Key extends string> = {
@@ -28,12 +29,19 @@ type Props<Key extends string> = {
     value: Key
     onChange: (next: Key) => void
 
+    layout?: 'content' | 'equal'
+
     height?: number
     radius?: number
     pillRadius?: number
     inset?: number
     itemGap?: number
     contentPaddingX?: number
+
+    // для таббара: вертикальная компоновка (иконка над текстом)
+    variant?: 'default' | 'tabbar'
+    tabIconSize?: number
+    tabGap?: number
 
     containerStyle?: ViewStyle
     labelStyle?: TextStyle
@@ -60,6 +68,8 @@ export function ModeSwitch<Key extends string>(props: Props<Key>) {
         value,
         onChange,
 
+        layout = 'content',
+
         height = 40,
         radius = 15,
         pillRadius = 12,
@@ -67,13 +77,16 @@ export function ModeSwitch<Key extends string>(props: Props<Key>) {
         itemGap = 20,
         contentPaddingX = 12,
 
+        variant = 'default',
+        tabGap = 6,
+
         containerStyle,
         labelStyle,
         colors = {
             background: stylesColors.surface,
             border: stylesColors.brand,
             pill: stylesColors.brand,
-            inactiveText: stylesColors.text,
+            inactiveText: stylesColors.brand,
             activeText: stylesColors.fixedWhite,
         },
         animationMs = 220,
@@ -87,25 +100,58 @@ export function ModeSwitch<Key extends string>(props: Props<Key>) {
 
     const selectedIndex = indexByKey.get(value) ?? 0
 
+    const [containerW, setContainerW] = useState(0)
+    const onContainerLayout = (e: LayoutChangeEvent) => {
+        setContainerW(e.nativeEvent.layout.width)
+    }
+
     const [layouts, setLayouts] = useState<(ItemLayout | null)[]>(() =>
         items.map(() => null),
     )
 
     useEffect(() => {
-        setLayouts(items.map(() => null))
-    }, [items])
+        setLayouts(prev => {
+            if (prev.length === items.length) return prev
+            return items.map(() => null)
+        })
+    }, [items.length, items])
 
     const x = useSharedValue(0)
     const w = useSharedValue(0)
     const pillVisible = useSharedValue(0)
 
     useEffect(() => {
+        if (layout !== 'equal') return
+        if (containerW <= 0 || items.length === 0) return
+
+        const segW = containerW / items.length
+        const nextX = inset + selectedIndex * segW
+        const nextW = Math.max(0, segW - inset * 2)
+
+        pillVisible.value = 1
+        x.value = withTiming(nextX, { duration: animationMs })
+        w.value = withTiming(nextW, { duration: animationMs })
+    }, [
+        layout,
+        containerW,
+        items.length,
+        selectedIndex,
+        inset,
+        animationMs,
+        x,
+        w,
+        pillVisible,
+    ])
+
+    useEffect(() => {
+        if (layout !== 'content') return
         const l = layouts[selectedIndex]
         if (!l) return
+
         pillVisible.value = 1
         x.value = withTiming(l.x, { duration: animationMs })
         w.value = withTiming(l.w, { duration: animationMs })
-    }, [selectedIndex, layouts, animationMs, x, w, pillVisible])
+    }, [layout, selectedIndex, layouts, animationMs, x, w, pillVisible])
 
     const pillAnim = useAnimatedStyle(() => ({
         transform: [{ translateX: x.value }],
@@ -133,10 +179,40 @@ export function ModeSwitch<Key extends string>(props: Props<Key>) {
     const onItemLayout = (i: number) => (e: LayoutChangeEvent) => {
         const { x: itemX, width: itemW } = e.nativeEvent.layout
         setLayouts(prev => {
+            if (prev[i]?.x === itemX && prev[i]?.w === itemW) return prev
             const next = [...prev]
             next[i] = { x: itemX, w: itemW }
             return next
         })
+    }
+
+    const renderContent = (it: SwitchItem<Key>, color: string) => {
+        if (variant === 'tabbar') {
+            return (
+                <View style={[styles.tabContent, { rowGap: tabGap }]}>
+                    {it.renderIcon ? (
+                        <View style={styles.tabIconWrap}>{it.renderIcon(color)}</View>
+                    ) : null}
+                    <Text
+                        numberOfLines={1}
+                        style={[styles.tabLabel, { color }, labelStyle]}
+                    >
+                        {it.label}
+                    </Text>
+                </View>
+            )
+        }
+
+        return (
+            <View style={styles.content}>
+                {it.renderIcon ? (
+                    <View style={styles.iconWrap}>{it.renderIcon(color)}</View>
+                ) : null}
+                <Text numberOfLines={1} style={[styles.label, { color }, labelStyle]}>
+                    {it.label}
+                </Text>
+            </View>
+        )
     }
 
     const renderRow = (textColor: string, pointerEvents: 'auto' | 'none') => (
@@ -148,24 +224,22 @@ export function ModeSwitch<Key extends string>(props: Props<Key>) {
                 <Pressable
                     key={it.key}
                     onPress={() => onChange(it.key)}
-                    onLayout={pointerEvents === 'auto' ? onItemLayout(i) : undefined}
+                    onLayout={
+                        pointerEvents === 'auto' && layout === 'content'
+                            ? onItemLayout(i)
+                            : undefined
+                    }
                     style={[
                         styles.item,
-                        {
-                            paddingHorizontal: contentPaddingX,
-                            marginRight: i === items.length - 1 ? 0 : itemGap,
-                        },
+                        layout === 'equal'
+                            ? { flex: 1 }
+                            : {
+                                  paddingHorizontal: contentPaddingX,
+                                  marginRight: i === items.length - 1 ? 0 : itemGap,
+                              },
                     ]}
                 >
-                    <View style={styles.content}>
-                        {it.icon ? <View style={styles.iconWrap}>{it.icon}</View> : null}
-                        <Text
-                            numberOfLines={1}
-                            style={[styles.label, { color: textColor }, labelStyle]}
-                        >
-                            {it.label}
-                        </Text>
-                    </View>
+                    {renderContent(it, textColor)}
                 </Pressable>
             ))}
         </View>
@@ -173,8 +247,10 @@ export function ModeSwitch<Key extends string>(props: Props<Key>) {
 
     return (
         <View
+            onLayout={onContainerLayout}
             style={[
                 styles.container,
+                variant === 'tabbar' && styles.containerTabbar,
                 {
                     height,
                     borderRadius: radius,
@@ -208,11 +284,20 @@ export function ModeSwitch<Key extends string>(props: Props<Key>) {
         </View>
     )
 }
+
 const useStyles = createThemedStyles(theme =>
     StyleSheet.create({
         container: {
             borderWidth: 1,
-            overflow: 'hidden',
+        },
+        containerTabbar: {
+            marginHorizontal: 'auto',
+            width: '90%',
+            shadowColor: '#000',
+            shadowOpacity: 0.05,
+            shadowRadius: 18,
+            shadowOffset: { width: 0, height: 0 },
+            elevation: 10,
         },
         row: {
             flex: 1,
@@ -223,6 +308,8 @@ const useStyles = createThemedStyles(theme =>
             alignItems: 'center',
             justifyContent: 'center',
         },
+
+        // default variant
         content: {
             flexDirection: 'row',
             alignItems: 'center',
@@ -236,6 +323,21 @@ const useStyles = createThemedStyles(theme =>
         },
         label: {
             fontSize: 14,
+            fontFamily: 'Epilogue-Regular',
+        },
+
+        // tabbar variant
+        tabContent: {
+            alignItems: 'center',
+            justifyContent: 'center',
+        },
+        tabIconWrap: {
+            height: 23,
+            alignItems: 'center',
+            justifyContent: 'center',
+        },
+        tabLabel: {
+            fontSize: 11,
             fontFamily: 'Epilogue-Regular',
         },
     }),

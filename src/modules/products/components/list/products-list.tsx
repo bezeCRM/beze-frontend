@@ -44,7 +44,10 @@ export default function ProductsList({ items }: Props) {
                 />
             )}
             ListEmptyComponent={renderEmpty}
-            contentContainerStyle={items.length ? undefined : styles.emptyContent}
+            contentContainerStyle={[
+                items.length ? undefined : styles.emptyContent,
+                { paddingBottom: 105 },
+            ]}
             showsVerticalScrollIndicator={false}
         />
     )

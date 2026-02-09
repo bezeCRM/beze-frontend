@@ -36,7 +36,7 @@ export default function ProductsListScreen() {
 
             <ToastViewport
                 scope={PRODUCTS_LIST_TOAST_SCOPE}
-                bottomOffset={75}
+                bottomOffset={90}
                 horizontalInset={15}
             />
         </ScreenContainer>
