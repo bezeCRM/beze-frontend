@@ -61,7 +61,7 @@ const useStyles = createThemedStyles(theme =>
             flex: 1,
             backgroundColor: theme.colors.surface,
             borderRadius: 15,
-            height: 40,
+            minHeight: 40,
             paddingHorizontal: 15,
             paddingVertical: 10,
             borderWidth: 1,

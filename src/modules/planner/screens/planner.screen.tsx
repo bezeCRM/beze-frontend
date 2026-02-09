@@ -228,12 +228,12 @@ const useStyles = createThemedStyles(theme =>
             justifyContent: 'space-between',
         },
         dayTitle: {
-            fontFamily: 'Epilogue-Semibold',
+            fontFamily: 'Epilogue-SemiBold',
             fontSize: 20,
             color: theme.colors.text,
         },
         blockTitle: {
-            fontFamily: 'Epilogue-Semibold',
+            fontFamily: 'Epilogue-SemiBold',
             fontSize: 16,
             color: theme.colors.text,
         },

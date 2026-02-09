@@ -77,7 +77,8 @@ const useStyles = createThemedStyles(theme =>
             fontFamily: 'Epilogue-SemiBold',
         },
         pill: {
-            height: 22,
+            minHeight: 22,
+            paddingVertical: 5,
             paddingHorizontal: 10,
             borderRadius: 999,
             alignItems: 'center',
@@ -87,6 +88,7 @@ const useStyles = createThemedStyles(theme =>
             fontSize: 12,
             color: theme.colors.fixedWhite,
             fontFamily: 'Epilogue-SemiBold',
+            marginTop: -2,
         },
         date: {
             marginTop: 7,

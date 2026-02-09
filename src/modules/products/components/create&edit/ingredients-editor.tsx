@@ -108,7 +108,7 @@ const useStyles = createThemedStyles(theme =>
             minWidth: 120, // не схлопывается на совсем узких экранах
             backgroundColor: theme.colors.surface,
             borderRadius: 15,
-            height: 40,
+            minHeight: 40,
             paddingHorizontal: 16,
             borderWidth: 1,
             borderColor: theme.colors.border,
@@ -125,7 +125,7 @@ const useStyles = createThemedStyles(theme =>
             backgroundColor: theme.colors.surface,
             borderRadius: 15,
             textAlign: 'center',
-            height: 40,
+            minHeight: 40,
             paddingHorizontal: 15,
             borderWidth: 1,
             borderColor: theme.colors.border,

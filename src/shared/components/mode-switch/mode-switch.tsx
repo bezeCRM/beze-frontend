@@ -8,7 +8,6 @@ import {
     ViewStyle,
     TextStyle,
 } from 'react-native'
-import MaskedView from '@react-native-masked-view/masked-view'
 import Animated, {
     useAnimatedStyle,
     useSharedValue,
@@ -20,7 +19,6 @@ import { useTheme } from '@/shared/theme/useTheme'
 export type SwitchItem<Key extends string = string> = {
     key: Key
     label: string
-    // вместо icon?: ReactNode делаем функцию, чтобы корректно менять цвет
     renderIcon?: (color: string) => ReactNode
 }
 
@@ -38,7 +36,6 @@ type Props<Key extends string> = {
     itemGap?: number
     contentPaddingX?: number
 
-    // для таббара: вертикальная компоновка (иконка над текстом)
     variant?: 'default' | 'tabbar'
     tabIconSize?: number
     tabGap?: number
@@ -159,6 +156,16 @@ export function ModeSwitch<Key extends string>(props: Props<Key>) {
         opacity: pillVisible.value,
     }))
 
+    const clipWindowAnim = useAnimatedStyle(() => ({
+        transform: [{ translateX: x.value }],
+        width: w.value,
+        opacity: pillVisible.value,
+    }))
+
+    const clipContentAnim = useAnimatedStyle(() => ({
+        transform: [{ translateX: -x.value }],
+    }))
+
     const renderPill = (bg: string) => (
         <Animated.View
             pointerEvents="none"
@@ -194,6 +201,7 @@ export function ModeSwitch<Key extends string>(props: Props<Key>) {
                         <View style={styles.tabIconWrap}>{it.renderIcon(color)}</View>
                     ) : null}
                     <Text
+                        allowFontScaling={false}
                         numberOfLines={1}
                         style={[styles.tabLabel, { color }, labelStyle]}
                     >
@@ -208,7 +216,11 @@ export function ModeSwitch<Key extends string>(props: Props<Key>) {
                 {it.renderIcon ? (
                     <View style={styles.iconWrap}>{it.renderIcon(color)}</View>
                 ) : null}
-                <Text numberOfLines={1} style={[styles.label, { color }, labelStyle]}>
+                <Text
+                    numberOfLines={1}
+                    allowFontScaling={false}
+                    style={[styles.label, { color }, labelStyle]}
+                >
                     {it.label}
                 </Text>
             </View>
@@ -262,25 +274,33 @@ export function ModeSwitch<Key extends string>(props: Props<Key>) {
         >
             {renderPill(colors.pill)}
 
+            {/* interactive layer */}
             {renderRow(colors.inactiveText, 'auto')}
 
-            <MaskedView
+            {/* active (masked) layer: window moves, content stays full width */}
+            <Animated.View
                 pointerEvents="none"
-                style={StyleSheet.absoluteFill}
-                androidRenderingMode="software"
-                maskElement={
-                    <View style={StyleSheet.absoluteFill} pointerEvents="none">
-                        {renderPill('#000')}
-                    </View>
-                }
+                style={[
+                    styles.clipWindow,
+                    {
+                        top: inset,
+                        bottom: inset,
+                        left: 0,
+                        borderRadius: pillRadius,
+                    },
+                    clipWindowAnim,
+                ]}
             >
-                <View
-                    style={{ flex: 1, backgroundColor: 'transparent' }}
-                    pointerEvents="none"
+                <Animated.View
+                    style={[
+                        styles.clipContent,
+                        { width: containerW > 0 ? containerW : undefined },
+                        clipContentAnim,
+                    ]}
                 >
                     {renderRow(colors.activeText, 'none')}
-                </View>
-            </MaskedView>
+                </Animated.View>
+            </Animated.View>
         </View>
     )
 }
@@ -309,7 +329,6 @@ const useStyles = createThemedStyles(theme =>
             justifyContent: 'center',
         },
 
-        // default variant
         content: {
             flexDirection: 'row',
             alignItems: 'center',
@@ -326,7 +345,6 @@ const useStyles = createThemedStyles(theme =>
             fontFamily: 'Epilogue-Regular',
         },
 
-        // tabbar variant
         tabContent: {
             alignItems: 'center',
             justifyContent: 'center',
@@ -339,6 +357,15 @@ const useStyles = createThemedStyles(theme =>
         tabLabel: {
             fontSize: 11,
             fontFamily: 'Epilogue-Regular',
+        },
+
+        clipWindow: {
+            position: 'absolute',
+            overflow: 'hidden',
+        },
+        clipContent: {
+            flex: 1,
+            alignSelf: 'flex-start',
         },
     }),
 )

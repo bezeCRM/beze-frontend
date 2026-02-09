@@ -87,7 +87,7 @@ const useStyles = createThemedStyles(theme =>
         },
         input: {
             width: 70,
-            height: 34,
+            minHeight: 34,
             borderRadius: 10,
             borderWidth: 1,
             borderColor: theme.colors.border,

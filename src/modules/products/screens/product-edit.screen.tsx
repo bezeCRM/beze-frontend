@@ -289,7 +289,7 @@ const useStyles = createThemedStyles(theme =>
         formList: { rowGap: 15 },
         input: {
             backgroundColor: theme.colors.surface,
-            height: 40,
+            minHeight: 40,
             borderRadius: 15,
             paddingHorizontal: 15,
             paddingVertical: 10,

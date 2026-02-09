@@ -100,7 +100,7 @@ export default function Search({
 const useStyles = createThemedStyles(theme =>
     StyleSheet.create({
         container: {
-            height: 40,
+            minHeight: 40,
             flexDirection: 'row',
             alignItems: 'center',
             backgroundColor: theme.colors.surface,

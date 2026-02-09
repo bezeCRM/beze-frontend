@@ -47,18 +47,18 @@ export default function Button({
 const useStyles = createThemedStyles(theme =>
     StyleSheet.create({
         btn: {
-            height: 50,
+            minHeight: 50,
             backgroundColor: theme.colors.brand,
             width: '100%',
             borderRadius: 16,
             alignItems: 'center',
             justifyContent: 'center',
         },
-        smallBtn: { height: 40 },
+        smallBtn: { minHeight: 40 },
         blueBtn: { backgroundColor: theme.colors.info },
         redBtn: { backgroundColor: theme.colors.danger },
         modalWideBtn: {
-            height: 50,
+            minHeight: 50,
             borderRadius: 0,
         },
         text: {

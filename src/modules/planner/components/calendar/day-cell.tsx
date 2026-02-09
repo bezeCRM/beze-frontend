@@ -1,3 +1,4 @@
+// day-cell.tsx
 import React, { memo, useMemo } from 'react'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 import { createThemedStyles } from '@/shared/theme/create-themed-styles'
@@ -11,6 +12,7 @@ type Props = {
     hasPast: boolean
     isWeekend: boolean
     onPress: (dateKey: string) => void
+    cellWidth?: number
 }
 
 function DayCell({
@@ -21,6 +23,7 @@ function DayCell({
     hasPast,
     isWeekend,
     onPress,
+    cellWidth,
 }: Props) {
     const styles = useStyles()
 
@@ -50,8 +53,13 @@ function DayCell({
         [styles, isWeekend, cell.inMonth, hasUpcoming, hasPast, isToday],
     )
 
+    const wrapStyle = useMemo(
+        () => [styles.wrap, cellWidth ? { width: cellWidth } : null],
+        [styles, cellWidth],
+    )
+
     return (
-        <Pressable onPress={() => onPress(cell.dateKey)} style={styles.wrap}>
+        <Pressable onPress={() => onPress(cell.dateKey)} style={wrapStyle}>
             <View style={pillStyle}>
                 <Text style={textStyle}>{cell.day}</Text>
             </View>
@@ -81,7 +89,8 @@ export default memo(
         a.hasUpcoming === b.hasUpcoming &&
         a.hasPast === b.hasPast &&
         a.isWeekend === b.isWeekend &&
-        a.onPress === b.onPress,
+        a.onPress === b.onPress &&
+        a.cellWidth === b.cellWidth,
 )
 
 const useStyles = createThemedStyles(theme =>
@@ -90,14 +99,17 @@ const useStyles = createThemedStyles(theme =>
             width: '14.2857143%',
             height: 48,
             alignItems: 'center',
+            flexGrow: 0,
+            flexShrink: 0,
         },
         pill: {
             width: '85%',
             height: 25,
-            borderRadius: 99,
+            borderRadius: 999,
             alignItems: 'center',
             justifyContent: 'center',
             backgroundColor: 'transparent',
+            overflow: 'hidden',
         },
         pillSelected: {
             backgroundColor: theme.colors.border,
@@ -123,7 +135,7 @@ const useStyles = createThemedStyles(theme =>
             color: theme.colors.outMonth,
         },
         textMarked: {
-            fontFamily: 'Epilogue-Semibold',
+            fontFamily: 'Epilogue-SemiBold',
         },
         textUpcoming: {
             color: theme.colors.warning,

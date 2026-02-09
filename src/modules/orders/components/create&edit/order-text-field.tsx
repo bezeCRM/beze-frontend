@@ -57,10 +57,9 @@ const useStyles = createThemedStyles(theme =>
     StyleSheet.create({
         input: {
             backgroundColor: theme.colors.surface,
-            height: 40,
+            minHeight: 40,
             borderRadius: 15,
             paddingHorizontal: 15,
-            paddingVertical: 10,
             borderWidth: 1,
             borderColor: theme.colors.border,
             fontSize: 14,

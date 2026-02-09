@@ -135,7 +135,9 @@ export default function NativeDateTimeField({
         return (
             <View style={wrapCombinedStyle}>
                 <Pressable style={fieldCombinedStyle} onPress={open}>
-                    <Text style={textCombinedStyle}>{shownText}</Text>
+                    <Text style={textCombinedStyle} allowFontScaling={false}>
+                        {shownText}
+                    </Text>
                 </Pressable>
 
                 {visible && (
