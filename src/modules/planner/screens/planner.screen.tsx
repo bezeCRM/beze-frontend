@@ -1,7 +1,15 @@
 import { useNavigation } from '@react-navigation/native'
 import { useMemo } from 'react'
-import { LogBox, ScrollView, StyleSheet, Text, View } from 'react-native'
+import {
+    LogBox,
+    ScrollView,
+    StyleSheet,
+    Text,
+    View,
+    ActivityIndicator,
+} from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { usePlannerStore } from '../store/planner.store'
 
 import ScreenContainer from '@/shared/components/layout/screen-container'
 import { createThemedStyles } from '@/shared/theme/create-themed-styles'
@@ -103,6 +111,18 @@ export default function PlannerScreen() {
         const next = !pastExpanded
         setSectionExpanded('past', next)
         if (next) setSectionExpanded('upcoming', false)
+    }
+
+    const hasHydrated = usePlannerStore(s => s.hasHydrated)
+
+    if (!hasHydrated) {
+        return (
+            <ScreenContainer>
+                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                    <ActivityIndicator />
+                </View>
+            </ScreenContainer>
+        )
     }
 
     return (

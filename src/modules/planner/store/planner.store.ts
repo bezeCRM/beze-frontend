@@ -16,6 +16,9 @@ type State = {
     tasks: PlannerTask[]
     completedById: Record<string, true>
 
+    hasHydrated: boolean
+    setHasHydrated: (v: boolean) => void
+
     setShowAllTasks: (next: boolean, today: string) => void
     openAllTasksFocusUpcoming: () => void
 
@@ -73,6 +76,9 @@ export const usePlannerStore = create<State>()(
 
             tasks: [],
             completedById: {},
+
+            hasHydrated: false,
+            setHasHydrated: v => set({ hasHydrated: v }),
 
             setShowAllTasks: (next, today) => {
                 const selected = get().selectedDate
@@ -167,6 +173,7 @@ export const usePlannerStore = create<State>()(
         {
             name: 'planner-store',
             storage: createJSONStorage(() => AsyncStorage),
+
             partialize: s => ({
                 showAllTasks: s.showAllTasks,
                 selectedDate: s.selectedDate,
@@ -176,9 +183,22 @@ export const usePlannerStore = create<State>()(
                 tasks: s.tasks,
                 completedById: s.completedById,
             }),
-            onRehydrateStorage: () => state => {
+
+            onRehydrateStorage: () => (state, error) => {
+                if (error) {
+                    // console.log('planner rehydrate error', error)
+                }
                 if (!state) return
-                state.visibleMonth = monthStartKey(state.selectedDate || todayKey())
+
+                // после загрузки приводим visibleMonth в соответствие selectedDate
+                const date = state.selectedDate || todayKey()
+                state.setVisibleMonth(monthStartKey(date))
+                state.setHasHydrated(true)
+            },
+
+            merge: (persisted, current) => {
+                const persistedState = (persisted ?? {}) as Partial<State>
+                return { ...current, ...persistedState, hasHydrated: true }
             },
         },
     ),

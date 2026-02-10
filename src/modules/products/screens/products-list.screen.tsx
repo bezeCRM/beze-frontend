@@ -9,6 +9,8 @@ import ProductsFilters from '../components/list/products-filters'
 import ProductsHeader from '../components/list/products-header'
 import ProductsList from '../components/list/products-list'
 import { useProductsSearch } from '../hooks/useProductsSearch'
+import { useProductsStore } from '../store/products.store'
+import { View, ActivityIndicator } from 'react-native'
 
 const PRODUCTS_LIST_TOAST_SCOPE = 'productsList'
 
@@ -18,6 +20,16 @@ export default function ProductsListScreen() {
     const activeCategoryId = useCategoryStore(s => s.activeCategoryId)
     const results = useProductsSearch({ query, activeCategoryId })
     const addQuery = useSearchHistoryStore(s => s.addQuery)
+
+    const hasHydrated = useProductsStore(s => s.hasHydrated)
+
+    if (!hasHydrated) {
+        return (
+            <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                <ActivityIndicator />
+            </View>
+        )
+    }
 
     return (
         <ScreenContainer>

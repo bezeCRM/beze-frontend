@@ -1,4 +1,3 @@
-// day-cell.tsx
 import React, { memo, useMemo } from 'react'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 import { createThemedStyles } from '@/shared/theme/create-themed-styles'
@@ -12,7 +11,6 @@ type Props = {
     hasPast: boolean
     isWeekend: boolean
     onPress: (dateKey: string) => void
-    cellWidth?: number
 }
 
 function DayCell({
@@ -23,7 +21,6 @@ function DayCell({
     hasPast,
     isWeekend,
     onPress,
-    cellWidth,
 }: Props) {
     const styles = useStyles()
 
@@ -53,13 +50,8 @@ function DayCell({
         [styles, isWeekend, cell.inMonth, hasUpcoming, hasPast, isToday],
     )
 
-    const wrapStyle = useMemo(
-        () => [styles.wrap, cellWidth ? { width: cellWidth } : null],
-        [styles, cellWidth],
-    )
-
     return (
-        <Pressable onPress={() => onPress(cell.dateKey)} style={wrapStyle}>
+        <Pressable onPress={() => onPress(cell.dateKey)} style={styles.wrap}>
             <View style={pillStyle}>
                 <Text style={textStyle}>{cell.day}</Text>
             </View>
@@ -89,18 +81,15 @@ export default memo(
         a.hasUpcoming === b.hasUpcoming &&
         a.hasPast === b.hasPast &&
         a.isWeekend === b.isWeekend &&
-        a.onPress === b.onPress &&
-        a.cellWidth === b.cellWidth,
+        a.onPress === b.onPress,
 )
 
 const useStyles = createThemedStyles(theme =>
     StyleSheet.create({
         wrap: {
-            width: '14.2857143%',
+            flex: 1,
             height: 48,
             alignItems: 'center',
-            flexGrow: 0,
-            flexShrink: 0,
         },
         pill: {
             width: '85%',

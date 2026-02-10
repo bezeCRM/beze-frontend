@@ -1,4 +1,6 @@
+import AsyncStorage from '@react-native-async-storage/async-storage'
 import { create } from 'zustand'
+import { createJSONStorage, persist } from 'zustand/middleware'
 import type { Order, OrderPaymentStatus } from '@/shared/types/types'
 import { mockOrders } from '@/shared/utils/mock-orders'
 
@@ -11,6 +13,9 @@ export type NewOrderInput = Omit<
 
 type OrdersStore = {
     orders: Order[]
+    hasHydrated: boolean
+    setHasHydrated: (v: boolean) => void
+
     addOrder: (data: NewOrderInput) => string
     updateOrder: (
         id: string,
@@ -20,6 +25,9 @@ type OrdersStore = {
     getById: (id: string) => Order | undefined
     clear: () => void
 }
+
+const STORAGE_KEY = 'data.orders'
+const STORAGE_VERSION = 1
 
 function calcOrderTotal(data: NewOrderInput) {
     const productsSum = (data.products ?? []).reduce(
@@ -78,10 +86,8 @@ function normalizeOrderDate(input: unknown): string | undefined {
     const v = String(input ?? '').trim()
     if (!v) return undefined
 
-    // already iso
     if (/^\d{4}-\d{2}-\d{2}$/.test(v)) return v
 
-    // dd.mm.yy
     if (/^\d{2}\.\d{2}\.\d{2}$/.test(v)) {
         const dd = v.slice(0, 2)
         const mm = v.slice(3, 5)
@@ -89,7 +95,6 @@ function normalizeOrderDate(input: unknown): string | undefined {
         return `20${yy}-${mm}-${dd}`
     }
 
-    // dd.mm.yyyy (на всякий)
     if (/^\d{2}\.\d{2}\.\d{4}$/.test(v)) {
         const dd = v.slice(0, 2)
         const mm = v.slice(3, 5)
@@ -100,224 +105,255 @@ function normalizeOrderDate(input: unknown): string | undefined {
     return undefined
 }
 
-export const useOrdersStore = create<OrdersStore>((set, get) => ({
-    orders: [...mockOrders],
+export const useOrdersStore = create<OrdersStore>()(
+    persist(
+        (set, get) => ({
+            orders: [...mockOrders],
+            hasHydrated: false,
+            setHasHydrated: v => set({ hasHydrated: v }),
 
-    addOrder: data => {
-        const id = Date.now().toString()
-        const now = new Date().toISOString()
+            addOrder: data => {
+                const id = Date.now().toString()
+                const now = new Date().toISOString()
 
-        const name = data.name?.trim()
-        const clientName = data.clientName.trim()
-        const clientPhone = data.clientPhone?.trim()
-        const orderPlatform = data.orderPlatform?.trim()
-        const address = data.address?.trim()
-        const notes = data.notes?.trim()
+                const name = data.name?.trim()
+                const clientName = data.clientName.trim()
+                const clientPhone = data.clientPhone?.trim()
+                const orderPlatform = data.orderPlatform?.trim()
+                const address = data.address?.trim()
+                const notes = data.notes?.trim()
 
-        const products = (data.products ?? []).map(l => ({
-            ...l,
-            amount: Number(l.amount) || 0,
-            price: Number(l.price) || 0,
-        }))
-
-        const decorPrices = (data.decorPrices ?? [])
-            .map(d => ({ ...d, name: d.name.trim(), price: Number(d.price) || 0 }))
-            .filter(d => d.name.length > 0 || d.price > 0)
-
-        const references = (data.references ?? []).filter(p => !!p?.uri)
-
-        const date = normalizeOrderDate((data as any).date)
-        const time = (data as any).time?.trim()
-
-        const base: NewOrderInput = {
-            ...data,
-            ...(date ? { date } : {}),
-            ...(time ? { time } : {}),
-            ...(name ? { name } : {}),
-            clientName,
-            ...(clientPhone ? { clientPhone } : {}),
-            ...(orderPlatform ? { orderPlatform } : {}),
-            ...(address ? { address } : {}),
-            ...(notes ? { notes } : {}),
-            products,
-            ...(decorPrices.length ? { decorPrices } : {}),
-            ...(references.length ? { references } : {}),
-        }
-
-        const totalPrice = Number(base.totalPrice) || calcOrderTotal(base)
-
-        const paidAmount = resolvePaidAmount(
-            totalPrice,
-            base.paymentStatus,
-            typeof (data as any).paidAmount === 'number'
-                ? (data as any).paidAmount
-                : undefined,
-        )
-
-        const paymentStatus = derivePaymentStatus(totalPrice, paidAmount)
-
-        const order: Order = {
-            id,
-            ...base,
-            totalPrice,
-            paidAmount,
-            paymentStatus,
-            createdAt: now,
-            updatedAt: now,
-        }
-
-        set(state => ({ orders: [order, ...state.orders] }))
-        return id
-    },
-
-    updateOrder: (id, patch) => {
-        const p = { ...patch }
-
-        if ('name' in p) {
-            const n = p.name?.trim()
-            p.name = n ? n : undefined
-        }
-
-        if ('clientName' in p) {
-            p.clientName = (p.clientName ?? '').trim()
-        }
-
-        if ('clientPhone' in p) {
-            const t = p.clientPhone?.trim()
-            p.clientPhone = t ? t : undefined
-        }
-
-        if ('orderPlatform' in p) {
-            const t = p.orderPlatform?.trim()
-            p.orderPlatform = t ? t : undefined
-        }
-
-        if ('address' in p) {
-            const t = p.address?.trim()
-            p.address = t ? t : undefined
-        }
-
-        if ('notes' in p) {
-            const t = p.notes?.trim()
-            p.notes = t ? t : undefined
-        }
-
-        if ('products' in p) {
-            p.products = (p.products ?? []).map(l => ({
-                ...l,
-                amount: Number(l.amount) || 0,
-                price: Number(l.price) || 0,
-            }))
-        }
-
-        if ('decorPrices' in p) {
-            const arr = (p.decorPrices ?? [])
-                .map(d => ({
-                    ...d,
-                    name: d.name?.trim() ?? '',
-                    price: Number(d.price) || 0,
+                const products = (data.products ?? []).map(l => ({
+                    ...l,
+                    amount: Number(l.amount) || 0,
+                    price: Number(l.price) || 0,
                 }))
-                .filter(d => d.name || d.price > 0)
-            p.decorPrices = arr.length ? arr : undefined
-        }
 
-        if ('references' in p) {
-            const arr = (p.references ?? []).filter(r => !!r?.uri)
-            p.references = arr.length ? arr : undefined
-        }
+                const decorPrices = (data.decorPrices ?? [])
+                    .map(d => ({
+                        ...d,
+                        name: d.name.trim(),
+                        price: Number(d.price) || 0,
+                    }))
+                    .filter(d => d.name.length > 0 || d.price > 0)
 
-        if ('date' in p) {
-            const d = normalizeOrderDate((p as any).date)
-            ;(p as any).date = d ? d : undefined
-        }
+                const references = (data.references ?? []).filter(p => !!p?.uri)
 
-        const affectsTotal =
-            typeof (p as any).totalPrice === 'number' ||
-            'products' in p ||
-            'decorPrices' in p ||
-            'extra' in p
+                const date = normalizeOrderDate((data as any).date)
+                const time = (data as any).time?.trim()
 
-        const affectsPayment = 'paymentStatus' in p || 'paidAmount' in p
-
-        set(state => ({
-            orders: state.orders.map(o => {
-                if (o.id !== id) return o
-
-                const nextBase = { ...o, ...p }
-
-                const totalPrice = affectsTotal
-                    ? typeof (p as any).totalPrice === 'number'
-                        ? (p as any).totalPrice
-                        : calcOrderTotal({
-                              name: nextBase.name,
-                              clientName: nextBase.clientName,
-                              clientPhone: nextBase.clientPhone,
-                              orderPlatform: nextBase.orderPlatform,
-                              deliveryType: nextBase.deliveryType,
-                              address: nextBase.address,
-                              date: nextBase.date,
-                              time: nextBase.time,
-                              products: nextBase.products,
-                              decorPrices: nextBase.decorPrices,
-                              extra: nextBase.extra,
-                              notes: nextBase.notes,
-                              references: nextBase.references,
-                              paymentStatus: nextBase.paymentStatus,
-                              status: nextBase.status,
-                              inPlanner: nextBase.inPlanner,
-                              totalPrice: nextBase.totalPrice,
-                          })
-                    : o.totalPrice
-
-                const prevPaid =
-                    typeof o.paidAmount === 'number'
-                        ? o.paidAmount
-                        : resolvePaidAmount(o.totalPrice, o.paymentStatus)
-
-                let nextPaid = prevPaid
-                let nextPaymentStatus = o.paymentStatus
-
-                if (affectsPayment) {
-                    if ('paymentStatus' in p) {
-                        const s = p.paymentStatus
-                        if (s === 'unpaid') nextPaid = 0
-                        if (s === 'paid') nextPaid = totalPrice
-
-                        if (s === 'partial') {
-                            if ('paidAmount' in p && typeof p.paidAmount === 'number') {
-                                nextPaid = p.paidAmount
-                            } else {
-                                nextPaid = defaultPartialPaid(totalPrice)
-                            }
-                        }
-                    } else if ('paidAmount' in p) {
-                        nextPaid = typeof p.paidAmount === 'number' ? p.paidAmount : 0
-                    }
-
-                    nextPaid = clampPaidAmount(totalPrice, nextPaid)
-                    nextPaymentStatus = derivePaymentStatus(totalPrice, nextPaid)
-                } else if (affectsTotal) {
-                    nextPaid = clampPaidAmount(totalPrice, nextPaid)
-                    nextPaymentStatus = derivePaymentStatus(totalPrice, nextPaid)
-                } else {
-                    nextPaid = o.paidAmount
-                    nextPaymentStatus = o.paymentStatus
+                const base: NewOrderInput = {
+                    ...data,
+                    ...(date ? { date } : {}),
+                    ...(time ? { time } : {}),
+                    ...(name ? { name } : {}),
+                    clientName,
+                    ...(clientPhone ? { clientPhone } : {}),
+                    ...(orderPlatform ? { orderPlatform } : {}),
+                    ...(address ? { address } : {}),
+                    ...(notes ? { notes } : {}),
+                    products,
+                    ...(decorPrices.length ? { decorPrices } : {}),
+                    ...(references.length ? { references } : {}),
                 }
 
-                return {
-                    ...nextBase,
+                const totalPrice = Number(base.totalPrice) || calcOrderTotal(base)
+
+                const paidAmount = resolvePaidAmount(
                     totalPrice,
-                    paidAmount: nextPaid,
-                    paymentStatus: nextPaymentStatus,
-                    updatedAt: new Date().toISOString(),
+                    base.paymentStatus,
+                    typeof (data as any).paidAmount === 'number'
+                        ? (data as any).paidAmount
+                        : undefined,
+                )
+
+                const paymentStatus = derivePaymentStatus(totalPrice, paidAmount)
+
+                const order: Order = {
+                    id,
+                    ...base,
+                    totalPrice,
+                    paidAmount,
+                    paymentStatus,
+                    createdAt: now,
+                    updatedAt: now,
                 }
-            }),
-        }))
-    },
 
-    removeOrder: id => set(state => ({ orders: state.orders.filter(o => o.id !== id) })),
+                set(state => ({ orders: [order, ...state.orders] }))
+                return id
+            },
 
-    getById: id => get().orders.find(o => o.id === id),
+            updateOrder: (id, patch) => {
+                const p = { ...patch }
 
-    clear: () => set({ orders: [] }),
-}))
+                if ('name' in p) {
+                    const n = p.name?.trim()
+                    p.name = n ? n : undefined
+                }
+
+                if ('clientName' in p) {
+                    p.clientName = (p.clientName ?? '').trim()
+                }
+
+                if ('clientPhone' in p) {
+                    const t = p.clientPhone?.trim()
+                    p.clientPhone = t ? t : undefined
+                }
+
+                if ('orderPlatform' in p) {
+                    const t = p.orderPlatform?.trim()
+                    p.orderPlatform = t ? t : undefined
+                }
+
+                if ('address' in p) {
+                    const t = p.address?.trim()
+                    p.address = t ? t : undefined
+                }
+
+                if ('notes' in p) {
+                    const t = p.notes?.trim()
+                    p.notes = t ? t : undefined
+                }
+
+                if ('products' in p) {
+                    p.products = (p.products ?? []).map(l => ({
+                        ...l,
+                        amount: Number(l.amount) || 0,
+                        price: Number(l.price) || 0,
+                    }))
+                }
+
+                if ('decorPrices' in p) {
+                    const arr = (p.decorPrices ?? [])
+                        .map(d => ({
+                            ...d,
+                            name: d.name?.trim() ?? '',
+                            price: Number(d.price) || 0,
+                        }))
+                        .filter(d => d.name || d.price > 0)
+                    p.decorPrices = arr.length ? arr : undefined
+                }
+
+                if ('references' in p) {
+                    const arr = (p.references ?? []).filter(r => !!r?.uri)
+                    p.references = arr.length ? arr : undefined
+                }
+
+                if ('date' in p) {
+                    const d = normalizeOrderDate((p as any).date)
+                    ;(p as any).date = d ? d : undefined
+                }
+
+                const affectsTotal =
+                    typeof (p as any).totalPrice === 'number' ||
+                    'products' in p ||
+                    'decorPrices' in p ||
+                    'extra' in p
+
+                const affectsPayment = 'paymentStatus' in p || 'paidAmount' in p
+
+                set(state => ({
+                    orders: state.orders.map(o => {
+                        if (o.id !== id) return o
+
+                        const nextBase = { ...o, ...p }
+
+                        const totalPrice = affectsTotal
+                            ? typeof (p as any).totalPrice === 'number'
+                                ? (p as any).totalPrice
+                                : calcOrderTotal({
+                                      name: nextBase.name,
+                                      clientName: nextBase.clientName,
+                                      clientPhone: nextBase.clientPhone,
+                                      orderPlatform: nextBase.orderPlatform,
+                                      deliveryType: nextBase.deliveryType,
+                                      address: nextBase.address,
+                                      date: nextBase.date,
+                                      time: nextBase.time,
+                                      products: nextBase.products,
+                                      decorPrices: nextBase.decorPrices,
+                                      extra: nextBase.extra,
+                                      notes: nextBase.notes,
+                                      references: nextBase.references,
+                                      paymentStatus: nextBase.paymentStatus,
+                                      status: nextBase.status,
+                                      inPlanner: nextBase.inPlanner,
+                                      totalPrice: nextBase.totalPrice,
+                                  } as any)
+                            : o.totalPrice
+
+                        const prevPaid =
+                            typeof o.paidAmount === 'number'
+                                ? o.paidAmount
+                                : resolvePaidAmount(o.totalPrice, o.paymentStatus)
+
+                        let nextPaid = prevPaid
+                        let nextPaymentStatus = o.paymentStatus
+
+                        if (affectsPayment) {
+                            if ('paymentStatus' in p) {
+                                const s = p.paymentStatus
+                                if (s === 'unpaid') nextPaid = 0
+                                if (s === 'paid') nextPaid = totalPrice
+
+                                if (s === 'partial') {
+                                    if (
+                                        'paidAmount' in p &&
+                                        typeof p.paidAmount === 'number'
+                                    ) {
+                                        nextPaid = p.paidAmount
+                                    } else {
+                                        nextPaid = defaultPartialPaid(totalPrice)
+                                    }
+                                }
+                            } else if ('paidAmount' in p) {
+                                nextPaid =
+                                    typeof p.paidAmount === 'number' ? p.paidAmount : 0
+                            }
+
+                            nextPaid = clampPaidAmount(totalPrice, nextPaid)
+                            nextPaymentStatus = derivePaymentStatus(totalPrice, nextPaid)
+                        } else if (affectsTotal) {
+                            nextPaid = clampPaidAmount(totalPrice, nextPaid)
+                            nextPaymentStatus = derivePaymentStatus(totalPrice, nextPaid)
+                        } else {
+                            nextPaid = o.paidAmount
+                            nextPaymentStatus = o.paymentStatus
+                        }
+
+                        return {
+                            ...nextBase,
+                            totalPrice,
+                            paidAmount: nextPaid,
+                            paymentStatus: nextPaymentStatus,
+                            updatedAt: new Date().toISOString(),
+                        }
+                    }),
+                }))
+            },
+
+            removeOrder: id =>
+                set(state => ({ orders: state.orders.filter(o => o.id !== id) })),
+
+            getById: id => get().orders.find(o => o.id === id),
+
+            clear: () => set({ orders: [] }),
+        }),
+        {
+            name: STORAGE_KEY,
+            version: STORAGE_VERSION,
+            storage: createJSONStorage(() => AsyncStorage),
+            partialize: s => ({ orders: s.orders }),
+            onRehydrateStorage: () => (state, error) => {
+                if (error) {
+                    // console.log('orders rehydrate error', error)
+                }
+                state?.setHasHydrated(true)
+            },
+            merge: (persisted, current) => {
+                const persistedState = (persisted ?? {}) as Partial<OrdersStore>
+                return { ...current, ...persistedState, hasHydrated: true }
+            },
+        },
+    ),
+)

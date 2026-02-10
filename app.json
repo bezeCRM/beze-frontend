@@ -10,6 +10,16 @@
             "infoPlist": {
                 "NSPhotoLibraryUsageDescription": "Нужно для выбора фото из галереи"
             }
-        }
+        },
+        "android": {
+            "package": "com.bezefrontend.crm",
+            "versionCode": 1
+        },
+        "extra": {
+            "eas": {
+                "projectId": "eaa2b4f7-089f-41f1-a48a-4034d0d1198e"
+            }
+        },
+        "userInterfaceStyle": "automatic"
     }
 }

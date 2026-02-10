@@ -1,11 +1,10 @@
-// month-calendar.tsx
 import { Pressable, StyleSheet, Text, View, Animated } from 'react-native'
 import { createThemedStyles } from '@/shared/theme/create-themed-styles'
 import { formatMonthTitle, monthStartKey } from '../../utils/planner-date'
 import DayCell from './day-cell'
 import NativeDateTimeField from '@/shared/ui/native-datetime-field/native-datetime-field'
 import { useMonthGridTransition } from '../../hooks/useMonthGridTransition'
-import { useMemo, useCallback, useState } from 'react'
+import { useMemo, useCallback } from 'react'
 import { useMonthGridCache } from '../../hooks/useMonthGridCache'
 import { Icon } from '@/shared/ui/icon/icon'
 import { useTheme } from '@/shared/theme/useTheme'
@@ -24,7 +23,12 @@ type Props = {
 const ROWS = 6
 const CELL_H = 48
 const GRID_H = ROWS * CELL_H
-const COLS = 7
+
+const chunk7 = <T,>(arr: T[]) => {
+    const out: T[][] = []
+    for (let i = 0; i < arr.length; i += 7) out.push(arr.slice(i, i + 7))
+    return out
+}
 
 export default function MonthCalendar({
     monthStart,
@@ -38,8 +42,6 @@ export default function MonthCalendar({
 }: Props) {
     const styles = useStyles()
     const colors = useTheme().theme.colors
-
-    const [gridW, setGridW] = useState(0)
 
     const monthKey = monthStartKey(monthStart)
     const { get } = useMonthGridCache(monthKey)
@@ -60,29 +62,12 @@ export default function MonthCalendar({
         [get, transitionMonth],
     )
 
+    const weeks = useMemo(() => chunk7(cells), [cells])
+    const nextWeeks = useMemo(() => (nextCells ? chunk7(nextCells) : null), [nextCells])
+
     const monthTitle = formatMonthTitle(titleMonth)
 
     const handlePressDay = useCallback((dateKey: string) => onSelect(dateKey), [onSelect])
-
-    const onGridLayout = useCallback(
-        (e: any) => {
-            const w = Math.round(e.nativeEvent.layout.width)
-            if (w && w !== gridW) setGridW(w)
-        },
-        [gridW],
-    )
-
-    const baseW = useMemo(() => (gridW ? Math.floor(gridW / COLS) : 0), [gridW])
-    const remainder = useMemo(() => (gridW ? gridW - baseW * COLS : 0), [gridW, baseW])
-
-    const getCellWidth = useCallback(
-        (idx: number) => {
-            if (!gridW) return undefined
-            const col = idx % COLS
-            return baseW + (col < remainder ? 1 : 0)
-        },
-        [gridW, baseW, remainder],
-    )
 
     return (
         <View style={styles.wrap}>
@@ -141,37 +126,46 @@ export default function MonthCalendar({
                 ))}
             </View>
 
-            <View style={styles.gridHost} onLayout={onGridLayout}>
+            <View style={styles.gridHost}>
                 <Animated.View style={[styles.grid, currentAnimStyle]}>
-                    {cells.map((c, idx) => (
-                        <DayCell
-                            key={`${renderedMonth}:${c.dateKey}`}
-                            cell={c}
-                            selectedDate={selectedDate}
-                            today={today}
-                            hasUpcoming={upcomingDates.has(c.dateKey)}
-                            hasPast={pastDates.has(c.dateKey)}
-                            isWeekend={c.isWeekend}
-                            onPress={handlePressDay}
-                            cellWidth={getCellWidth(idx)}
-                        />
+                    {weeks.map((week, wIdx) => (
+                        <View key={`w:${renderedMonth}:${wIdx}`} style={styles.weekRow}>
+                            {week.map(c => (
+                                <DayCell
+                                    key={`${renderedMonth}:${c.dateKey}`}
+                                    cell={c}
+                                    selectedDate={selectedDate}
+                                    today={today}
+                                    hasUpcoming={upcomingDates.has(c.dateKey)}
+                                    hasPast={pastDates.has(c.dateKey)}
+                                    isWeekend={c.isWeekend}
+                                    onPress={handlePressDay}
+                                />
+                            ))}
+                        </View>
                     ))}
                 </Animated.View>
 
-                {!!nextCells && transitionMonth && (
+                {!!nextWeeks && transitionMonth && (
                     <Animated.View style={[styles.gridOverlay, nextAnimStyle]}>
-                        {nextCells.map((c, idx) => (
-                            <DayCell
-                                key={`${transitionMonth}:${c.dateKey}`}
-                                cell={c}
-                                selectedDate={selectedDate}
-                                today={today}
-                                hasUpcoming={upcomingDates.has(c.dateKey)}
-                                hasPast={pastDates.has(c.dateKey)}
-                                isWeekend={c.isWeekend}
-                                onPress={handlePressDay}
-                                cellWidth={getCellWidth(idx)}
-                            />
+                        {nextWeeks.map((week, wIdx) => (
+                            <View
+                                key={`w:${transitionMonth}:${wIdx}`}
+                                style={styles.weekRow}
+                            >
+                                {week.map(c => (
+                                    <DayCell
+                                        key={`${transitionMonth}:${c.dateKey}`}
+                                        cell={c}
+                                        selectedDate={selectedDate}
+                                        today={today}
+                                        hasUpcoming={upcomingDates.has(c.dateKey)}
+                                        hasPast={pastDates.has(c.dateKey)}
+                                        isWeekend={c.isWeekend}
+                                        onPress={handlePressDay}
+                                    />
+                                ))}
+                            </View>
                         ))}
                     </Animated.View>
                 )}
@@ -212,7 +206,7 @@ const useStyles = createThemedStyles(theme =>
         weekdays: {
             flexDirection: 'row',
             marginTop: 22,
-            marginBottom: 18,
+            paddingBottom: 18,
         },
         weekday: {
             width: '14.2857143%',
@@ -228,19 +222,21 @@ const useStyles = createThemedStyles(theme =>
             position: 'relative',
             overflow: 'hidden',
             height: GRID_H,
-            paddingTop: 5,
         },
         grid: {
+            width: '100%',
+        },
+        weekRow: {
             flexDirection: 'row',
-            flexWrap: 'wrap',
+            height: CELL_H,
+            transform: [{ translateY: 5 }],
         },
         gridOverlay: {
             position: 'absolute',
             left: 0,
             right: 0,
             top: 0,
-            flexDirection: 'row',
-            flexWrap: 'wrap',
+            width: '100%',
         },
     }),
 )
