@@ -33,14 +33,16 @@ import {
     formatSelectedDayTitle,
     selectedDayTasksSubtitle,
 } from '../utils/planner-date'
+import { ToastViewport, useToast } from '@/shared/components/toast/toast-provider'
 
 LogBox.ignoreLogs(['VirtualizedLists should never be nested inside plain ScrollViews'])
+const PLANNER_TOAST_SCOPE = 'Planner'
 
 export default function PlannerScreen() {
     const styles = useStyles()
     const { bottom } = useSafeAreaInsets()
     const navigation = useNavigation<StackNavigationProp<AppStackParamList>>()
-    const { open } = useModalStore()
+    const { open, close } = useModalStore()
 
     const {
         today,
@@ -77,15 +79,16 @@ export default function PlannerScreen() {
         [selectedDate, today],
     )
 
+    const { show } = useToast()
+
     const openAddTaskModal = () => {
         open('plannerTask', {
             initialDate: selectedDate,
             onSubmit: (payload: { title: string; date: string; time?: string }) => {
                 addTask(payload)
-                open('status', {
-                    title: 'Добавление задачи',
-                    message: 'Задача успешно добавлена!',
-                    success: true,
+                close()
+                show(`Задача добавлена`, 'success', {
+                    scope: PLANNER_TOAST_SCOPE,
                 })
             },
         })
@@ -226,6 +229,11 @@ export default function PlannerScreen() {
                     </View>
                 )}
             </View>
+            <ToastViewport
+                scope={PLANNER_TOAST_SCOPE}
+                bottomOffset={90}
+                horizontalInset={15}
+            />
         </ScreenContainer>
     )
 }

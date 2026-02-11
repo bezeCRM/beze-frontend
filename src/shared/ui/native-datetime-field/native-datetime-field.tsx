@@ -8,6 +8,7 @@ import {
     StyleSheet,
     Text,
     TextStyle,
+    useWindowDimensions,
     View,
     ViewStyle,
 } from 'react-native'
@@ -92,6 +93,8 @@ export default function NativeDateTimeField({
     const styles = useStyles()
     const colors = useTheme().theme.colors
 
+    const { width: screenW } = useWindowDimensions()
+
     const [visible, setVisible] = useState(false)
     const [temp, setTemp] = useState<Date>(() => parseValue(mode, value))
 
@@ -163,36 +166,45 @@ export default function NativeDateTimeField({
                 <Text style={textCombinedStyle}>{shownText}</Text>
             </Pressable>
 
-            <Modal visible={visible} transparent animationType="fade">
-                <Pressable style={styles.backdrop} onPress={close} />
-                <View style={styles.iosSheet}>
-                    <View style={styles.iosTop}>
-                        <Pressable onPress={close} style={styles.iosBtn}>
-                            <Text style={styles.iosBtnText}>Отмена</Text>
-                        </Pressable>
+            <Modal
+                visible={visible}
+                transparent
+                animationType="fade"
+                presentationStyle="overFullScreen"
+            >
+                <View style={styles.modalRoot}>
+                    <Pressable style={styles.backdrop} onPress={close} />
 
-                        <Pressable
-                            onPress={() => {
-                                commit(temp)
-                                close()
-                            }}
-                            style={styles.iosBtn}
-                        >
-                            <Text style={styles.iosBtnText}>Готово</Text>
-                        </Pressable>
+                    <View style={[styles.iosSheet, { width: screenW }]}>
+                        <View style={styles.iosTop}>
+                            <Pressable onPress={close} style={styles.iosBtn}>
+                                <Text style={styles.iosBtnText}>Отмена</Text>
+                            </Pressable>
+
+                            <Pressable
+                                onPress={() => {
+                                    commit(temp)
+                                    close()
+                                }}
+                                style={styles.iosBtn}
+                            >
+                                <Text style={styles.iosBtnText}>Готово</Text>
+                            </Pressable>
+                        </View>
+
+                        <View style={styles.pickerWrap}>
+                            <DateTimePicker
+                                value={temp}
+                                mode={mode}
+                                display="spinner"
+                                minimumDate={minDate}
+                                maximumDate={maxDate}
+                                onChange={(_, selected) => {
+                                    if (selected) setTemp(selected)
+                                }}
+                            />
+                        </View>
                     </View>
-
-                    <DateTimePicker
-                        value={temp}
-                        mode={mode}
-                        display="spinner"
-                        minimumDate={minDate}
-                        maximumDate={maxDate}
-                        onChange={(_, selected) => {
-                            if (selected) setTemp(selected)
-                        }}
-                        style={styles.iosPicker}
-                    />
                 </View>
             </Modal>
         </View>
@@ -201,6 +213,11 @@ export default function NativeDateTimeField({
 
 const useStyles = createThemedStyles(theme =>
     StyleSheet.create({
+        modalRoot: {
+            ...StyleSheet.absoluteFillObject,
+            justifyContent: 'flex-end',
+        },
+
         wrap: {
             alignSelf: 'stretch',
             flexGrow: 1,
@@ -239,16 +256,15 @@ const useStyles = createThemedStyles(theme =>
             fontSize: 14,
         },
         backdrop: {
-            flex: 1,
+            ...StyleSheet.absoluteFillObject,
             backgroundColor: 'rgba(0,0,0,0.35)',
-            width: '100%',
         },
         iosSheet: {
+            alignSelf: 'center',
             backgroundColor: theme.colors.background,
             borderTopLeftRadius: 18,
             borderTopRightRadius: 18,
             paddingBottom: 10,
-            width: '100%',
         },
         iosTop: {
             flexDirection: 'row',
@@ -266,8 +282,12 @@ const useStyles = createThemedStyles(theme =>
             fontSize: 16,
         },
         iosPicker: {
-            backgroundColor: theme.colors.background,
             width: '100%',
+            alignSelf: 'stretch',
+            backgroundColor: theme.colors.background,
+        },
+        pickerWrap: {
+            alignItems: 'center',
         },
     }),
 )
