@@ -1,11 +1,8 @@
-import type { RouteProp } from '@react-navigation/native'
 import { useNavigation, useRoute } from '@react-navigation/native'
-import type { StackNavigationProp } from '@react-navigation/stack'
 import React, { useMemo, useState } from 'react'
 import { ScrollView, StyleSheet, Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
-import type { OrdersStackParamList } from '@/core/navigation/orders-stack'
 import ScreenContainer from '@/shared/components/layout/screen-container'
 import {
     InternalHeaderTitle,
@@ -28,16 +25,14 @@ import OrderReferencesInfo from '../components/info/order-references-info'
 import OrderPlannerToggle from '../components/info/order-planner-toggle'
 import OrderTotalRow from '../components/info/order-total-row'
 import { createThemedStyles } from '@/shared/theme/create-themed-styles'
-
-type R = RouteProp<OrdersStackParamList, 'OrderInfo'>
-type Nav = StackNavigationProp<OrdersStackParamList, 'OrderInfo'>
-const ORDER_INFO_TOAST_SCOPE = 'orderInfo'
+import { Nav, Route } from '@/core/navigation/types'
+import { TOAST_SCOPES } from '@/shared/components/toast/scopes'
 
 export default function OrderInfoScreen() {
     const styles = useStyles()
     const { bottom } = useSafeAreaInsets()
     const navigation = useNavigation<Nav>()
-    const route = useRoute<R>()
+    const route = useRoute<Route<'OrderInfo'>>()
     const { show } = useToast()
 
     const orderId = route.params.orderId
@@ -144,7 +139,7 @@ export default function OrderInfoScreen() {
                     />
                 </BaseModal>
 
-                <ToastViewport scope={ORDER_INFO_TOAST_SCOPE} bottomOffset={25} />
+                <ToastViewport scope={TOAST_SCOPES.OrderInfo} bottomOffset={25} />
             </View>
         </ScreenContainer>
     )

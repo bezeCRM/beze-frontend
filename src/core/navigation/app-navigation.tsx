@@ -1,49 +1,49 @@
-import React from 'react'
-import { createStackNavigator } from '@react-navigation/stack'
+import { createNativeStackNavigator } from '@react-navigation/native-stack'
 
 import RootNavigation from './root-navigation'
-import { layeredSlideFromRight } from './transitions'
 
 import ProductInfoScreen from '@/modules/products/screens/product-info.screen'
 import ProductEditScreen from '@/modules/products/screens/product-edit.screen'
 import ProductCreateScreen from '@/modules/products/screens/product-create.screen'
+
 import OrderInfoScreen from '@/modules/orders/screens/order-info.screen'
 import OrderEditScreen from '@/modules/orders/screens/order-edit.screen'
 import OrderCreateScreen from '@/modules/orders/screens/order-create.screen'
-import PlannerScreen from '@/modules/planner/screens/planner.screen'
 
 export type AppStackParamList = {
     Tabs: undefined
+
     ProductInfo: { productId: string }
     ProductEdit: { productId: string }
+    ProductCreate: undefined
+
     OrderInfo: { orderId: string }
     OrderEdit: { orderId: string }
-    ProductCreate: undefined
     OrderCreate: undefined
-    Planner: undefined
 }
 
-const Stack = createStackNavigator<AppStackParamList>()
+const Stack = createNativeStackNavigator<AppStackParamList>()
 
 export default function AppNavigation() {
     return (
         <Stack.Navigator
             screenOptions={{
                 headerShown: false,
+                animation: 'slide_from_right',
                 gestureEnabled: true,
-                cardOverlayEnabled: true,
-                cardStyleInterpolator: layeredSlideFromRight,
-                gestureResponseDistance: 80,
             }}
         >
             <Stack.Screen name="Tabs" component={RootNavigation} />
-            <Stack.Screen name="ProductInfo" component={ProductInfoScreen} />
-            <Stack.Screen name="OrderInfo" component={OrderInfoScreen} />
-            <Stack.Screen name="ProductEdit" component={ProductEditScreen} />
-            <Stack.Screen name="ProductCreate" component={ProductCreateScreen} />
-            <Stack.Screen name="OrderCreate" component={OrderCreateScreen} />
-            <Stack.Screen name="OrderEdit" component={OrderEditScreen} />
-            <Stack.Screen name="Planner" component={PlannerScreen} />
+
+            <Stack.Group>
+                <Stack.Screen name="ProductInfo" component={ProductInfoScreen} />
+                <Stack.Screen name="ProductEdit" component={ProductEditScreen} />
+                <Stack.Screen name="ProductCreate" component={ProductCreateScreen} />
+
+                <Stack.Screen name="OrderInfo" component={OrderInfoScreen} />
+                <Stack.Screen name="OrderEdit" component={OrderEditScreen} />
+                <Stack.Screen name="OrderCreate" component={OrderCreateScreen} />
+            </Stack.Group>
         </Stack.Navigator>
     )
 }

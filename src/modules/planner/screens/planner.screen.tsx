@@ -20,11 +20,9 @@ import MonthCalendar from '../components/calendar/month-calendar'
 import NearbyTasksCard from '../components/calendar/nearby-tasks-card'
 import TasksSection from '../components/tasks/tasks-section'
 
-import { AppStackParamList } from '@/core/navigation/app-navigation'
 import MainHeader from '@/shared/components/headers/main-header'
 import AddPlus from '@/shared/ui/add-plus'
 import Button from '@/shared/ui/button/button'
-import { StackNavigationProp } from '@react-navigation/stack'
 import DayTasksCard from '../components/calendar/day-tasks-card'
 import PlannerHeader from '../components/header/planner-header'
 import { usePlannerScreen } from '../hooks/usePlannerScreen'
@@ -34,14 +32,15 @@ import {
     selectedDayTasksSubtitle,
 } from '../utils/planner-date'
 import { ToastViewport, useToast } from '@/shared/components/toast/toast-provider'
+import { Nav } from '@/core/navigation/types'
+import { TOAST_SCOPES } from '@/shared/components/toast/scopes'
 
 LogBox.ignoreLogs(['VirtualizedLists should never be nested inside plain ScrollViews'])
-const PLANNER_TOAST_SCOPE = 'Planner'
 
 export default function PlannerScreen() {
     const styles = useStyles()
     const { bottom } = useSafeAreaInsets()
-    const navigation = useNavigation<StackNavigationProp<AppStackParamList>>()
+    const navigation = useNavigation<Nav>()
     const { open, close } = useModalStore()
 
     const {
@@ -88,7 +87,7 @@ export default function PlannerScreen() {
                 addTask(payload)
                 close()
                 show(`Задача добавлена`, 'success', {
-                    scope: PLANNER_TOAST_SCOPE,
+                    scope: TOAST_SCOPES.Planner,
                 })
             },
         })
@@ -230,7 +229,7 @@ export default function PlannerScreen() {
                 )}
             </View>
             <ToastViewport
-                scope={PLANNER_TOAST_SCOPE}
+                scope={TOAST_SCOPES.Planner}
                 bottomOffset={90}
                 horizontalInset={15}
             />

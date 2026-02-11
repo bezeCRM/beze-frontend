@@ -6,26 +6,9 @@ import { ModeSwitch } from '@/shared/components/mode-switch/mode-switch'
 import { useMemo } from 'react'
 import { Icon } from '@/shared/ui/icon/icon'
 
-function getNestedRouteName(route: any) {
-    const state = route?.state
-    if (!state?.routes?.length) return null
-    const idx = state.index ?? 0
-    return state.routes[idx]?.name ?? null
-}
-
 export default function DevBottomBar({ state, navigation }: BottomTabBarProps) {
     const styles = useStyles()
     const insets = useSafeAreaInsets()
-
-    const activeTabRoute = state.routes[state.index]
-    const nestedName = getNestedRouteName(activeTabRoute)
-
-    const shouldShow =
-        !nestedName ||
-        nestedName === 'ProductsList' ||
-        nestedName === 'OrdersList' ||
-        nestedName === 'PlannerHome' ||
-        nestedName === 'ProfileHome'
 
     const items = useMemo(
         () => [
@@ -60,8 +43,6 @@ export default function DevBottomBar({ state, navigation }: BottomTabBarProps) {
         ],
         [],
     )
-
-    if (!shouldShow) return null
 
     const value = state.routes[state.index]?.name
 

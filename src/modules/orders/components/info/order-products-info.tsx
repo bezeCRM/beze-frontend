@@ -10,9 +10,9 @@ import { AppStackParamList } from '@/core/navigation/app-navigation'
 import { useToast } from '@/shared/components/toast/toast-provider'
 import { useProductsStore } from '@/modules/products/store/products.store'
 import { createThemedStyles } from '@/shared/theme/create-themed-styles'
+import { TOAST_SCOPES } from '@/shared/components/toast/scopes'
 
 type Props = { order: Order }
-const ORDER_INFO_TOAST_SCOPE = 'orderInfo'
 
 function Row({ line, onPress }: { line: OrderProductLine; onPress?: () => void }) {
     const styles = useStyles()
@@ -75,7 +75,7 @@ export default function OrderProductsInfo({ order }: Props) {
 
     const { show } = useToast()
     const undefinedProductAlert = () => {
-        show('Товар не найден', 'error', { scope: ORDER_INFO_TOAST_SCOPE })
+        show('Товар не найден', 'error', { scope: TOAST_SCOPES.OrderInfo })
     }
 
     return (

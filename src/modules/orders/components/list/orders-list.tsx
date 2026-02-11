@@ -3,17 +3,14 @@ import type { Order } from '@/shared/types/types'
 import Button from '@/shared/ui/button/button'
 import OrderCard from './order-card'
 import { useNavigation } from '@react-navigation/native'
-import type { StackNavigationProp } from '@react-navigation/stack'
-import type { OrdersStackParamList } from '@/core/navigation/orders-stack'
 import { createThemedStyles } from '@/shared/theme/create-themed-styles'
+import { Nav } from '@/core/navigation/types'
 
 type Props = {
     items: Order[]
     emptyTitle?: string
     showCreateButton?: boolean
 }
-
-type Nav = StackNavigationProp<OrdersStackParamList>
 
 export default function OrdersList({
     items,

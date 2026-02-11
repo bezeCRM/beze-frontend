@@ -1,4 +1,4 @@
-import { RouteProp, useNavigation, useRoute } from '@react-navigation/native'
+import { useNavigation, useRoute } from '@react-navigation/native'
 import { useCallback } from 'react'
 import { StyleSheet, TextInput, View } from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
@@ -27,24 +27,20 @@ import { useProductsStore } from '../store/products.store'
 import { useCopyIngredientsFromProduct } from '../hooks/useCopyIngredientsFromProduct'
 import type { ProductCreateFormValues } from '../hooks/useProductCreateForm'
 import { useProductEditForm } from '../hooks/useProductEditForm'
-import { AppStackParamList } from '@/core/navigation/app-navigation'
-import { StackNavigationProp } from '@react-navigation/stack'
 import { createThemedStyles } from '@/shared/theme/create-themed-styles'
 import { useTheme } from '@/shared/theme/useTheme'
+import { Nav, Route } from '@/core/navigation/types'
+import { TOAST_SCOPES } from '@/shared/components/toast/scopes'
 
 const MAX_PHOTOES = 3
-const PRODUCT_INFO_TOAST_SCOPE = 'productInfo'
-
-type Navigation = StackNavigationProp<AppStackParamList, 'ProductEdit'>
-type Route = RouteProp<AppStackParamList, 'ProductEdit'>
 
 export default function ProductEditScreen() {
     const styles = useStyles()
     const colors = useTheme().theme.colors
     // объявление ключевых функций
     const { bottom } = useSafeAreaInsets()
-    const navigation = useNavigation<Navigation>()
-    const route = useRoute<Route>()
+    const navigation = useNavigation<Nav>()
+    const route = useRoute<Route<'ProductEdit'>>()
     const { show } = useToast()
 
     const productId = route.params.productId
@@ -136,7 +132,7 @@ export default function ProductEditScreen() {
         const unsub = navigation.addListener('transitionEnd', () => {
             unsub()
             show('Изменения сохранены', 'success', {
-                scope: PRODUCT_INFO_TOAST_SCOPE,
+                scope: TOAST_SCOPES.ProductInfo,
             })
         })
 

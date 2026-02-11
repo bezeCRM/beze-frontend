@@ -1,12 +1,9 @@
-import type { RouteProp } from '@react-navigation/native'
 import { useNavigation, useRoute } from '@react-navigation/native'
-import type { StackNavigationProp } from '@react-navigation/stack'
 import React, { useCallback, useMemo } from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
-import type { OrdersStackParamList } from '@/core/navigation/orders-stack'
 import {
     InternalHeaderTitle,
     InternalHeaderTopBar,
@@ -33,18 +30,16 @@ import { useOrderReferences } from '../hooks/useOrderReferences'
 import { useOrderTotalPrice } from '../hooks/useOrderTotalPrice'
 import { buildNewOrderPayload } from '../utils/buildNewOrderPayload'
 import { createThemedStyles } from '@/shared/theme/create-themed-styles'
+import { Nav, Route } from '@/core/navigation/types'
+import { TOAST_SCOPES } from '@/shared/components/toast/scopes'
 
 const MAX_REFERENCES = 3
-const ORDER_INFO_TOAST_SCOPE = 'orderInfo'
-
-type R = RouteProp<OrdersStackParamList, 'OrderEdit'>
-type Nav = StackNavigationProp<OrdersStackParamList, 'OrderEdit'>
 
 export default function OrderEditScreen() {
     const styles = useStyles()
     const { bottom } = useSafeAreaInsets()
     const navigation = useNavigation<Nav>()
-    const route = useRoute<R>()
+    const route = useRoute<Route<'OrderInfo'>>()
     const { show } = useToast()
 
     const orderId = route.params.orderId
@@ -108,7 +103,7 @@ export default function OrderEditScreen() {
             updateOrder(order.id, payload as any)
             const unsub = navigation.addListener('transitionEnd', () => {
                 unsub()
-                show('Изменения сохранены', 'success', { scope: ORDER_INFO_TOAST_SCOPE })
+                show('Изменения сохранены', 'success', { scope: TOAST_SCOPES.OrderInfo })
             })
             navigation.goBack()
         },

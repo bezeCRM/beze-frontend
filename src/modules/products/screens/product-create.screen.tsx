@@ -1,6 +1,4 @@
-import type { RouteProp } from '@react-navigation/native'
 import { useNavigation, useRoute } from '@react-navigation/native'
-import type { StackNavigationProp } from '@react-navigation/stack'
 import { useCallback, useMemo } from 'react'
 import { StyleSheet, TextInput, View } from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
@@ -33,22 +31,19 @@ import {
     type ProductCreateFormValues,
     useProductCreateForm,
 } from '../hooks/useProductCreateForm'
-import { AppStackParamList } from '@/core/navigation/app-navigation'
 import { createThemedStyles } from '@/shared/theme/create-themed-styles'
 import { useTheme } from '@/shared/theme/useTheme'
+import { Nav, Route } from '@/core/navigation/types'
+import { TOAST_SCOPES } from '@/shared/components/toast/scopes'
 
 const MAX_PHOTOES = 3
-const PRODUCTS_LIST_TOAST_SCOPE = 'productsList'
-
-type Navigation = StackNavigationProp<AppStackParamList, 'ProductCreate'>
-type Route = RouteProp<AppStackParamList, 'ProductCreate'>
 
 export default function ProductCreateScreen() {
     const styles = useStyles()
     const colors = useTheme().theme.colors
     const { bottom } = useSafeAreaInsets()
-    const navigation = useNavigation<Navigation>()
-    const route = useRoute<Route>()
+    const navigation = useNavigation<Nav>()
+    const route = useRoute<Route<'ProductCreate'>>()
     const { show } = useToast()
 
     const {
@@ -142,7 +137,7 @@ export default function ProductCreateScreen() {
         const unsub = navigation.addListener('transitionEnd', () => {
             unsub()
             show(`Товар "${createdName}" добавлен`, 'success', {
-                scope: PRODUCTS_LIST_TOAST_SCOPE,
+                scope: TOAST_SCOPES.Products,
             })
         })
 

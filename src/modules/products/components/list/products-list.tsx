@@ -2,13 +2,11 @@ import { FlatList, View, Text, StyleSheet } from 'react-native'
 import ProductCard from './product-card'
 import type { Product } from '@/shared/types/types'
 import { useNavigation } from '@react-navigation/native'
-import type { StackNavigationProp } from '@react-navigation/stack'
 import Button from '@/shared/ui/button/button'
-import { AppStackParamList } from '@/core/navigation/app-navigation'
 import { createThemedStyles } from '@/shared/theme/create-themed-styles'
+import { Nav } from '@/core/navigation/types'
 
 type Props = { items: Product[] }
-type Nav = StackNavigationProp<AppStackParamList>
 
 export default function ProductsList({ items }: Props) {
     const styles = useStyles()

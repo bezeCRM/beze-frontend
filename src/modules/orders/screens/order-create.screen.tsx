@@ -1,11 +1,9 @@
 import { useNavigation } from '@react-navigation/native'
-import type { StackNavigationProp } from '@react-navigation/stack'
 import React, { useCallback, useMemo } from 'react'
 import { StyleSheet, Switch, Text, View } from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
-import type { OrdersStackParamList } from '@/core/navigation/orders-stack'
 import {
     InternalHeaderTitle,
     InternalHeaderTopBar,
@@ -45,12 +43,10 @@ import { formatMoneyRu } from '../utils/money'
 import { ORDER_PAYMENT_OPTIONS, ORDER_STATUS_OPTIONS } from '../utils/order-options'
 import { createThemedStyles } from '@/shared/theme/create-themed-styles'
 import { useTheme } from '@/shared/theme/useTheme'
+import { Nav } from '@/core/navigation/types'
+import { TOAST_SCOPES } from '@/shared/components/toast/scopes'
 
 const MAX_REFERENCES = 3
-const ORDERS_LIST_TOAST_SCOPE = 'ordersList'
-const ORDER_CREATE_TOAST_SCOPE = 'OrderCreate'
-
-type Nav = StackNavigationProp<OrdersStackParamList, 'OrderCreate'>
 
 export default function OrderCreateScreen() {
     const styles = useStyles()
@@ -110,10 +106,10 @@ export default function OrderCreateScreen() {
         products: products ?? [],
         getProductById,
         addItem,
-        toastScope: ORDER_CREATE_TOAST_SCOPE,
+        toastScope: TOAST_SCOPES.OrderCreate,
     })
 
-    const onInvalid = useOrderCreateInvalidToast(show as any, ORDER_CREATE_TOAST_SCOPE)
+    const onInvalid = useOrderCreateInvalidToast(show as any, TOAST_SCOPES.OrderCreate)
 
     const { remaining, onSelectPaymentStatus, onPaidAmountBlur } = useOrderPayment({
         totalPrice,
@@ -137,7 +133,7 @@ export default function OrderCreateScreen() {
 
             const unsub = navigation.addListener('transitionEnd', () => {
                 unsub()
-                show('Заказ добавлен', 'success', { scope: ORDERS_LIST_TOAST_SCOPE })
+                show('Заказ добавлен', 'success', { scope: TOAST_SCOPES.Orders })
             })
 
             navigation.goBack()
@@ -346,7 +342,7 @@ export default function OrderCreateScreen() {
                     </View>
                 </KeyboardAwareScrollView>
 
-                <ToastViewport scope={ORDER_CREATE_TOAST_SCOPE} bottomOffset={75} />
+                <ToastViewport scope={TOAST_SCOPES.OrderCreate} bottomOffset={75} />
             </View>
         </ScreenContainer>
     )

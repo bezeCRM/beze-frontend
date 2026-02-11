@@ -20,8 +20,7 @@ import { SortOption } from '@/shared/components/sort/types'
 import SortSelect from '@/shared/components/sort/sort-select'
 import { Icon } from '@/shared/ui/icon/icon'
 import { ModeSwitch, SwitchItem } from '@/shared/components/mode-switch/mode-switch'
-
-const ORDERS_LIST_TOAST_SCOPE = 'ordersList'
+import { TOAST_SCOPES } from '@/shared/components/toast/scopes'
 
 type OrdersSortId = 'priceAsc' | 'priceDesc' | 'dateAsc' | 'dateDesc'
 type OrdersMode = 'active' | 'archive'
@@ -137,7 +136,7 @@ export default function OrdersListScreen() {
             />
 
             <ToastViewport
-                scope={ORDERS_LIST_TOAST_SCOPE}
+                scope={TOAST_SCOPES.Orders}
                 bottomOffset={90}
                 horizontalInset={20}
             />

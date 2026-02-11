@@ -9,8 +9,6 @@ import {
 import ScreenContainer from '@/shared/components/layout/screen-container'
 import { ToastViewport, useToast } from '@/shared/components/toast/toast-provider'
 import { useProductsStore } from '../store/products.store'
-import type { RouteProp } from '@react-navigation/native'
-import type { StackNavigationProp } from '@react-navigation/stack'
 
 import Button from '@/shared/ui/button/button'
 import {
@@ -22,16 +20,13 @@ import {
 
 import BaseModal from '@/modules/modal/base/base-modal'
 import ConfirmModal from '@/modules/modal/variants/confirm-modal'
-import { AppStackParamList } from '@/core/navigation/app-navigation'
-
-type Route = RouteProp<AppStackParamList, 'ProductInfo'>
-type Navigation = StackNavigationProp<AppStackParamList, 'ProductInfo'>
-const PRODUCT_INFO_TOAST_SCOPE = 'productInfo'
+import { Nav, Route } from '@/core/navigation/types'
+import { TOAST_SCOPES } from '@/shared/components/toast/scopes'
 
 export default function ProductInfoScreen() {
     const { bottom } = useSafeAreaInsets()
-    const navigation = useNavigation<Navigation>()
-    const route = useRoute<Route>()
+    const navigation = useNavigation<Nav>()
+    const route = useRoute<Route<'ProductInfo'>>()
 
     const productId = route.params.productId
     const product = useProductsStore(s => s.getById(productId))
@@ -114,7 +109,7 @@ export default function ProductInfoScreen() {
                     />
                 </BaseModal>
 
-                <ToastViewport scope={PRODUCT_INFO_TOAST_SCOPE} bottomOffset={25} />
+                <ToastViewport scope={TOAST_SCOPES.ProductInfo} bottomOffset={25} />
             </View>
         </ScreenContainer>
     )
