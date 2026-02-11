@@ -62,7 +62,9 @@ export default function TaskRow({ item, isPast, onToggle, onPress, onLongPress }
 
                     {!!chip && (
                         <View style={[styles.chip, isPast && styles.chipPast]}>
-                            <Text style={styles.chipText}>{chip}</Text>
+                            <Text style={styles.chipText} allowFontScaling={false}>
+                                {chip}
+                            </Text>
                         </View>
                     )}
                 </View>

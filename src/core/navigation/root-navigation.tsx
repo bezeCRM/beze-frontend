@@ -20,9 +20,9 @@ export default function RootNavigation() {
             screenOptions={{ headerShown: false }}
             tabBar={props => <DevBottomBar {...props} />}
         >
+            <Tab.Screen name="Planner" component={PlannerStack} />
             <Tab.Screen name="Products" component={ProductsStack} />
             <Tab.Screen name="Orders" component={OrdersStack} />
-            <Tab.Screen name="Planner" component={PlannerStack} />
             <Tab.Screen name="Profile" component={ProfileStack} />
         </Tab.Navigator>
     )

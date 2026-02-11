@@ -11,6 +11,7 @@ type CategoryStore = {
 
     setActiveCategory: (id: string | null) => void
     addCategory: (name: string) => string
+    removeCategory: (id: string) => void
     hasCategory: (name: string) => boolean
 }
 
@@ -42,6 +43,12 @@ export const useCategoryStore = create<CategoryStore>()(
                     categories: [...state.categories, { id, name: clean }],
                 }))
                 return id
+            },
+
+            removeCategory: (id: string) => {
+                set(state => ({
+                    categories: state.categories.filter(category => category.id !== id),
+                }))
             },
 
             hasCategory: name => {

@@ -9,6 +9,7 @@ type FiltersProps = {
     activeId: string | null
     onSelect: (item: Category) => void
     onAddCategory?: () => void
+    onRemoveCategory?: (c: Category) => void
     showAllButton?: boolean
     screenTitle: 'товары' | 'заказы'
 }
@@ -21,6 +22,7 @@ export default function Filters({
     activeId,
     onSelect,
     onAddCategory,
+    onRemoveCategory,
     showAllButton = false,
     screenTitle,
 }: FiltersProps) {
@@ -61,6 +63,7 @@ export default function Filters({
                             <TouchableOpacity
                                 style={[styles.chip, styles.addChip]}
                                 onPress={onAddCategory}
+                                delayLongPress={250}
                                 activeOpacity={0.8}
                             >
                                 <Text style={[styles.chipText, styles.addChipText]}>
@@ -84,6 +87,9 @@ export default function Filters({
                                     onSelect(item)
                                 }
                             }}
+                            onLongPress={() =>
+                                item.id !== 'all' && onRemoveCategory!(item)
+                            }
                             activeOpacity={0.8}
                         >
                             <Text

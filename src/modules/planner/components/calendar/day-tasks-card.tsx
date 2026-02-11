@@ -42,7 +42,9 @@ export default function DayTasksCard({ tasks, onPress }: Props) {
                     const label = isOrder
                         ? deliveryLabel((task as any).deliveryType)
                         : null
-                    const titleStyle = label ? styles.titleTextMarked : styles.titleText
+                    const titleStyle = label
+                        ? [styles.titleText, styles.titleTextMarked]
+                        : styles.titleText
 
                     return (
                         <Pressable key={task.id} style={styles.row} onPress={onPress}>
@@ -67,6 +69,7 @@ const useStyles = createThemedStyles(theme =>
             borderRadius: 20,
             paddingHorizontal: 20,
             paddingVertical: 14,
+            overflow: 'hidden',
         },
         row: {
             flexDirection: 'row',
@@ -84,12 +87,12 @@ const useStyles = createThemedStyles(theme =>
             fontSize: 16,
             color: theme.colors.text,
             marginTop: -3,
+            flex: 1,
+            flexShrink: 1,
+            minWidth: 0,
         },
         titleTextMarked: {
-            fontFamily: 'Epilogue-Regular',
-            fontSize: 16,
             color: theme.colors.warning,
-            marginTop: -3,
         },
         more: {
             fontFamily: 'Epilogue-SemiBold',
