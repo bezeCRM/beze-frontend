@@ -10,7 +10,7 @@ const PRODUCTS_LIST_TOAST_SCOPE = 'productsList'
 export default function ProductsFilters() {
     const { categories, activeCategoryId } = useCategoryStore()
 
-    const { open } = useModalStore()
+    const { open, close } = useModalStore()
     const addCategory = useCategoryStore(s => s.addCategory)
     const setActiveCategory = useCategoryStore(s => s.setActiveCategory)
     const hasCategory = useCategoryStore(s => s.hasCategory)
@@ -50,10 +50,9 @@ export default function ProductsFilters() {
             onSubmit: (name: string) => {
                 const id = addCategory(name)
                 setActiveCategory(id)
-                open('status', {
-                    title: 'Добавление категории',
-                    message: 'Категория успешно добавлена!',
-                    success: true,
+                close()
+                show(`Категория "${name}" добавлена`, 'success', {
+                    scope: PRODUCTS_LIST_TOAST_SCOPE,
                 })
             },
         })
