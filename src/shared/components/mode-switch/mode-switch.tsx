@@ -67,7 +67,7 @@ export function ModeSwitch<Key extends string>(props: Props<Key>) {
 
         layout = 'content',
 
-        height = 40,
+        height = 35,
         radius = 15,
         pillRadius = 12,
         inset = 2,

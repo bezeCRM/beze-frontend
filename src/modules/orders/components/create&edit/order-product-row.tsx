@@ -71,7 +71,7 @@ export default function OrderProductRow({
                 </Text>
 
                 {!!item.filling?.name && (
-                    <Text style={styles.filling} numberOfLines={1}>
+                    <Text style={styles.filling} numberOfLines={2}>
                         {item.filling.name}
                     </Text>
                 )}

@@ -7,21 +7,31 @@ import type { StackNavigationProp } from '@react-navigation/stack'
 import type { OrdersStackParamList } from '@/core/navigation/orders-stack'
 import { createThemedStyles } from '@/shared/theme/create-themed-styles'
 
-type Props = { items: Order[] }
+type Props = {
+    items: Order[]
+    emptyTitle?: string
+    showCreateButton?: boolean
+}
 
 type Nav = StackNavigationProp<OrdersStackParamList>
 
-export default function OrdersList({ items }: Props) {
+export default function OrdersList({
+    items,
+    emptyTitle = 'Заказов пока нет',
+    showCreateButton = true,
+}: Props) {
     const styles = useStyles()
     const navigation = useNavigation<Nav>()
 
     const renderEmpty = () => (
         <View style={styles.emptyWrap}>
-            <Text style={styles.emptyTitle}>Заказов пока нет</Text>
-            <Button
-                title="Создать заказ"
-                onPress={() => navigation.navigate('OrderCreate')}
-            />
+            <Text style={styles.emptyTitle}>{emptyTitle}</Text>
+            {showCreateButton ? (
+                <Button
+                    title="Создать заказ"
+                    onPress={() => navigation.navigate('OrderCreate')}
+                />
+            ) : null}
         </View>
     )
 

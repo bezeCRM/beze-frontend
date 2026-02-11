@@ -36,17 +36,21 @@ function Row({ line, onPress }: { line: OrderProductLine; onPress?: () => void }
             />
 
             <View style={styles.mid}>
-                <Text style={styles.name} numberOfLines={1}>
+                <Text style={styles.name} numberOfLines={1} allowFontScaling={false}>
                     {name}
                 </Text>
 
                 {!!filling && (
-                    <Text style={styles.filling} numberOfLines={1}>
+                    <Text
+                        style={styles.filling}
+                        numberOfLines={2}
+                        allowFontScaling={false}
+                    >
                         {filling}
                     </Text>
                 )}
 
-                <Text style={styles.price} numberOfLines={1}>
+                <Text style={styles.price} numberOfLines={1} allowFontScaling={false}>
                     {formatMoney(price)} ₽
                 </Text>
             </View>
@@ -139,7 +143,7 @@ const useStyles = createThemedStyles(theme =>
             fontSize: 16,
             color: theme.colors.text,
             fontFamily: 'Epilogue-Regular',
-            minWidth: 64,
+            marginLeft: 3,
             textAlign: 'right',
         },
         emptyWrap: {

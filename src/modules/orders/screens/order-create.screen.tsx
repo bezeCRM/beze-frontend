@@ -1,5 +1,4 @@
-import type { RouteProp } from '@react-navigation/native'
-import { useNavigation, useRoute } from '@react-navigation/native'
+import { useNavigation } from '@react-navigation/native'
 import type { StackNavigationProp } from '@react-navigation/stack'
 import React, { useCallback, useMemo } from 'react'
 import { StyleSheet, Switch, Text, View } from 'react-native'
@@ -49,9 +48,9 @@ import { useTheme } from '@/shared/theme/useTheme'
 
 const MAX_REFERENCES = 3
 const ORDERS_LIST_TOAST_SCOPE = 'ordersList'
+const ORDER_CREATE_TOAST_SCOPE = 'OrderCreate'
 
 type Nav = StackNavigationProp<OrdersStackParamList, 'OrderCreate'>
-type R = RouteProp<OrdersStackParamList, 'OrderCreate'>
 
 export default function OrderCreateScreen() {
     const styles = useStyles()
@@ -59,7 +58,6 @@ export default function OrderCreateScreen() {
 
     const { bottom } = useSafeAreaInsets()
     const navigation = useNavigation<Nav>()
-    const route = useRoute<R>()
     const { show } = useToast()
 
     const addOrder = useOrdersStore(s => s.addOrder)
@@ -112,9 +110,10 @@ export default function OrderCreateScreen() {
         products: products ?? [],
         getProductById,
         addItem,
+        toastScope: ORDER_CREATE_TOAST_SCOPE,
     })
 
-    const onInvalid = useOrderCreateInvalidToast(show as any, route.key)
+    const onInvalid = useOrderCreateInvalidToast(show as any, ORDER_CREATE_TOAST_SCOPE)
 
     const { remaining, onSelectPaymentStatus, onPaidAmountBlur } = useOrderPayment({
         totalPrice,
@@ -347,7 +346,7 @@ export default function OrderCreateScreen() {
                     </View>
                 </KeyboardAwareScrollView>
 
-                <ToastViewport scope={route.key} bottomOffset={75} />
+                <ToastViewport scope={ORDER_CREATE_TOAST_SCOPE} bottomOffset={75} />
             </View>
         </ScreenContainer>
     )

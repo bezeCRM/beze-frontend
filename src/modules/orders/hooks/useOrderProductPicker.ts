@@ -2,15 +2,27 @@ import { useCallback, useMemo } from 'react'
 import { useModalStore } from '@/modules/modal'
 import type { ListSelectItem } from '@/modules/modal/variants/list-select-modal'
 import type { Filling, Product } from '@/shared/types/types'
+import { useToast } from '@/shared/components/toast/toast-provider'
+
+const ORDER_CREATE_TOAST_SCOPE = 'OrderCreate'
 
 type Args = {
     products: Product[]
     getProductById: (id: string) => Product | undefined
     addItem: (product: Product, filling?: Filling) => void
+    toastScope?: string
 }
 
-export function useOrderProductPicker({ products, getProductById, addItem }: Args) {
-    const { open } = useModalStore()
+export function useOrderProductPicker({
+    products,
+    getProductById,
+    addItem,
+    toastScope,
+}: Args) {
+    const { open, close } = useModalStore()
+    const { show } = useToast()
+
+    const scope = toastScope ?? ORDER_CREATE_TOAST_SCOPE
 
     const listItems: ListSelectItem[] = useMemo(() => {
         return (products ?? []).map(p => ({
@@ -38,15 +50,12 @@ export function useOrderProductPicker({ products, getProductById, addItem }: Arg
                 onSubmit: () => {
                     const filling = fillings.find(f => f.id === selectedId)
                     addItem(product, filling)
-                    open('status', {
-                        title: 'Добавление товара',
-                        message: 'Товар успешно добавлен!',
-                        success: true,
-                    })
+                    close()
+                    show('Товар добавлен', 'success', { scope })
                 },
             })
         },
-        [open, addItem],
+        [open, addItem, close, show, scope],
     )
 
     const openPickProduct = useCallback(() => {
@@ -63,18 +72,15 @@ export function useOrderProductPicker({ products, getProductById, addItem }: Arg
                 const fillings = product.fillings ?? []
                 if (fillings.length === 0) {
                     addItem(product)
-                    open('status', {
-                        title: 'Добавление товара',
-                        message: 'Товар успешно добавлен!',
-                        success: true,
-                    })
+                    close()
+                    show('Товар добавлен', 'success', { scope })
                     return
                 }
 
                 openPickFilling(product, fillings[0].id, openPickProduct)
             },
         })
-    }, [open, listItems, getProductById, addItem, openPickFilling])
+    }, [open, listItems, getProductById, openPickFilling, addItem, close, show, scope])
 
     return { openPickProduct }
 }

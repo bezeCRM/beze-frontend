@@ -114,7 +114,7 @@ export default function Filters({
 const useStyles = createThemedStyles(theme =>
     StyleSheet.create({
         wrapper: {
-            marginBottom: 20,
+            marginBottom: 12,
         },
         content: {},
         chip: {

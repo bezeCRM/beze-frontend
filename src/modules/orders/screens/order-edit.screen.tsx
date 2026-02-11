@@ -90,6 +90,7 @@ export default function OrderEditScreen() {
         products: products ?? [],
         getProductById,
         addItem,
+        toastScope: route.key,
     })
 
     const onInvalid = useOrderCreateInvalidToast(show as any, route.key)
