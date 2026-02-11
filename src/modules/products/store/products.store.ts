@@ -19,6 +19,7 @@ type ProductsStore = {
     removeProduct: (id: string) => void
     getById: (id: string) => Product | undefined
     clear: () => void
+    clearCategoryFromProducts: (categoryId: string) => void
 }
 
 const STORAGE_KEY = 'data.products'
@@ -117,6 +118,13 @@ export const useProductsStore = create<ProductsStore>()(
             getById: id => get().products.find(p => p.id === id),
 
             clear: () => set({ products: [] }),
+
+            clearCategoryFromProducts: categoryId =>
+                set(state => ({
+                    products: state.products.map(p =>
+                        p.category?.id === categoryId ? { ...p, category: undefined } : p,
+                    ),
+                })),
         }),
         {
             name: STORAGE_KEY,

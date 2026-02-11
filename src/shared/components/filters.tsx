@@ -87,9 +87,11 @@ export default function Filters({
                                     onSelect(item)
                                 }
                             }}
-                            onLongPress={() =>
-                                item.id !== 'all' && onRemoveCategory!(item)
-                            }
+                            onLongPress={() => {
+                                if (item.id !== 'all') {
+                                    onRemoveCategory!(item)
+                                }
+                            }}
                             activeOpacity={0.8}
                         >
                             <Text

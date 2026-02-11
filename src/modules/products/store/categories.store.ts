@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
+import { useProductsStore } from '@/modules/products/store/products.store'
 import type { Category } from '@/shared/types/types'
 
 type CategoryStore = {
@@ -45,9 +46,16 @@ export const useCategoryStore = create<CategoryStore>()(
                 return id
             },
 
-            removeCategory: (id: string) => {
+            removeCategory: id => {
                 set(state => ({
-                    categories: state.categories.filter(category => category.id !== id),
+                    categories: state.categories.filter(c => c.id !== id),
+                }))
+
+                useProductsStore.getState().clearCategoryFromProducts(id)
+
+                set(state => ({
+                    activeCategoryId:
+                        state.activeCategoryId === id ? null : state.activeCategoryId,
                 }))
             },
 

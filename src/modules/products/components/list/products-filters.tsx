@@ -23,7 +23,7 @@ export default function ProductsFilters() {
         const options = ['Удалить', 'Отмена']
         showActionSheetWithOptions(
             {
-                title: 'Действия с задачей',
+                title: 'Действия с категорией',
                 options,
                 cancelButtonIndex: 1,
                 destructiveButtonIndex: 0,
