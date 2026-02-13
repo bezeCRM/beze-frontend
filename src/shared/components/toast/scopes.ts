@@ -15,6 +15,10 @@ export const ROOT_STACK_SCOPES = {
     OrderInfo: 'OrderInfo',
     OrderEdit: 'OrderEdit',
     OrderCreate: 'OrderCreate',
+
+    Finances: 'Finances',
+    Settings: 'Settings',
+    Help: 'Help',
 } as const satisfies Record<keyof RootStackParamList, ToastScope>
 
 // tab scopes (сами вкладки)
