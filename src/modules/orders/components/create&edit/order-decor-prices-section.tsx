@@ -20,6 +20,10 @@ function Row({
     onChangeText: (t: string) => void
 }) {
     const styles = useStyles()
+
+    const isZero = Number(value) === 0
+    const inputValue = isZero ? '' : value
+
     return (
         <View style={styles.row}>
             <Text style={styles.name} numberOfLines={1}>
@@ -28,11 +32,12 @@ function Row({
 
             <View style={styles.right}>
                 <TextInput
-                    value={value}
+                    value={inputValue}
                     onChangeText={onChangeText}
                     style={styles.input}
                     keyboardType="numeric"
                     returnKeyType="done"
+                    placeholder="0"
                 />
                 <Text style={styles.ruble}>₽</Text>
             </View>
