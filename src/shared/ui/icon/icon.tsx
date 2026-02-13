@@ -18,6 +18,12 @@ import ProductsIcon from '@/assets/icons/products-icon.svg'
 import OrdersIcon from '@/assets/icons/orders-icon.svg'
 import ProfileIcon from '@/assets/icons/profile-icon.svg'
 import SortIcon from '@/assets/icons/sort-icon.svg'
+import ProfileFinancesIcon from '@/assets/icons/profile-list-icons/finances-icon.svg'
+import ProfileSettingsIcon from '@/assets/icons/profile-list-icons/settings-icon.svg'
+import ProfileHelpIcon from '@/assets/icons/profile-list-icons/help-icon.svg'
+import ProfilePlannerIcon from '@/assets/icons/profile-list-icons/planner-icon.svg'
+import ProfileProductsIcon from '@/assets/icons/profile-list-icons/products-icon.svg'
+import ProfileOrdersIcon from '@/assets/icons/profile-list-icons/orders-icon.svg'
 
 type IconComponent = React.FC<SvgProps>
 
@@ -38,6 +44,12 @@ export type IconName =
     | 'orders-icon'
     | 'profile-icon'
     | 'sort-icon'
+    | 'profile/finances-icon'
+    | 'profile/settings-icon'
+    | 'profile/help-icon'
+    | 'profile/products-icon'
+    | 'profile/orders-icon'
+    | 'profile/planner-icon'
 
 const ICONS: Record<IconName, IconComponent> = {
     'checkmark-icon': CheckmarkIcon,
@@ -56,6 +68,12 @@ const ICONS: Record<IconName, IconComponent> = {
     'orders-icon': OrdersIcon,
     'profile-icon': ProfileIcon,
     'sort-icon': SortIcon,
+    'profile/finances-icon': ProfileFinancesIcon,
+    'profile/settings-icon': ProfileSettingsIcon,
+    'profile/help-icon': ProfileHelpIcon,
+    'profile/planner-icon': ProfilePlannerIcon,
+    'profile/products-icon': ProfileProductsIcon,
+    'profile/orders-icon': ProfileOrdersIcon,
 }
 
 export type IconProps = {

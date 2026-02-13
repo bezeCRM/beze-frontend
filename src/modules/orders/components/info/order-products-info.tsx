@@ -5,12 +5,11 @@ import SectionCard from '@/shared/ui/section/section-card'
 import PlaceholderImage from '@/assets/images/product-card-placeholder.png'
 import type { Order, OrderProductLine } from '@/shared/types/types'
 import { formatAmount, formatMoney } from '../../utils/order-format'
-import { StackNavigationProp } from '@react-navigation/stack'
-import { AppStackParamList } from '@/core/navigation/app-navigation'
 import { useToast } from '@/shared/components/toast/toast-provider'
 import { useProductsStore } from '@/modules/products/store/products.store'
 import { createThemedStyles } from '@/shared/theme/create-themed-styles'
 import { TOAST_SCOPES } from '@/shared/components/toast/scopes'
+import { Nav } from '@/core/navigation/types'
 
 type Props = { order: Order }
 
@@ -64,7 +63,7 @@ function Row({ line, onPress }: { line: OrderProductLine; onPress?: () => void }
 
 export default function OrderProductsInfo({ order }: Props) {
     const styles = useStyles()
-    const navigation = useNavigation<StackNavigationProp<AppStackParamList>>()
+    const navigation = useNavigation<Nav>()
     const list = (order.products ?? []) as OrderProductLine[]
 
     const openProduct = (productId: string) => {

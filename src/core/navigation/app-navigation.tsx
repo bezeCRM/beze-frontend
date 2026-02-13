@@ -10,19 +10,12 @@ import OrderInfoScreen from '@/modules/orders/screens/order-info.screen'
 import OrderEditScreen from '@/modules/orders/screens/order-edit.screen'
 import OrderCreateScreen from '@/modules/orders/screens/order-create.screen'
 
-export type AppStackParamList = {
-    Tabs: undefined
+import FinancesScreen from '@/modules/profile/screens/finances.screen'
+import { RootStackParamList } from './types'
+import HelpScreen from '@/modules/profile/screens/help.screen'
+import SettingsScreen from '@/modules/profile/screens/settings.screen'
 
-    ProductInfo: { productId: string }
-    ProductEdit: { productId: string }
-    ProductCreate: undefined
-
-    OrderInfo: { orderId: string }
-    OrderEdit: { orderId: string }
-    OrderCreate: undefined
-}
-
-const Stack = createNativeStackNavigator<AppStackParamList>()
+const Stack = createNativeStackNavigator<RootStackParamList>()
 
 export default function AppNavigation() {
     return (
@@ -43,6 +36,10 @@ export default function AppNavigation() {
                 <Stack.Screen name="OrderInfo" component={OrderInfoScreen} />
                 <Stack.Screen name="OrderEdit" component={OrderEditScreen} />
                 <Stack.Screen name="OrderCreate" component={OrderCreateScreen} />
+
+                <Stack.Screen name="Finances" component={FinancesScreen} />
+                <Stack.Screen name="Settings" component={SettingsScreen} />
+                <Stack.Screen name="Help" component={HelpScreen} />
             </Stack.Group>
         </Stack.Navigator>
     )
