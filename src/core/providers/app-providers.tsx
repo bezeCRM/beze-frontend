@@ -13,19 +13,19 @@ type Props = {
 
 export default function AppProviders({ children }: Props) {
     return (
-        <ThemeProvider>
-            <SafeAreaProvider>
-                <ActionSheetProvider>
-                    <ToastProvider>
-                        <GestureHandlerRootView style={{ flex: 1 }}>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+            <ThemeProvider>
+                <SafeAreaProvider>
+                    <ActionSheetProvider>
+                        <ToastProvider>
                             <ImageViewerProvider>
                                 <ModalProvider />
                                 <NavigationContainer>{children}</NavigationContainer>
                             </ImageViewerProvider>
-                        </GestureHandlerRootView>
-                    </ToastProvider>
-                </ActionSheetProvider>
-            </SafeAreaProvider>
-        </ThemeProvider>
+                        </ToastProvider>
+                    </ActionSheetProvider>
+                </SafeAreaProvider>
+            </ThemeProvider>
+        </GestureHandlerRootView>
     )
 }

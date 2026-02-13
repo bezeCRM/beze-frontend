@@ -59,18 +59,18 @@ export default function OrderInfoScreen() {
 
     const confirmDelete = () => {
         const deletedId = order.id
-        const deletedName = `${order.name ? `"${order.name}"` : `#${order.id}`}`
+        const deletedName = order.name ? `"${order.name}"` : `#${order.id}`
 
         setDeleteVisible(false)
+        navigation.goBack()
 
         requestAnimationFrame(() => {
-            const unsub = navigation.addListener('transitionEnd', () => {
-                unsub()
+            setTimeout(() => {
                 removeOrder(deletedId)
-                show(`Заказ ${deletedName} удален`, 'success', { scope: 'ordersList' })
-            })
-
-            navigation.goBack()
+                show(`Заказ ${deletedName} удален`, 'success', {
+                    scope: TOAST_SCOPES.Orders,
+                })
+            }, 0)
         })
     }
 

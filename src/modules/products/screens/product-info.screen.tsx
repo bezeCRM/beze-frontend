@@ -51,17 +51,15 @@ export default function ProductInfoScreen() {
         const deletedName = product.name
 
         setDeleteVisible(false)
+        navigation.goBack()
 
         requestAnimationFrame(() => {
-            const unsub = navigation.addListener('transitionEnd', () => {
-                unsub()
+            setTimeout(() => {
                 removeProduct(deletedId)
                 show(`Товар "${deletedName}" удален`, 'success', {
-                    scope: 'productsList',
+                    scope: TOAST_SCOPES.Products,
                 })
-            })
-
-            navigation.goBack()
+            }, 0)
         })
     }
 
