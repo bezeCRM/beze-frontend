@@ -4,8 +4,7 @@ import { useCategoryStore } from '../../store/categories.store'
 import { Category } from '@/shared/types/types'
 import { useActionSheet } from '@expo/react-native-action-sheet'
 import { useToast } from '@/shared/components/toast/toast-provider'
-
-const PRODUCTS_LIST_TOAST_SCOPE = 'productsList'
+import { TOAST_SCOPES } from '@/shared/components/toast/scopes'
 
 export default function ProductsFilters() {
     const { categories, activeCategoryId } = useCategoryStore()
@@ -32,7 +31,7 @@ export default function ProductsFilters() {
                 if (buttonIndex === 0 && c.id !== '__add__') {
                     removeCategory(c.id)
                     show(`Категория "${c.name}" удалена`, 'success', {
-                        scope: PRODUCTS_LIST_TOAST_SCOPE,
+                        scope: TOAST_SCOPES.Products,
                     })
                 }
             },
@@ -52,7 +51,7 @@ export default function ProductsFilters() {
                 setActiveCategory(id)
                 close()
                 show(`Категория "${name}" добавлена`, 'success', {
-                    scope: PRODUCTS_LIST_TOAST_SCOPE,
+                    scope: TOAST_SCOPES.Products,
                 })
             },
         })

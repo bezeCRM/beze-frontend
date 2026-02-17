@@ -58,7 +58,7 @@ export default function OrdersListScreen() {
     const activeStatus = activeFilterId === 'all' ? null : activeFilterId
     const results = useOrdersSearch({ query, activeStatus })
 
-    const [sortId, setSortId] = useState<OrdersSortId>('priceAsc')
+    const [sortId, setSortId] = useState<OrdersSortId>('dateAsc')
     const [mode, setMode] = useState<OrdersMode>('active')
 
     const switchItems = useMemo<SwitchItem<OrdersMode>[]>(

@@ -4,7 +4,7 @@
         "slug": "beze-frontend",
         "version": "1.0.0",
         "assetBundlePatterns": ["**/*"],
-        "plugins": ["expo-font"],
+        "plugins": ["expo-font", "expo-web-browser"],
         "platforms": ["ios", "android"],
         "ios": {
             "infoPlist": {

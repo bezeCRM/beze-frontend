@@ -29,7 +29,6 @@ export const ROOT_TAB_SCOPES = {
     Profile: 'Profile',
 } as const satisfies Record<keyof RootTabParamList, ToastScope>
 
-// одиночные константы (удобно импортить)
 export const TOAST_SCOPES = {
     ...ROOT_STACK_SCOPES,
     ...ROOT_TAB_SCOPES,

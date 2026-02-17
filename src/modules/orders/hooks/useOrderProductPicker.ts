@@ -3,8 +3,7 @@ import { useModalStore } from '@/modules/modal'
 import type { ListSelectItem } from '@/modules/modal/variants/list-select-modal'
 import type { Filling, Product } from '@/shared/types/types'
 import { useToast } from '@/shared/components/toast/toast-provider'
-
-const ORDER_CREATE_TOAST_SCOPE = 'OrderCreate'
+import { TOAST_SCOPES } from '@/shared/components/toast/scopes'
 
 type Args = {
     products: Product[]
@@ -22,7 +21,7 @@ export function useOrderProductPicker({
     const { open, close } = useModalStore()
     const { show } = useToast()
 
-    const scope = toastScope ?? ORDER_CREATE_TOAST_SCOPE
+    const scope = toastScope ?? TOAST_SCOPES.OrderCreate
 
     const listItems: ListSelectItem[] = useMemo(() => {
         return (products ?? []).map(p => ({

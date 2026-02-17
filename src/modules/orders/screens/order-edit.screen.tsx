@@ -99,13 +99,15 @@ export default function OrderEditScreen() {
     const onValid = useCallback(
         (values: OrderCreateFormValues) => {
             if (!order) return
+
             const payload = buildNewOrderPayload(values, totalPrice)
             updateOrder(order.id, payload as any)
-            const unsub = navigation.addListener('transitionEnd', () => {
-                unsub()
+
+            navigation.goBack()
+
+            requestAnimationFrame(() => {
                 show('Изменения сохранены', 'success', { scope: TOAST_SCOPES.OrderInfo })
             })
-            navigation.goBack()
         },
         [navigation, order, show, totalPrice, updateOrder],
     )

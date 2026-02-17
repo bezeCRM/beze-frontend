@@ -131,12 +131,10 @@ export default function OrderCreateScreen() {
             addOrder(payload)
             clearDraft()
 
-            const unsub = navigation.addListener('transitionEnd', () => {
-                unsub()
+            navigation.goBack()
+            requestAnimationFrame(() => {
                 show('Заказ добавлен', 'success', { scope: TOAST_SCOPES.Orders })
             })
-
-            navigation.goBack()
         },
         [addOrder, clearDraft, navigation, show, totalPrice],
     )
@@ -382,11 +380,13 @@ const useStyles = createThemedStyles(theme =>
         },
         totalLabel: {
             fontSize: 16,
+            textAlign: 'center',
             color: theme.colors.text,
             fontFamily: 'Epilogue-SemiBold',
         },
         totalValue: {
             fontSize: 24,
+            textAlign: 'center',
             color: theme.colors.text,
             fontFamily: 'Epilogue-SemiBold',
         },

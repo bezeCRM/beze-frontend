@@ -129,14 +129,13 @@ export default function ProductEditScreen() {
             photoes: photoesClean,
         })
 
-        const unsub = navigation.addListener('transitionEnd', () => {
-            unsub()
+        navigation.goBack()
+
+        requestAnimationFrame(() => {
             show('Изменения сохранены', 'success', {
                 scope: TOAST_SCOPES.ProductInfo,
             })
         })
-
-        navigation.goBack()
     }
 
     const onInvalid = makeOnInvalidToast<

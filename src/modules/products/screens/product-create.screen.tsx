@@ -134,14 +134,13 @@ export default function ProductCreateScreen() {
         clearDraft()
 
         // показываем тост после завершения анимации закрытия экрана
-        const unsub = navigation.addListener('transitionEnd', () => {
-            unsub()
+        navigation.goBack()
+
+        requestAnimationFrame(() => {
             show(`Товар "${createdName}" добавлен`, 'success', {
                 scope: TOAST_SCOPES.Products,
             })
         })
-
-        navigation.goBack()
     }
 
     const onInvalid = makeOnInvalidToast<
