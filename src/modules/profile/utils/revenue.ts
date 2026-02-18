@@ -127,3 +127,65 @@ export function calcAverageCheck(
     if (count === 0) return 0
     return Math.round(sum / count)
 }
+
+/**
+ * Считаем количество заказов, которые попали в период и имеют статус оплаты paid или partial, и по которым была получена фактическая сумма > 0
+ */
+
+export function calcPaidOrdersCount(
+    orders: Order[] | null | undefined,
+    period: FinancePeriod,
+    now: Date = new Date(),
+): number {
+    if (!orders?.length) return 0
+
+    let count = 0
+
+    for (const o of orders) {
+        if (o.status === 'canceled') continue
+        const od = parseOrderDate(o.date)
+        if (!od) continue
+        if (!isInPeriod(od, now, period)) continue
+
+        if (o.paymentStatus !== 'paid' && o.paymentStatus !== 'partial') continue
+
+        const total = Math.max(0, toNum(o.totalPrice))
+        if (total <= 0) continue
+
+        const paidRaw = Math.max(0, toNum(o.paidAmount))
+        const paid = clamp(0, paidRaw, total)
+        if (paid <= 0) continue
+
+        count += 1
+    }
+
+    return count
+}
+
+export function getLargestOrderInPeriod(
+    orders: Order[] | null | undefined,
+    period: FinancePeriod,
+    now: Date = new Date(),
+): Order | undefined {
+    if (!orders?.length) return undefined
+
+    let best: Order | undefined
+    let bestTotal = 0
+
+    for (const o of orders) {
+        if (o.status === 'canceled') continue
+        const od = parseOrderDate(o.date)
+        if (!od) continue
+        if (!isInPeriod(od, now, period)) continue
+
+        const total = Math.max(0, toNum(o.totalPrice))
+        if (total <= 0) continue
+
+        if (!best || total > bestTotal) {
+            best = o
+            bestTotal = total
+        }
+    }
+
+    return best
+}

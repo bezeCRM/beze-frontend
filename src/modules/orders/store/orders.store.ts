@@ -169,6 +169,8 @@ export const useOrdersStore = create<OrdersStore>()(
 
                 const paymentStatus = derivePaymentStatus(totalPrice, paidAmount)
 
+                const lastPaymentAt = paymentStatus !== 'unpaid' ? now : undefined
+
                 const order: Order = {
                     id,
                     ...base,
@@ -176,6 +178,7 @@ export const useOrdersStore = create<OrdersStore>()(
                     paidAmount,
                     paymentStatus,
                     createdAt: now,
+                    lastPaymentAt,
                     updatedAt: now,
                 }
 
@@ -290,6 +293,8 @@ export const useOrdersStore = create<OrdersStore>()(
                         let nextPaid = prevPaid
                         let nextPaymentStatus = o.paymentStatus
 
+                        const nowIso = new Date().toISOString()
+
                         if (affectsPayment) {
                             if ('paymentStatus' in p) {
                                 const s = p.paymentStatus
@@ -321,12 +326,21 @@ export const useOrdersStore = create<OrdersStore>()(
                             nextPaymentStatus = o.paymentStatus
                         }
 
+                        const prevStatus = o.paymentStatus
+                        const nextStatus = nextPaymentStatus
+
+                        const lastPaymentAt =
+                            prevStatus !== nextStatus && nextStatus !== 'unpaid'
+                                ? nowIso
+                                : o.lastPaymentAt
+
                         return {
                             ...nextBase,
                             totalPrice,
                             paidAmount: nextPaid,
                             paymentStatus: nextPaymentStatus,
-                            updatedAt: new Date().toISOString(),
+                            lastPaymentAt,
+                            updatedAt: nowIso,
                         }
                     }),
                 }))

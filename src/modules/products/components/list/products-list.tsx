@@ -53,7 +53,7 @@ export default function ProductsList({ items }: Props) {
 
 const useStyles = createThemedStyles(theme =>
     StyleSheet.create({
-        list: { flex: 1 },
+        list: { flex: 1, marginBottom: 10 },
         emptyContent: {
             paddingTop: 30,
             flexGrow: 1,

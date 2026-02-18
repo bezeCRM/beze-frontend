@@ -88,6 +88,7 @@ export type Order = {
     inPlanner: boolean
 
     totalPrice: number
+    lastPaymentAt?: string
 
     createdAt: string
     updatedAt: string
