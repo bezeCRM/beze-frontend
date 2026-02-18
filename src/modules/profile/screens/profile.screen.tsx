@@ -11,6 +11,9 @@ import ProfileUserInfo from '../components/profile/profile-user-info'
 import { Items } from '../utils/profile-list-items'
 import ProfileListItem from '../components/profile/profile-list-item'
 import { createThemedStyles } from '@/shared/theme/create-themed-styles'
+import { ToastViewport } from '@/shared/components/toast/toast-provider'
+import { TOAST_SCOPES } from '@/shared/components/toast/scopes'
+import { useProfileSettingsStore } from '../store/profile-settings.store'
 
 // навигация
 type ProfileNav = CompositeNavigationProp<
@@ -35,14 +38,15 @@ export default function ProfileScreen() {
         () => navigation.navigate('Help'),
     ]
 
+    const profileName = useProfileSettingsStore(s => s.settings.profileName)
+    const nickname = useProfileSettingsStore(s => s.settings.nickname)
+    const photoUri = useProfileSettingsStore(s => s.settings.photoUri)
+
     return (
         <ScreenContainer>
             <MainHeader />
             <ProfileHeader />
-            <ProfileUserInfo
-                name={'Мегадлинное имя и фамилия'}
-                nick={'alsolongnickwithdickandsuckingcockallday'}
-            />
+            <ProfileUserInfo name={profileName} nick={nickname ?? ''} image={photoUri} />
             <View style={styles.list}>
                 {Items.map(item => (
                     <ProfileListItem
@@ -57,6 +61,11 @@ export default function ProfileScreen() {
             <Pressable>
                 <Text style={styles.leave}>Выйти</Text>
             </Pressable>
+            <ToastViewport
+                scope={TOAST_SCOPES.Profile}
+                bottomOffset={90}
+                horizontalInset={20}
+            />
         </ScreenContainer>
     )
 }

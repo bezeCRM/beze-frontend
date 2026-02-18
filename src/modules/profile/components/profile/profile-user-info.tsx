@@ -9,15 +9,15 @@ type Props = {
 
 export default function ProfileUserInfo({ image, name, nick }: Props) {
     const styles = useStyles()
+    const source = image
+        ? { uri: image }
+        : require('@/assets/images/avatar-placeholder.png')
+
     return (
         <View style={styles.row}>
             <Image
-                source={
-                    image
-                        ? { uri: image }
-                        : require('@/assets/images/avatar-placeholder.png')
-                }
-                style={{ width: 80, height: 80 }}
+                source={source}
+                style={{ width: 80, height: 80, borderRadius: 999 }}
                 resizeMode="cover"
             />
             <View style={styles.textBox}>
