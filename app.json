@@ -2,9 +2,22 @@
     "expo": {
         "name": "beze-frontend",
         "slug": "beze-frontend",
+        "icon": "./src/assets/icons/icon.png",
         "version": "1.0.0",
         "assetBundlePatterns": ["**/*"],
-        "plugins": ["expo-font", "expo-web-browser", "expo-mail-composer"],
+        "plugins": [
+            "expo-font",
+            "expo-web-browser",
+            "expo-mail-composer",
+            [
+                "expo-splash-screen",
+                {
+                    "backgroundColor": "#ffffff",
+                    "image": "./src/assets/icons/splash-icon.png",
+                    "imageWidth": 150
+                }
+            ]
+        ],
         "platforms": ["ios", "android"],
         "ios": {
             "infoPlist": {
@@ -13,7 +26,11 @@
         },
         "android": {
             "package": "com.bezefrontend.crm",
-            "versionCode": 1
+            "versionCode": 1,
+            "adaptiveIcon": {
+                "foregroundImage": "./src/assets/icons/icon.png",
+                "backgroundColor": "#FF8EB1"
+            }
         },
         "extra": {
             "eas": {
