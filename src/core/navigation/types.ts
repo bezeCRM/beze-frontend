@@ -1,7 +1,16 @@
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import type { RouteProp } from '@react-navigation/native'
 
-export type RootStackParamList = {
+export type RootSwitchParamList = {
+    Auth: undefined
+    App: undefined
+}
+
+export type AuthStackParamList = {
+    AuthMain: undefined
+}
+
+export type AppStackParamList = {
     Tabs: undefined
 
     ProductInfo: { productId: string }
@@ -17,6 +26,8 @@ export type RootStackParamList = {
     Help: undefined
 }
 
-export type Nav = NativeStackNavigationProp<RootStackParamList>
+export type Nav = NativeStackNavigationProp<AppStackParamList>
 
-export type Route<T extends keyof RootStackParamList> = RouteProp<RootStackParamList, T>
+export type AuthNav = NativeStackNavigationProp<AuthStackParamList>
+
+export type Route<T extends keyof AppStackParamList> = RouteProp<AppStackParamList, T>

@@ -26,6 +26,8 @@ import ProfileProductsIcon from '@/assets/icons/profile-list-icons/products-icon
 import ProfileOrdersIcon from '@/assets/icons/profile-list-icons/orders-icon.svg'
 import OpenLinkIcon from '@/assets/icons/open-link-icon.svg'
 import ConactUsIcon from '@/assets/icons/contact-us-icon.svg'
+import EmailIcon from '@/assets/icons/email-icon.svg'
+import PasswordIcon from '@/assets/icons/password-icon.svg'
 
 type IconComponent = React.FC<SvgProps>
 
@@ -54,6 +56,8 @@ export type IconName =
     | 'profile/planner-icon'
     | 'open-link-icon'
     | 'contact-us-icon'
+    | 'email-icon'
+    | 'password-icon'
 
 const ICONS: Record<IconName, IconComponent> = {
     'checkmark-icon': CheckmarkIcon,
@@ -80,6 +84,8 @@ const ICONS: Record<IconName, IconComponent> = {
     'profile/orders-icon': ProfileOrdersIcon,
     'open-link-icon': OpenLinkIcon,
     'contact-us-icon': ConactUsIcon,
+    'email-icon': EmailIcon,
+    'password-icon': PasswordIcon,
 }
 
 export type IconProps = {

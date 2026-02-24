@@ -1,6 +1,12 @@
+import { JSX, useEffect, useRef, useState } from 'react'
+import { ActivityIndicator, View } from 'react-native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 
 import RootNavigation from './root-navigation'
+
+import type { AppStackParamList, RootSwitchParamList } from './types'
+
+import { useAuth } from '@/modules/auth/hooks/useAuth'
 
 import ProductInfoScreen from '@/modules/products/screens/product-info.screen'
 import ProductEditScreen from '@/modules/products/screens/product-edit.screen'
@@ -11,36 +17,79 @@ import OrderEditScreen from '@/modules/orders/screens/order-edit.screen'
 import OrderCreateScreen from '@/modules/orders/screens/order-create.screen'
 
 import FinancesScreen from '@/modules/profile/screens/finances.screen'
-import { RootStackParamList } from './types'
 import HelpScreen from '@/modules/profile/screens/help.screen'
 import SettingsScreen from '@/modules/profile/screens/settings.screen'
+import AuthScreen from '@/modules/auth/screens/auth.screen'
 
-const Stack = createNativeStackNavigator<RootStackParamList>()
+const RootStack = createNativeStackNavigator<RootSwitchParamList>()
+const AppStack = createNativeStackNavigator<AppStackParamList>()
 
-export default function AppNavigation() {
+function AppStackNavigation(): JSX.Element {
     return (
-        <Stack.Navigator
+        <AppStack.Navigator
             screenOptions={{
                 headerShown: false,
                 animation: 'slide_from_right',
                 gestureEnabled: true,
             }}
         >
-            <Stack.Screen name="Tabs" component={RootNavigation} />
+            <AppStack.Screen name="Tabs" component={RootNavigation} />
 
-            <Stack.Group>
-                <Stack.Screen name="ProductInfo" component={ProductInfoScreen} />
-                <Stack.Screen name="ProductEdit" component={ProductEditScreen} />
-                <Stack.Screen name="ProductCreate" component={ProductCreateScreen} />
+            <AppStack.Group>
+                <AppStack.Screen name="ProductInfo" component={ProductInfoScreen} />
+                <AppStack.Screen name="ProductEdit" component={ProductEditScreen} />
+                <AppStack.Screen name="ProductCreate" component={ProductCreateScreen} />
 
-                <Stack.Screen name="OrderInfo" component={OrderInfoScreen} />
-                <Stack.Screen name="OrderEdit" component={OrderEditScreen} />
-                <Stack.Screen name="OrderCreate" component={OrderCreateScreen} />
+                <AppStack.Screen name="OrderInfo" component={OrderInfoScreen} />
+                <AppStack.Screen name="OrderEdit" component={OrderEditScreen} />
+                <AppStack.Screen name="OrderCreate" component={OrderCreateScreen} />
 
-                <Stack.Screen name="Finances" component={FinancesScreen} />
-                <Stack.Screen name="Settings" component={SettingsScreen} />
-                <Stack.Screen name="Help" component={HelpScreen} />
-            </Stack.Group>
-        </Stack.Navigator>
+                <AppStack.Screen name="Finances" component={FinancesScreen} />
+                <AppStack.Screen name="Settings" component={SettingsScreen} />
+                <AppStack.Screen name="Help" component={HelpScreen} />
+            </AppStack.Group>
+        </AppStack.Navigator>
+    )
+}
+
+export default function AppNavigation(): JSX.Element {
+    const { isAuthed, isBootstrapping, bootstrap } = useAuth()
+
+    const bootstrappedRef = useRef(false)
+    const [bootstrapped, setBootstrapped] = useState(false)
+
+    useEffect(() => {
+        if (bootstrappedRef.current) return
+        bootstrappedRef.current = true
+
+        void (async () => {
+            await bootstrap()
+            setBootstrapped(true)
+        })()
+    }, [bootstrap])
+
+    if (!bootstrapped || isBootstrapping) {
+        return (
+            <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                <ActivityIndicator />
+            </View>
+        )
+    }
+
+    return (
+        <RootStack.Navigator
+            key={isAuthed ? 'root-app' : 'root-auth'}
+            screenOptions={{
+                headerShown: false,
+                animation: 'none',
+                gestureEnabled: false,
+            }}
+        >
+            {isAuthed ? (
+                <RootStack.Screen name="App" component={AppStackNavigation} />
+            ) : (
+                <RootStack.Screen name="Auth" component={AuthScreen} />
+            )}
+        </RootStack.Navigator>
     )
 }

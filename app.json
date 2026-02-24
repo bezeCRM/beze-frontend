@@ -12,11 +12,12 @@
             [
                 "expo-splash-screen",
                 {
-                    "backgroundColor": "#ffffff",
+                    "backgroundColor": "#FF8EB1",
                     "image": "./src/assets/icons/splash-icon.png",
                     "imageWidth": 150
                 }
-            ]
+            ],
+            "expo-secure-store"
         ],
         "platforms": ["ios", "android"],
         "ios": {

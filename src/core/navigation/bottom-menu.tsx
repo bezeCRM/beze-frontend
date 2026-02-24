@@ -48,7 +48,7 @@ export default function DevBottomBar({ state, navigation }: BottomTabBarProps) {
 
     return (
         <View pointerEvents="box-none" style={styles.fixedWrap}>
-            <View style={[styles.float, { bottom: Math.max(insets.bottom, 10) + 12 }]}>
+            <View style={[styles.float, { bottom: Math.max(insets.bottom, 10) }]}>
                 <ModeSwitch
                     layout="equal"
                     variant="tabbar"

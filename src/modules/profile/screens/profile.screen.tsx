@@ -1,5 +1,5 @@
 import { RootTabParamList } from '@/core/navigation/root-navigation'
-import { RootStackParamList } from '@/core/navigation/types'
+import { AppStackParamList } from '@/core/navigation/types'
 import MainHeader from '@/shared/components/headers/main-header'
 import ScreenContainer from '@/shared/components/layout/screen-container'
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs'
@@ -14,11 +14,12 @@ import { createThemedStyles } from '@/shared/theme/create-themed-styles'
 import { ToastViewport } from '@/shared/components/toast/toast-provider'
 import { TOAST_SCOPES } from '@/shared/components/toast/scopes'
 import { useProfileSettingsStore } from '../store/profile-settings.store'
+import { useAuth } from '@/modules/auth/hooks/useAuth'
 
 // навигация
 type ProfileNav = CompositeNavigationProp<
     BottomTabNavigationProp<RootTabParamList, 'Profile'>,
-    NativeStackNavigationProp<RootStackParamList>
+    NativeStackNavigationProp<AppStackParamList>
 >
 
 function useProfileNav() {
@@ -26,6 +27,8 @@ function useProfileNav() {
 }
 
 export default function ProfileScreen() {
+    const { signOut } = useAuth()
+
     const styles = useStyles()
     const navigation = useProfileNav()
 
@@ -58,7 +61,7 @@ export default function ProfileScreen() {
                     />
                 ))}
             </View>
-            <Pressable>
+            <Pressable onPress={() => signOut()}>
                 <Text style={styles.leave}>Выйти</Text>
             </Pressable>
             <ToastViewport

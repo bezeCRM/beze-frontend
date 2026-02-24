@@ -14,6 +14,8 @@ const only = new Set([
     'products-icon.svg',
     'profile-icon.svg',
     'open-link-icon.svg',
+    'email-icon.svg',
+    'password-icon.svg',
 ])
 
 const files = fs.readdirSync(ICONS_DIR).filter(f => f.endsWith('.svg'))

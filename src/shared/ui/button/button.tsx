@@ -11,6 +11,7 @@ type Props = {
     onPress?: () => void
     style?: ViewStyle | [ViewStyle, ViewStyle]
     disabled?: boolean
+    loading?: boolean
 }
 
 export default function Button({
@@ -22,6 +23,7 @@ export default function Button({
     onPress,
     style,
     disabled,
+    loading,
 }: Props) {
     const styles = useStyles()
     return (
@@ -36,6 +38,7 @@ export default function Button({
                 red && styles.redBtn,
                 modalWide && styles.modalWideBtn,
                 disabled && styles.disabled,
+                loading && styles.loading,
                 style,
             ]}
         >
@@ -68,5 +71,6 @@ const useStyles = createThemedStyles(theme =>
         },
         smallText: { fontSize: 14 },
         disabled: { backgroundColor: theme.colors.textMuted },
+        loading: { opacity: 0.7 },
     }),
 )
