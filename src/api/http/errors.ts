@@ -34,6 +34,10 @@ function translateValidationMessage(msg: string): string {
         return 'Ошибка сети'
     }
 
+    if (msg.includes('request timeout')) {
+        return 'Ошибка сервера, попробуйте позже'
+    }
+
     return msg
 }
 
@@ -70,7 +74,12 @@ export function toApiError(err: unknown): ApiError {
         if (err instanceof Error) {
             return { kind: 'unknown', status: null, message: err.message, details: err }
         }
-        return { kind: 'unknown', status: null, message: 'unknown error', details: err }
+        return {
+            kind: 'unknown',
+            status: null,
+            message: 'Неизвестная ошибка',
+            details: err,
+        }
     }
 
     const e = err as AxiosError<unknown>
@@ -80,11 +89,16 @@ export function toApiError(err: unknown): ApiError {
     const data = e.response?.data
 
     if (code === 'ECONNABORTED') {
-        return { kind: 'timeout', status, message: 'request timeout', details: err }
+        return {
+            kind: 'timeout',
+            status,
+            message: 'Ошибка сервера, попробуйте позже',
+            details: err,
+        }
     }
 
     if (!e.response) {
-        return { kind: 'network', status: null, message: 'network error', details: err }
+        return { kind: 'network', status: null, message: 'Ошибка сети', details: err }
     }
 
     const fastApiMsg = pickFastApiMessage(data)
