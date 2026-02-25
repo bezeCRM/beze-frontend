@@ -2,21 +2,29 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 import type { Product } from '@/shared/types/types'
-import { mockProducts } from '@/shared/utils/mock-products'
+import {
+    createProduct,
+    deleteProductApi,
+    updateProductApi,
+} from '@/modules/products/api/products.api'
 
 export type NewProductInput = Omit<Product, 'id' | 'createdAt' | 'updatedAt'>
 
 type ProductsStore = {
     products: Product[]
+
     hasHydrated: boolean
     setHasHydrated: (v: boolean) => void
 
-    addProduct: (data: NewProductInput) => string
+    setProducts: (items: Product[]) => void
+
+    addProduct: (data: NewProductInput) => Promise<string>
     updateProduct: (
         id: string,
         patch: Partial<Omit<Product, 'id' | 'createdAt' | 'updatedAt'>>,
-    ) => void
-    removeProduct: (id: string) => void
+    ) => Promise<void>
+    removeProduct: (id: string) => Promise<void>
+
     getById: (id: string) => Product | undefined
     clear: () => void
     clearCategoryFromProducts: (categoryId: string) => void
@@ -25,95 +33,88 @@ type ProductsStore = {
 const STORAGE_KEY = 'data.products'
 const STORAGE_VERSION = 1
 
-const buildProduct = (data: NewProductInput): Product => {
-    const id = Date.now().toString()
-    const now = new Date().toISOString()
-
+function normalizeNewProductToApiPayload(data: NewProductInput) {
     const fillings = (data.fillings ?? [])
-        .map(f => ({ id: f.id, name: f.name.trim() }))
+        .map(f => ({ name: (f?.name ?? '').trim() }))
         .filter(f => f.name.length > 0)
 
     const ingredients = (data.ingredients ?? [])
         .map(i => ({
-            id: i.id,
-            name: i.name.trim(),
-            weightGrams: i.weightGrams.trim(),
+            name: (i?.name ?? '').trim(),
+            weightGrams: (i?.weightGrams ?? '').trim(),
         }))
-        .filter(i => i.name.length > 0 || i.weightGrams.length > 0)
+        .filter(i => i.name.length > 0 && i.weightGrams.length > 0)
 
     const recipe = data.recipe?.trim()
-    const photoes = (data.photoes ?? []).filter(Boolean)
+    const photoUris = (data.photoes ?? [])
+        .map(p => p?.uri)
+        .filter((u): u is string => typeof u === 'string' && u.length > 0)
+        .slice(0, 3)
 
     return {
-        id,
         name: data.name.trim(),
         price: data.price,
         unit: data.unit,
-        createdAt: now,
-        updatedAt: now,
-        ...(data.category ? { category: data.category } : {}),
+        ...(data.category?.id ? { categoryId: data.category.id } : {}),
+        ...(recipe ? { recipe } : {}),
         ...(fillings.length ? { fillings } : {}),
         ...(ingredients.length ? { ingredients } : {}),
-        ...(recipe ? { recipe } : {}),
-        ...(photoes.length ? { photoes } : {}),
+        ...(photoUris.length ? { photoUris } : {}),
     }
+}
+
+function normalizePatchToApiPayload(
+    current: Product,
+    patch: Partial<Omit<Product, 'id' | 'createdAt' | 'updatedAt'>>,
+) {
+    const merged: NewProductInput = {
+        name: patch.name ?? current.name,
+        price: patch.price ?? current.price,
+        unit: patch.unit ?? current.unit,
+        category: 'category' in patch ? patch.category : current.category,
+        fillings: 'fillings' in patch ? patch.fillings : current.fillings,
+        ingredients: 'ingredients' in patch ? patch.ingredients : current.ingredients,
+        recipe: 'recipe' in patch ? patch.recipe : current.recipe,
+        photoes: 'photoes' in patch ? patch.photoes : current.photoes,
+    }
+
+    return normalizeNewProductToApiPayload(merged)
 }
 
 export const useProductsStore = create<ProductsStore>()(
     persist(
         (set, get) => ({
-            products: [...mockProducts],
+            products: [],
+
             hasHydrated: false,
             setHasHydrated: v => set({ hasHydrated: v }),
 
-            addProduct: data => {
-                const product = buildProduct(data)
-                set(state => ({ products: [product, ...state.products] }))
-                return product.id
+            setProducts: items => set({ products: items }),
+
+            addProduct: async data => {
+                const payload = normalizeNewProductToApiPayload(data)
+                const created = await createProduct(payload)
+
+                set(state => ({ products: [created, ...state.products] }))
+                return created.id
             },
 
-            updateProduct: (id, patch) => {
-                const p = { ...patch }
+            updateProduct: async (id, patch) => {
+                const current = get().products.find(p => p.id === id)
+                if (!current) return
 
-                if ('fillings' in p) {
-                    const arr = (p.fillings ?? [])
-                        .map(f => ({ id: f.id!, name: f.name?.trim() ?? '' }))
-                        .filter(f => f.name)
-                    p.fillings = arr.length ? arr : undefined
-                }
-
-                if ('ingredients' in p) {
-                    const arr = (p.ingredients ?? [])
-                        .map(i => ({
-                            id: i.id!,
-                            name: i.name?.trim() ?? '',
-                            weightGrams: i.weightGrams?.trim() ?? '',
-                        }))
-                        .filter(i => i.name || i.weightGrams)
-                    p.ingredients = arr.length ? arr : undefined
-                }
-
-                if ('recipe' in p) {
-                    const r = p.recipe?.trim()
-                    p.recipe = r ? r : undefined
-                }
-
-                if ('photoes' in p) {
-                    const arr = (p.photoes ?? []).filter(Boolean)
-                    p.photoes = arr.length ? arr : undefined
-                }
+                const payload = normalizePatchToApiPayload(current, patch)
+                const updated = await updateProductApi(id, payload)
 
                 set(state => ({
-                    products: state.products.map(prod =>
-                        prod.id === id
-                            ? { ...prod, ...p, updatedAt: new Date().toISOString() }
-                            : prod,
-                    ),
+                    products: state.products.map(p => (p.id === id ? updated : p)),
                 }))
             },
 
-            removeProduct: id =>
-                set(state => ({ products: state.products.filter(p => p.id !== id) })),
+            removeProduct: async id => {
+                await deleteProductApi(id)
+                set(state => ({ products: state.products.filter(p => p.id !== id) }))
+            },
 
             getById: id => get().products.find(p => p.id === id),
 
@@ -130,16 +131,10 @@ export const useProductsStore = create<ProductsStore>()(
             name: STORAGE_KEY,
             version: STORAGE_VERSION,
             storage: createJSONStorage(() => AsyncStorage),
-
             partialize: state => ({ products: state.products }),
-
-            onRehydrateStorage: () => (state, error) => {
-                if (error) {
-                    // console.log('products rehydrate error', error)
-                }
+            onRehydrateStorage: () => state => {
                 state?.setHasHydrated(true)
             },
-
             merge: (persisted, current) => {
                 const persistedState = (persisted ?? {}) as Partial<ProductsStore>
                 return { ...current, ...persistedState, hasHydrated: true }

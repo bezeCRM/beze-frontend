@@ -9,7 +9,6 @@ import ProductsFilters from '../components/list/products-filters'
 import ProductsHeader from '../components/list/products-header'
 import ProductsList from '../components/list/products-list'
 import { useProductsSearch } from '../hooks/useProductsSearch'
-import { useProductsStore } from '../store/products.store'
 import { View, ActivityIndicator, StyleSheet } from 'react-native'
 import { TOAST_SCOPES } from '@/shared/components/toast/scopes'
 
@@ -18,6 +17,7 @@ import { Product } from '@/shared/types/types'
 import { SortOption } from '@/shared/components/sort/types'
 import SortSelect from '@/shared/components/sort/sort-select'
 import { Icon } from '@/shared/ui/icon/icon'
+import { useCatalogSync } from '../hooks/useCatalogSync'
 
 type ProductsSortId = 'priceAsc' | 'priceDesc'
 
@@ -39,12 +39,12 @@ export default function ProductsListScreen() {
     const results = useProductsSearch({ query, activeCategoryId })
     const addQuery = useSearchHistoryStore(s => s.addQuery)
 
-    const hasHydrated = useProductsStore(s => s.hasHydrated)
-
     const sortedResults = useMemo(
         () => applySort(results, sortId, PRODUCT_COMPARATORS),
         [results, sortId],
     )
+
+    const { hasHydrated, isSyncing, refetch } = useCatalogSync()
 
     if (!hasHydrated) {
         return (
@@ -77,11 +77,15 @@ export default function ProductsListScreen() {
                 />
             </View>
 
-            <ProductsList items={sortedResults} />
+            <ProductsList
+                items={sortedResults}
+                refreshing={isSyncing}
+                onRefresh={refetch}
+            />
 
             <ToastViewport
                 scope={TOAST_SCOPES.Products}
-                bottomOffset={90}
+                bottomOffset={80}
                 horizontalInset={15}
             />
         </ScreenContainer>

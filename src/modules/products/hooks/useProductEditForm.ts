@@ -47,7 +47,7 @@ export function useProductEditForm(product?: Product | null) {
 
         const values: ProductFormValues = {
             name: product.name ?? '',
-            category: product.category,
+            category: product.category ?? undefined,
             unit: product.unit ?? 'piece',
             price: String(product.price ?? ''),
             recipe: product.recipe ?? '',

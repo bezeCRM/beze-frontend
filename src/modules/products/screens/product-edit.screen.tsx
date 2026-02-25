@@ -1,5 +1,5 @@
 import { useNavigation, useRoute } from '@react-navigation/native'
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { StyleSheet, TextInput, View } from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -31,6 +31,7 @@ import { createThemedStyles } from '@/shared/theme/create-themed-styles'
 import { useTheme } from '@/shared/theme/useTheme'
 import { Nav, Route } from '@/core/navigation/types'
 import { TOAST_SCOPES } from '@/shared/components/toast/scopes'
+import { toApiError } from '@/api/http/errors'
 
 const MAX_PHOTOES = 3
 
@@ -97,53 +98,62 @@ export default function ProductEditScreen() {
         addPhotoes(picked)
     }, [photoes.length, addPhotoes])
 
+    const [isSubmitting, setIsSubmitting] = useState(false)
     if (!product) return null
 
-    const onValid = (values: ProductCreateFormValues) => {
-        const priceNum = Number(String(values.price).replace(/\s/g, '')) || 0
+    const onValid = async (values: ProductCreateFormValues) => {
+        if (isSubmitting) return
+        setIsSubmitting(true)
+        try {
+            const priceNum = Number(String(values.price).replace(/\s/g, '')) || 0
 
-        const fillingsClean = (values.fillings ?? [])
-            .map(f => ({ id: f.id, name: f.name.trim() }))
-            .filter(f => f.name.length > 0)
+            const fillingsClean = (values.fillings ?? [])
+                .map(f => ({ id: f.id, name: f.name.trim() }))
+                .filter(f => f.name.length > 0)
 
-        const ingredientsClean = (values.ingredients ?? [])
-            .map(i => ({
-                id: i.id,
-                name: i.name.trim(),
-                weightGrams: i.weightGrams.trim(),
-            }))
-            .filter(i => i.name.length > 0 || i.weightGrams.length > 0)
+            const ingredientsClean = (values.ingredients ?? [])
+                .map(i => ({
+                    id: i.id,
+                    name: i.name.trim(),
+                    weightGrams: i.weightGrams.trim(),
+                }))
+                .filter(i => i.name.length > 0 || i.weightGrams.length > 0)
 
-        const photoesClean = (values.photoes ?? [])
-            .filter(p => !!p?.uri)
-            .slice(0, MAX_PHOTOES)
+            const photoesClean = (values.photoes ?? [])
+                .filter(p => !!p?.uri)
+                .slice(0, MAX_PHOTOES)
 
-        updateProduct(product.id, {
-            name: values.name.trim(),
-            price: priceNum,
-            unit: values.unit,
-            category: values.category,
-            fillings: fillingsClean,
-            ingredients: ingredientsClean,
-            recipe: values.recipe ?? '',
-            photoes: photoesClean,
-        })
-
-        navigation.goBack()
-
-        requestAnimationFrame(() => {
-            show('Изменения сохранены', 'success', {
-                scope: TOAST_SCOPES.ProductInfo,
+            await updateProduct(product.id, {
+                name: values.name.trim(),
+                price: priceNum,
+                unit: values.unit,
+                category: values.category ?? undefined,
+                fillings: fillingsClean,
+                ingredients: ingredientsClean,
+                recipe: values.recipe ?? '',
+                photoes: photoesClean,
             })
-        })
+
+            navigation.goBack()
+
+            requestAnimationFrame(() => {
+                show('Изменения сохранены', 'success', {
+                    scope: TOAST_SCOPES.ProductInfo,
+                })
+            })
+        } catch (e) {
+            show(toApiError(e).message, 'error', { scope: route.key })
+        } finally {
+            setIsSubmitting(false)
+        }
     }
 
     const onInvalid = makeOnInvalidToast<
         ProductCreateFormValues,
-        readonly ['name', 'category', 'price']
+        readonly ['name', 'price']
     >({
-        required: ['name', 'category', 'price'] as const,
-        labels: { name: 'Название товара', category: 'Категория', price: 'Цена' },
+        required: ['name', 'price'] as const,
+        labels: { name: 'Название товара', price: 'Цена' },
         show: msg => show(msg, 'error', { scope: route.key }),
     })
 
@@ -166,8 +176,10 @@ export default function ProductEditScreen() {
                     <InternalHeaderTopBar
                         onBack={() => navigation.goBack()}
                         showAction={true}
-                        onActionPress={handleSubmit(onValid, onInvalid)}
-                        actionText="Сохранить"
+                        onActionPress={
+                            isSubmitting ? undefined : handleSubmit(onValid, onInvalid)
+                        }
+                        actionText={isSubmitting ? 'Сохранение...' : 'Сохранить'}
                     />
                 </View>
 
@@ -269,7 +281,7 @@ export default function ProductEditScreen() {
                     </View>
                 </KeyboardAwareScrollView>
 
-                <ToastViewport scope={route.key} bottomOffset={75} />
+                <ToastViewport scope={route.key} bottomOffset={25} />
             </View>
         </ScreenContainer>
     )

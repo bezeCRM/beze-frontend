@@ -6,9 +6,13 @@ import Button from '@/shared/ui/button/button'
 import { createThemedStyles } from '@/shared/theme/create-themed-styles'
 import { Nav } from '@/core/navigation/types'
 
-type Props = { items: Product[] }
+type Props = {
+    items: Product[]
+    refreshing?: boolean
+    onRefresh?: () => void
+}
 
-export default function ProductsList({ items }: Props) {
+export default function ProductsList({ items, refreshing, onRefresh }: Props) {
     const styles = useStyles()
     const navigation = useNavigation<Nav>()
 
@@ -25,6 +29,8 @@ export default function ProductsList({ items }: Props) {
     return (
         <FlatList
             style={styles.list}
+            refreshing={refreshing}
+            onRefresh={onRefresh}
             data={items}
             keyExtractor={item => item.id}
             renderItem={({ item }) => (

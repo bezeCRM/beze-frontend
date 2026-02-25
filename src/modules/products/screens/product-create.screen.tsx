@@ -1,5 +1,5 @@
 import { useNavigation, useRoute } from '@react-navigation/native'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { StyleSheet, TextInput, View } from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -35,6 +35,7 @@ import { createThemedStyles } from '@/shared/theme/create-themed-styles'
 import { useTheme } from '@/shared/theme/useTheme'
 import { Nav, Route } from '@/core/navigation/types'
 import { TOAST_SCOPES } from '@/shared/components/toast/scopes'
+import { toApiError } from '@/api/http/errors'
 
 const MAX_PHOTOES = 3
 
@@ -97,58 +98,67 @@ export default function ProductCreateScreen() {
         addPhotoes(picked)
     }, [photoes.length, addPhotoes])
 
-    const onValid = (values: ProductCreateFormValues) => {
-        const priceNum = Number(String(values.price).replace(/\s/g, '')) || 0
+    const [isSubmitting, setIsSubmitting] = useState(false)
 
-        const fillingsClean = (values.fillings ?? [])
-            .map(f => ({ id: f.id, name: f.name.trim() }))
-            .filter(f => f.name.length > 0)
+    const onValid = async (values: ProductCreateFormValues) => {
+        if (isSubmitting) return
+        setIsSubmitting(true)
+        try {
+            const priceNum = Number(String(values.price).replace(/\s/g, '')) || 0
 
-        const ingredientsClean = (values.ingredients ?? [])
-            .map(i => ({
-                id: i.id,
-                name: i.name.trim(),
-                weightGrams: i.weightGrams.trim(),
-            }))
-            .filter(i => i.name.length > 0 || i.weightGrams.length > 0)
+            const fillingsClean = (values.fillings ?? [])
+                .map(f => ({ id: f.id, name: f.name.trim() }))
+                .filter(f => f.name.length > 0)
 
-        const recipeClean = values.recipe?.trim()
-        const photoesClean = (values.photoes ?? [])
-            .filter(p => !!p?.uri)
-            .slice(0, MAX_PHOTOES)
+            const ingredientsClean = (values.ingredients ?? [])
+                .map(i => ({
+                    id: i.id,
+                    name: i.name.trim(),
+                    weightGrams: i.weightGrams.trim(),
+                }))
+                .filter(i => i.name.length > 0 || i.weightGrams.length > 0)
 
-        const createdName = values.name.trim()
+            const recipeClean = values.recipe?.trim()
+            const photoesClean = (values.photoes ?? [])
+                .filter(p => !!p?.uri)
+                .slice(0, MAX_PHOTOES)
 
-        const newProduct: NewProductInput = {
-            name: createdName,
-            price: priceNum,
-            unit: values.unit,
-            ...(values.category ? { category: values.category } : {}),
-            ...(fillingsClean.length ? { fillings: fillingsClean } : {}),
-            ...(ingredientsClean.length ? { ingredients: ingredientsClean } : {}),
-            ...(recipeClean ? { recipe: recipeClean } : {}),
-            ...(photoesClean.length ? { photoes: photoesClean } : {}),
-        }
+            const createdName = values.name.trim()
 
-        addProduct(newProduct)
-        clearDraft()
+            const newProduct: NewProductInput = {
+                name: createdName,
+                price: priceNum,
+                unit: values.unit,
+                ...(values.category ? { category: values.category } : {}),
+                ...(fillingsClean.length ? { fillings: fillingsClean } : {}),
+                ...(ingredientsClean.length ? { ingredients: ingredientsClean } : {}),
+                ...(recipeClean ? { recipe: recipeClean } : {}),
+                ...(photoesClean.length ? { photoes: photoesClean } : {}),
+            }
 
-        // показываем тост после завершения анимации закрытия экрана
-        navigation.goBack()
+            await addProduct(newProduct)
+            clearDraft()
 
-        requestAnimationFrame(() => {
-            show(`Товар "${createdName}" добавлен`, 'success', {
-                scope: TOAST_SCOPES.Products,
+            navigation.goBack()
+
+            requestAnimationFrame(() => {
+                show(`Товар "${createdName}" добавлен`, 'success', {
+                    scope: TOAST_SCOPES.Products,
+                })
             })
-        })
+        } catch (e) {
+            show(toApiError(e).message, 'error', { scope: route.key })
+        } finally {
+            setIsSubmitting(false)
+        }
     }
 
     const onInvalid = makeOnInvalidToast<
         ProductCreateFormValues,
-        readonly ['name', 'category', 'price']
+        readonly ['name', 'price']
     >({
-        required: ['name', 'category', 'price'] as const,
-        labels: { name: 'Название товара', category: 'Категория', price: 'Цена' },
+        required: ['name', 'price'] as const,
+        labels: { name: 'Название товара', price: 'Цена' },
         show: msg => show(msg, 'error', { scope: route.key }),
     })
 
@@ -279,11 +289,13 @@ export default function ProductCreateScreen() {
                         <Button
                             title="Добавить товар"
                             onPress={handleSubmit(onValid, onInvalid)}
+                            loading={isSubmitting}
+                            disabled={isSubmitting}
                         />
                     </View>
                 </KeyboardAwareScrollView>
 
-                <ToastViewport scope={route.key} bottomOffset={75} />
+                <ToastViewport scope={route.key} bottomOffset={25} />
             </View>
         </ScreenContainer>
     )

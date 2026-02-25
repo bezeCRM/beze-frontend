@@ -30,7 +30,7 @@ export default function Button({
         <TouchableOpacity
             activeOpacity={0.8}
             onPress={onPress}
-            disabled={disabled}
+            disabled={disabled || loading}
             style={[
                 styles.btn,
                 small && styles.smallBtn,
@@ -42,7 +42,9 @@ export default function Button({
                 style,
             ]}
         >
-            <Text style={[styles.text, small && styles.smallText]}>{title}</Text>
+            <Text style={[styles.text, small && styles.smallText]}>
+                {loading ? 'Загрузка...' : title}
+            </Text>
         </TouchableOpacity>
     )
 }
