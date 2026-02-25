@@ -17,6 +17,8 @@ import {
 import SectionCard from '../section/section-card'
 import { createThemedStyles } from '@/shared/theme/create-themed-styles'
 import { useTheme } from '@/shared/theme/useTheme'
+import { toApiError } from '@/api/http/errors'
+import { useToast } from '@/shared/components/toast/toast-provider'
 
 type Props = {
     label: string
@@ -26,6 +28,7 @@ type Props = {
     placeholder?: string
     error?: boolean
     addCategoryEnabled?: boolean
+    toastScope?: string
 }
 
 export default function SelectField({
@@ -36,9 +39,11 @@ export default function SelectField({
     placeholder = 'Выберите категорию',
     error,
     addCategoryEnabled = true,
+    toastScope,
 }: Props) {
     const styles = useStyles()
     const colors = useTheme().theme.colors
+    const { show } = useToast()
 
     const { height: screenH } = useWindowDimensions()
     const [openSelect, setOpenSelect] = useState(false)
@@ -63,13 +68,14 @@ export default function SelectField({
         setOpenSelect(false)
     }
 
-    const { open } = useModalStore()
+    const { open, close } = useModalStore()
     const addCategory = useCategoryStore(s => s.addCategory)
     const setActiveCategory = useCategoryStore(s => s.setActiveCategory)
     const hasCategory = useCategoryStore(s => s.hasCategory)
 
     function handleAddCategory() {
         setOpenSelect(false)
+
         open('form', {
             title: 'Добавление категории',
             placeholder: 'Введите название',
@@ -79,13 +85,19 @@ export default function SelectField({
                 return null
             },
             onSubmit: (name: string) => {
-                const id = addCategory(name)
-                setActiveCategory(id)
-                open('status', {
-                    title: 'Добавление категории',
-                    message: 'Категория успешно добавлена!',
-                    success: true,
-                })
+                void (async () => {
+                    try {
+                        const id = await addCategory(name)
+                        setActiveCategory(id)
+                        close()
+                        show(`Категория "${name}" добавлена`, 'success', {
+                            scope: toastScope,
+                        })
+                    } catch (e) {
+                        close()
+                        show(toApiError(e).message, 'error', { scope: toastScope })
+                    }
+                })()
             },
         })
     }
@@ -172,10 +184,7 @@ export default function SelectField({
                             {addCategoryEnabled && (
                                 <Pressable
                                     onPress={handleAddCategory}
-                                    style={({ pressed }) => [
-                                        styles.option,
-                                        pressed && { backgroundColor: '#f5f5f5' },
-                                    ]}
+                                    style={styles.option}
                                 >
                                     <Text
                                         style={[

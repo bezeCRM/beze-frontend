@@ -226,6 +226,7 @@ export default function ProductCreateScreen() {
                             selectedId={category?.id ?? null}
                             onSelect={opt => setCategory(opt)}
                             error={!!errors.category}
+                            toastScope={route.key}
                         />
 
                         <FillingsEditor

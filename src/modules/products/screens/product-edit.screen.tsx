@@ -219,6 +219,7 @@ export default function ProductEditScreen() {
                             selectedId={category?.id ?? null}
                             onSelect={opt => setCategory(opt)}
                             error={!!errors.category}
+                            toastScope={route.key}
                         />
 
                         <FillingsEditor
@@ -281,7 +282,7 @@ export default function ProductEditScreen() {
                     </View>
                 </KeyboardAwareScrollView>
 
-                <ToastViewport scope={route.key} bottomOffset={25} />
+                <ToastViewport scope={route.key} bottomOffset={15} />
             </View>
         </ScreenContainer>
     )

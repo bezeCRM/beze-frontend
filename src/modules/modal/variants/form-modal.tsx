@@ -10,7 +10,7 @@ export type FormModalProps = BaseModalProps & {
     title: string
     placeholder: string
     buttonTitle: string
-    onSubmit: (value: string) => void
+    onSubmit: (value: string) => void | Promise<void>
     success?: boolean
     successMessage?: string
     error?: string
@@ -36,7 +36,11 @@ export default function FormModal({
     const trimmed = value.trim()
     const primaryDisabled = !trimmed // только пустое поле блокирует кнопку
 
-    function handlePress() {
+    const [isSubmitting, setIsSubmitting] = useState(false)
+
+    async function handlePress() {
+        if (isSubmitting) return
+
         if (validate) {
             const validationMessage = validate(trimmed)
             if (validationMessage) {
@@ -45,9 +49,13 @@ export default function FormModal({
             }
         }
 
-        // если ошибок нет
         setLocalError(null)
-        onSubmit(trimmed)
+        setIsSubmitting(true)
+        try {
+            await onSubmit(trimmed)
+        } finally {
+            setIsSubmitting(false)
+        }
     }
 
     if (success)
@@ -79,9 +87,9 @@ export default function FormModal({
             {!!error && !localError && <Text style={styles.error}>{error}</Text>}
 
             <ModalFooter
-                primaryTitle={buttonTitle}
+                primaryTitle={isSubmitting ? 'Загрузка...' : buttonTitle}
                 onPrimaryPress={handlePress}
-                primaryDisabled={primaryDisabled}
+                primaryDisabled={primaryDisabled || isSubmitting}
             />
         </View>
     )

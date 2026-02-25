@@ -5,6 +5,7 @@ import { Category } from '@/shared/types/types'
 import { useActionSheet } from '@expo/react-native-action-sheet'
 import { useToast } from '@/shared/components/toast/toast-provider'
 import { TOAST_SCOPES } from '@/shared/components/toast/scopes'
+import { toApiError } from '@/api/http/errors'
 
 export default function ProductsFilters() {
     const { categories, activeCategoryId } = useCategoryStore()
@@ -46,13 +47,18 @@ export default function ProductsFilters() {
             buttonTitle: 'Добавить категорию',
             validate: (name: string) =>
                 hasCategory(name) ? 'Такая категория уже существует' : null,
-            onSubmit: (name: string) => {
-                const id = addCategory(name)
-                setActiveCategory(id)
-                close()
-                show(`Категория "${name}" добавлена`, 'success', {
-                    scope: TOAST_SCOPES.Products,
-                })
+            onSubmit: async (name: string) => {
+                try {
+                    const id = await addCategory(name)
+                    setActiveCategory(id)
+                    close()
+                    show(`Категория "${name}" добавлена`, 'success', {
+                        scope: TOAST_SCOPES.Products,
+                    })
+                } catch (e) {
+                    close()
+                    show(toApiError(e).message, 'error', { scope: TOAST_SCOPES.Products })
+                }
             },
         })
     }
