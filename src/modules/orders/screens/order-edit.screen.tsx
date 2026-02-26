@@ -1,5 +1,5 @@
 import { useNavigation, useRoute } from '@react-navigation/native'
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -32,6 +32,8 @@ import { buildNewOrderPayload } from '../utils/buildNewOrderPayload'
 import { createThemedStyles } from '@/shared/theme/create-themed-styles'
 import { Nav, Route } from '@/core/navigation/types'
 import { TOAST_SCOPES } from '@/shared/components/toast/scopes'
+import { toApiError } from '@/api/http/errors'
+import { sanitizeRubInt } from '@/shared/utils/utils'
 
 const MAX_REFERENCES = 3
 
@@ -88,6 +90,8 @@ export default function OrderEditScreen() {
         toastScope: route.key,
     })
 
+    const [isSubmitting, setIsSubmitting] = useState(false)
+
     const onInvalid = useOrderCreateInvalidToast(show as any, route.key)
 
     const { handleAddReferences } = useOrderReferences({
@@ -97,19 +101,27 @@ export default function OrderEditScreen() {
     })
 
     const onValid = useCallback(
-        (values: OrderCreateFormValues) => {
+        async (values: OrderCreateFormValues) => {
             if (!order) return
+            if (isSubmitting) return
+            setIsSubmitting(true)
+            try {
+                const payload = buildNewOrderPayload(values, totalPrice)
+                await updateOrder(order.id, payload)
 
-            const payload = buildNewOrderPayload(values, totalPrice)
-            updateOrder(order.id, payload as any)
-
-            navigation.goBack()
-
-            requestAnimationFrame(() => {
-                show('Изменения сохранены', 'success', { scope: TOAST_SCOPES.OrderInfo })
-            })
+                navigation.goBack()
+                requestAnimationFrame(() => {
+                    show('Изменения сохранены', 'success', {
+                        scope: TOAST_SCOPES.OrderInfo,
+                    })
+                })
+            } catch (e) {
+                show(toApiError(e).message, 'error', { scope: TOAST_SCOPES.OrderInfo })
+            } finally {
+                setIsSubmitting(false)
+            }
         },
-        [navigation, order, show, totalPrice, updateOrder],
+        [isSubmitting, navigation, order, show, totalPrice, updateOrder],
     )
 
     if (!order) {
@@ -117,7 +129,16 @@ export default function OrderEditScreen() {
             <ScreenContainer>
                 <View style={styles.container}>
                     <View style={styles.stickyTopBar}>
-                        <InternalHeaderTopBar onBack={() => navigation.goBack()} />
+                        <InternalHeaderTopBar
+                            onBack={() => navigation.goBack()}
+                            showAction={true}
+                            onActionPress={
+                                isSubmitting
+                                    ? undefined
+                                    : handleSubmit(onValid, onInvalid)
+                            }
+                            actionText={isSubmitting ? 'Сохранение...' : 'Сохранить'}
+                        />
                     </View>
                     <View style={styles.emptyBody}>
                         <Text style={styles.emptyText}>Заказ не найден</Text>
@@ -134,8 +155,10 @@ export default function OrderEditScreen() {
                     <InternalHeaderTopBar
                         onBack={() => navigation.goBack()}
                         showAction={true}
-                        onActionPress={handleSubmit(onValid, onInvalid)}
-                        actionText="Сохранить"
+                        onActionPress={
+                            isSubmitting ? undefined : handleSubmit(onValid, onInvalid)
+                        }
+                        actionText={isSubmitting ? 'Сохранение...' : 'Сохранить'}
                     />
                 </View>
 
@@ -235,16 +258,24 @@ export default function OrderEditScreen() {
                             other={extra?.other ?? '0'}
                             discount={extra?.discount ?? '0'}
                             onChangeDelivery={t =>
-                                setValue('extra.delivery', t, { shouldDirty: true })
+                                setValue('extra.delivery', sanitizeRubInt(t), {
+                                    shouldDirty: true,
+                                })
                             }
                             onChangeUrgency={t =>
-                                setValue('extra.urgency', t, { shouldDirty: true })
+                                setValue('extra.urgency', sanitizeRubInt(t), {
+                                    shouldDirty: true,
+                                })
                             }
                             onChangeOther={t =>
-                                setValue('extra.other', t, { shouldDirty: true })
+                                setValue('extra.other', sanitizeRubInt(t), {
+                                    shouldDirty: true,
+                                })
                             }
                             onChangeDiscount={t =>
-                                setValue('extra.discount', t, { shouldDirty: true })
+                                setValue('extra.discount', sanitizeRubInt(t), {
+                                    shouldDirty: true,
+                                })
                             }
                         />
 
@@ -274,7 +305,7 @@ export default function OrderEditScreen() {
                     </View>
                 </KeyboardAwareScrollView>
 
-                <ToastViewport scope={route.key} bottomOffset={75} />
+                <ToastViewport scope={route.key} bottomOffset={15} />
             </View>
         </ScreenContainer>
     )

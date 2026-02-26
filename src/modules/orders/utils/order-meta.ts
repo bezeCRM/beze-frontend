@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useTheme } from '@/shared/theme/useTheme'
-import type { OrderPaymentStatus, OrderStatus } from '@/shared/types/types'
+import type { OrderStatus } from '@/shared/types/types'
 
 type Colors = {
     brand: string
@@ -23,10 +23,10 @@ export const ORDER_STATUS_OPTIONS: { id: OrderStatus; name: string }[] = [
     { id: 'canceled', name: 'Отменён' },
 ]
 
-export const ORDER_PAYMENT_OPTIONS: { id: OrderPaymentStatus; name: string }[] = [
+export const ORDER_PAYMENT_OPTIONS: { id: string; name: string }[] = [
     { id: 'unpaid', name: 'Не оплачен' },
     { id: 'partial', name: 'Частичная оплата' },
-    { id: 'paid', name: 'Оплачено' },
+    { id: 'paid', name: 'Оплачен' },
 ]
 
 export function statusPillMeta(status: OrderStatus, colors: Colors) {
@@ -37,8 +37,8 @@ export function statusPillMeta(status: OrderStatus, colors: Colors) {
     return { label: 'Отменён', bg: colors.danger }
 }
 
-export function paymentPillMeta(payment: OrderPaymentStatus, colors: Colors) {
-    if (payment === 'paid') return { label: 'Оплачено', bg: colors.success }
+export function paymentPillMeta(payment: string, colors: Colors) {
+    if (payment === 'paid') return { label: 'Оплачен', bg: colors.success }
     if (payment === 'partial') return { label: 'Частичная оплата', bg: colors.warning }
     return { label: 'Не оплачен', bg: colors.danger }
 }
@@ -50,8 +50,7 @@ export function useOrderPillMeta() {
     return useMemo(() => {
         return {
             statusPillMeta: (status: OrderStatus) => statusPillMeta(status, colors),
-            paymentPillMeta: (payment: OrderPaymentStatus) =>
-                paymentPillMeta(payment, colors),
+            paymentPillMeta: (payment: string) => paymentPillMeta(payment, colors),
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [theme.scheme])

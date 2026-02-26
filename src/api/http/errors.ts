@@ -88,19 +88,39 @@ export function toApiError(err: unknown): ApiError {
     const status = typeof e.response?.status === 'number' ? e.response.status : null
     const data = e.response?.data
 
+    // 1) таймауты
     if (code === 'ECONNABORTED') {
         return {
             kind: 'timeout',
             status,
-            message: 'Ошибка сервера, попробуйте позже',
+            message: 'Не удалось подключиться к серверу',
             details: err,
         }
     }
 
+    // 2) нет ответа от сервера вообще: нет интернета, сервер упал, dns, ssl, etc.
     if (!e.response) {
-        return { kind: 'network', status: null, message: 'Ошибка сети', details: err }
+        const msg = typeof e.message === 'string' ? e.message.toLowerCase() : ''
+
+        // если хочешь различать, оставил простую эвристику
+        const isNetwork =
+            code === 'ERR_NETWORK' ||
+            code === 'ENOTFOUND' ||
+            code === 'ECONNREFUSED' ||
+            code === 'EAI_AGAIN' ||
+            msg.includes('network error')
+
+        return {
+            kind: 'network',
+            status: null,
+            message: isNetwork
+                ? 'Не удалось подключиться к серверу'
+                : 'Не удалось подключиться к серверу',
+            details: err,
+        }
     }
 
+    // 3) есть response -> это http-ошибка
     const fastApiMsg = pickFastApiMessage(data)
 
     if (status === 401) {
@@ -115,11 +135,22 @@ export function toApiError(err: unknown): ApiError {
         return {
             kind: 'http',
             status,
-            message: fastApiMsg ?? 'unauthorized',
+            message: fastApiMsg ?? 'Требуется авторизация',
             details: data,
         }
     }
 
+    // 4) серверные ошибки
+    if (status != null && status >= 500) {
+        return {
+            kind: 'http',
+            status,
+            message: 'Ошибка сервера, попробуйте позже',
+            details: data,
+        }
+    }
+
+    // 5) остальное
     return {
         kind: 'http',
         status,

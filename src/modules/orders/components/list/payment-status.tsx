@@ -1,13 +1,12 @@
 import React from 'react'
 import { StyleSheet, Text, View } from 'react-native'
-import type { OrderPaymentStatus } from '@/shared/types/types'
 import type { IconName } from '@/shared/ui/icon/icon'
 import { useTheme } from '@/shared/theme/useTheme'
 import { createThemedStyles } from '@/shared/theme/create-themed-styles'
 import { Icon } from '@/shared/ui/icon/icon'
 
 type Props = {
-    status: OrderPaymentStatus
+    status: string
 }
 type GetMetaReturn = {
     label: string
@@ -15,11 +14,11 @@ type GetMetaReturn = {
     color: string
 }
 
-function GetMeta(status: OrderPaymentStatus): GetMetaReturn {
+function GetMeta(status: string): GetMetaReturn {
     const colors = useTheme().theme.colors
 
     if (status === 'paid') {
-        return { label: 'Оплачено', iconName: 'success-icon', color: colors.success }
+        return { label: 'Оплачен', iconName: 'success-icon', color: colors.success }
     }
     if (status === 'partial') {
         return {
@@ -28,7 +27,7 @@ function GetMeta(status: OrderPaymentStatus): GetMetaReturn {
             color: colors.warning,
         }
     }
-    return { label: 'Не оплачено', iconName: 'error-icon', color: colors.danger }
+    return { label: 'Не оплачен', iconName: 'error-icon', color: colors.danger }
 }
 
 export default function PaymentStatus({ status }: Props) {

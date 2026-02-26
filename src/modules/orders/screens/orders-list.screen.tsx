@@ -9,7 +9,6 @@ import OrdersHeader from '../components/list/orders-header'
 import OrdersList from '../components/list/orders-list'
 import { useOrdersSearch } from '../hooks/useOrdersSearch'
 import { View, ActivityIndicator, StyleSheet } from 'react-native'
-import { useOrdersStore } from '../store/orders.store'
 import {
     applySort,
     makeDateComparator,
@@ -21,6 +20,7 @@ import SortSelect from '@/shared/components/sort/sort-select'
 import { Icon } from '@/shared/ui/icon/icon'
 import { ModeSwitch, SwitchItem } from '@/shared/components/mode-switch/mode-switch'
 import { TOAST_SCOPES } from '@/shared/components/toast/scopes'
+import { useOrdersSync } from '../hooks/useOrdersSync' // добавь
 
 type OrdersSortId = 'priceAsc' | 'priceDesc' | 'dateAsc' | 'dateDesc'
 type OrdersMode = 'active' | 'archive'
@@ -49,17 +49,15 @@ function todayDateValue() {
 }
 
 export default function OrdersListScreen() {
-    const hasHydrated = useOrdersStore(s => s.hasHydrated)
     const [query, setQuery] = useState('')
     const [activeFilterId, setActiveFilterId] = useState<OrdersFilterId>('all')
+    const [sortId, setSortId] = useState<OrdersSortId>('dateAsc')
+    const [mode, setMode] = useState<OrdersMode>('active')
 
     const addQuery = useSearchHistoryStore(s => s.addQuery)
 
     const activeStatus = activeFilterId === 'all' ? null : activeFilterId
     const results = useOrdersSearch({ query, activeStatus })
-
-    const [sortId, setSortId] = useState<OrdersSortId>('dateAsc')
-    const [mode, setMode] = useState<OrdersMode>('active')
 
     const switchItems = useMemo<SwitchItem<OrdersMode>[]>(
         () => [
@@ -81,6 +79,8 @@ export default function OrdersListScreen() {
         () => applySort(filteredByMode, sortId, ORDER_COMPARATORS),
         [filteredByMode, sortId],
     )
+
+    const { hasHydrated, isSyncing, refetch } = useOrdersSync() // добавь
 
     if (!hasHydrated) {
         return (
@@ -133,11 +133,13 @@ export default function OrdersListScreen() {
                     mode === 'archive' ? 'В архиве пока нет заказов' : 'Заказов пока нет'
                 }
                 showCreateButton={mode !== 'archive'}
+                refreshing={isSyncing}
+                onRefresh={refetch}
             />
 
             <ToastViewport
                 scope={TOAST_SCOPES.Orders}
-                bottomOffset={90}
+                bottomOffset={80}
                 horizontalInset={20}
             />
         </ScreenContainer>

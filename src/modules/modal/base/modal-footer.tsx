@@ -14,7 +14,7 @@ import {
 type Props = {
     primaryTitle?: string
     secondaryTitle?: string
-    onPrimaryPress?: () => void
+    onPrimaryPress?: (() => void) | ((orderId: string) => Promise<void>)
     onSecondaryPress?: () => void
     primaryDisabled?: boolean
     danger?: boolean
@@ -81,7 +81,7 @@ export default function ModalFooter({
 
             {primaryTitle && (
                 <Pressable
-                    onPress={onPrimaryPress}
+                    onPress={onPrimaryPress as any}
                     disabled={primaryDisabled}
                     style={primaryStyle}
                     hitSlop={10}

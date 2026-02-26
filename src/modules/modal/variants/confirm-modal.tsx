@@ -7,7 +7,7 @@ import { createThemedStyles } from '@/shared/theme/create-themed-styles'
 export type ConfirmModalProps = BaseModalProps & {
     title: string
     message: string
-    onConfirm: () => void
+    onConfirm: (() => void) | ((orderId: string) => Promise<void>)
     onCancel?: () => void
     confirmText?: string
     cancelText?: string

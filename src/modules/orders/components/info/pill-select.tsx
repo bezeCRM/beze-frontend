@@ -21,6 +21,7 @@ type Props<T extends string> = {
     options: Option<T>[]
     backgroundColor: string
     onSelect: (v: T) => void
+    disabled?: boolean
 }
 
 export default function PillSelect<T extends string>({
@@ -28,6 +29,7 @@ export default function PillSelect<T extends string>({
     options,
     backgroundColor,
     onSelect,
+    disabled,
 }: Props<T>) {
     const styles = useStyles()
     const colors = useTheme().theme.colors
@@ -73,7 +75,7 @@ export default function PillSelect<T extends string>({
                     activeOpacity={0.85}
                 >
                     <Text style={styles.pillText} numberOfLines={1}>
-                        {selected?.name ?? ''}
+                        {disabled ? 'Загрузка...' : (selected?.name ?? '')}
                     </Text>
                     <Icon
                         name="arrow-icon"

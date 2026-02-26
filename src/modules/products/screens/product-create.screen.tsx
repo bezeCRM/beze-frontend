@@ -36,6 +36,7 @@ import { useTheme } from '@/shared/theme/useTheme'
 import { Nav, Route } from '@/core/navigation/types'
 import { TOAST_SCOPES } from '@/shared/components/toast/scopes'
 import { toApiError } from '@/api/http/errors'
+import { sanitizeRubInt } from '@/shared/utils/utils'
 
 const MAX_PHOTOES = 3
 
@@ -85,6 +86,13 @@ export default function ProductCreateScreen() {
     const ingredients = useMemo(() => rawIngredients ?? [], [rawIngredients])
     const photoes = watch('photoes') ?? []
 
+    function normalizePriceToInt(value: unknown): number {
+        const n =
+            typeof value === 'number' ? value : Number(String(value).replace(',', '.'))
+        if (!Number.isFinite(n)) return 0
+        return Math.max(0, Math.round(n))
+    }
+
     const { categories } = useCategoryStore()
     const addProduct = useProductsStore(s => s.addProduct)
 
@@ -127,7 +135,7 @@ export default function ProductCreateScreen() {
 
             const newProduct: NewProductInput = {
                 name: createdName,
-                price: priceNum,
+                price: normalizePriceToInt(priceNum),
                 unit: values.unit,
                 ...(values.category ? { category: values.category } : {}),
                 ...(fillingsClean.length ? { fillings: fillingsClean } : {}),
@@ -261,7 +269,9 @@ export default function ProductCreateScreen() {
                             <TextInput
                                 value={price}
                                 onChangeText={t =>
-                                    setValue('price', t, { shouldValidate: true })
+                                    setValue('price', sanitizeRubInt(t), {
+                                        shouldValidate: true,
+                                    })
                                 }
                                 placeholder={
                                     unit === 'piece'

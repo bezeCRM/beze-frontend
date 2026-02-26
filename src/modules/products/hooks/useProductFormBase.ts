@@ -1,13 +1,14 @@
-import { useForm } from 'react-hook-form'
-import { z } from 'zod'
-import { zodResolver } from '@hookform/resolvers/zod'
 import type {
     Category,
-    ProductUnit,
     Filling,
     Ingredient,
     PhotoItem,
+    ProductUnit,
 } from '@/shared/types/types'
+import { sanitizeRubInt } from '@/shared/utils/utils'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
 
 const CategorySchema = z.object({
     id: z.string(),
@@ -144,7 +145,9 @@ export function useProductFormBase(defaultValues: ProductFormValues) {
         const list: Ingredient[] = form.getValues('ingredients') ?? []
         form.setValue(
             'ingredients',
-            list.map(i => (i.id === id ? { ...i, weightGrams } : i)),
+            list.map(i =>
+                i.id === id ? { ...i, weightGrams: sanitizeRubInt(weightGrams) } : i,
+            ),
             { shouldDirty: true },
         )
     }

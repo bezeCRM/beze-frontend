@@ -10,12 +10,16 @@ type Props = {
     items: Order[]
     emptyTitle?: string
     showCreateButton?: boolean
+    refreshing?: boolean
+    onRefresh?: () => void
 }
 
 export default function OrdersList({
     items,
     emptyTitle = 'Заказов пока нет',
     showCreateButton = true,
+    refreshing,
+    onRefresh,
 }: Props) {
     const styles = useStyles()
     const navigation = useNavigation<Nav>()
@@ -37,6 +41,8 @@ export default function OrdersList({
             style={styles.list}
             data={items}
             keyExtractor={item => item.id}
+            refreshing={refreshing}
+            onRefresh={onRefresh}
             renderItem={({ item }) => (
                 <OrderCard
                     order={item}

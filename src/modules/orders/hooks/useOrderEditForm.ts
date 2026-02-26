@@ -5,6 +5,7 @@ import {
     type OrderCreateFormValues,
     type OrderCreateItem,
 } from './useOrderFormBase'
+import { getOrderPaymentStatus } from '../utils/orderPaymentStatus'
 
 function toText(n: unknown) {
     const num = typeof n === 'number' ? n : Number(n)
@@ -110,7 +111,7 @@ export function useOrderEditForm(order?: Order | null) {
             },
             notes: order.notes ?? '',
             references: normalizeReferences(order.id, order.references),
-            paymentStatus: (order as any).paymentStatus ?? 'unpaid',
+            paymentStatus: getOrderPaymentStatus(order) ?? 'unpaid',
             status: (order as any).status ?? 'new',
             inPlanner: !!(order as any).inPlanner,
             ...(typeof (order as any).paidAmount !== 'undefined'

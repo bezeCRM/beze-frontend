@@ -34,7 +34,6 @@ export type Ingredient = {
 
 // заказы
 export type OrderStatus = 'new' | 'inWork' | 'ready' | 'delivered' | 'canceled'
-export type OrderPaymentStatus = 'unpaid' | 'partial' | 'paid'
 
 export type OrderDeliveryType = 'pickup' | 'delivery'
 
@@ -81,7 +80,6 @@ export type Order = {
     notes?: string
     references?: PhotoItem[]
 
-    paymentStatus: OrderPaymentStatus
     status: OrderStatus
     paidAmount: number
 

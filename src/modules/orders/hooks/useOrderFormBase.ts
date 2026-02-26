@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import type { Filling, PhotoItem, Product } from '@/shared/types/types'
+import { sanitizeRubInt } from '@/shared/utils/utils'
 
 export type OrderCreateItem = {
     id: string
@@ -291,7 +292,9 @@ export function useOrderFormBase() {
         const list = (form.getValues('items') as OrderCreateItem[]) ?? []
         form.setValue(
             'items',
-            list.map(i => (i.id === itemId ? { ...i, decorPrice: value } : i)),
+            list.map(i =>
+                i.id === itemId ? { ...i, decorPrice: sanitizeRubInt(value) } : i,
+            ),
             { shouldDirty: true },
         )
     }

@@ -5,6 +5,7 @@ import PaymentStatus from './payment-status'
 import { useTheme } from '@/shared/theme/useTheme'
 import { createThemedStyles } from '@/shared/theme/create-themed-styles'
 import { formatDeliveryDateTime } from '../../utils/order-format'
+import { getOrderPaymentStatus } from '../../utils/orderPaymentStatus'
 
 type Props = {
     order: Order
@@ -48,7 +49,7 @@ export default function OrderCard({ order, onPress }: Props) {
                 <Text style={styles.price}>
                     {order.totalPrice.toLocaleString('ru-RU')} ₽
                 </Text>
-                <PaymentStatus status={order.paymentStatus} />
+                <PaymentStatus status={getOrderPaymentStatus(order)} />
             </View>
         </TouchableOpacity>
     )

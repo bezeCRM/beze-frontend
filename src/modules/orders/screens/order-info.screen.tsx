@@ -27,6 +27,9 @@ import OrderTotalRow from '../components/info/order-total-row'
 import { createThemedStyles } from '@/shared/theme/create-themed-styles'
 import { Nav, Route } from '@/core/navigation/types'
 import { TOAST_SCOPES } from '@/shared/components/toast/scopes'
+import { getOrderPaymentStatus } from '../utils/orderPaymentStatus'
+import { useOrdersStore } from '../store/orders.store'
+import { toApiError } from '@/api/http/errors'
 
 export default function OrderInfoScreen() {
     const styles = useStyles()
@@ -36,14 +39,7 @@ export default function OrderInfoScreen() {
     const { show } = useToast()
 
     const orderId = route.params.orderId
-    const {
-        order,
-        setStatus,
-        setPaymentStatus,
-        setPaidAmount,
-        setInPlanner,
-        removeOrder,
-    } = useOrderInfo(orderId)
+    const { order, setInPlanner } = useOrderInfo(orderId)
 
     const [deleteVisible, setDeleteVisible] = useState(false)
 
@@ -52,26 +48,26 @@ export default function OrderInfoScreen() {
         [order?.createdAt],
     )
 
+    const removeOrder = useOrdersStore(s => s.removeOrder)
+    const patchOrder = useOrdersStore(s => s.patchOrder)
+
     if (!order) return null
 
     const openDelete = () => setDeleteVisible(true)
     const closeDelete = () => setDeleteVisible(false)
 
-    const confirmDelete = () => {
-        const deletedId = order.id
-        const deletedName = order.name ? `"${order.name}"` : `#${order.id}`
-
-        setDeleteVisible(false)
-        navigation.goBack()
-
-        requestAnimationFrame(() => {
-            setTimeout(() => {
-                removeOrder(deletedId)
-                show(`Заказ ${deletedName} удален`, 'success', {
-                    scope: TOAST_SCOPES.Orders,
-                })
-            }, 0)
-        })
+    const confirmDelete = async () => {
+        try {
+            await removeOrder(orderId) // orderId должен быть из route/props
+            closeDelete()
+            navigation.goBack()
+            requestAnimationFrame(() => {
+                show('Заказ удалён', 'success', { scope: TOAST_SCOPES.Orders })
+            })
+        } catch (e) {
+            closeDelete()
+            show(toApiError(e).message, 'error', { scope: TOAST_SCOPES.OrderInfo })
+        }
     }
 
     const deleteMessage = `Вы уверены, что хотите удалить заказ ${order.name ? `"${order.name}"` : `#${order.id}`}?`
@@ -101,12 +97,18 @@ export default function OrderInfoScreen() {
 
                     <OrderStatusBar
                         status={order.status}
-                        paymentStatus={order.paymentStatus}
+                        paymentStatus={getOrderPaymentStatus(order)}
                         totalPrice={order.totalPrice}
                         paidAmount={order.paidAmount}
-                        onChangeStatus={setStatus}
-                        onChangePayment={setPaymentStatus}
-                        onChangePaidAmount={setPaidAmount}
+                        onChangeStatus={async s => {
+                            await patchOrder(order.id, { status: s })
+                        }}
+                        onChangePaidAmount={async v => {
+                            await patchOrder(order.id, { paidAmount: v })
+                        }}
+                        onError={msg =>
+                            show(msg, 'error', { scope: TOAST_SCOPES.OrderInfo })
+                        }
                     />
 
                     <View style={styles.content}>
@@ -139,7 +141,7 @@ export default function OrderInfoScreen() {
                     />
                 </BaseModal>
 
-                <ToastViewport scope={TOAST_SCOPES.OrderInfo} bottomOffset={25} />
+                <ToastViewport scope={TOAST_SCOPES.OrderInfo} bottomOffset={15} />
             </View>
         </ScreenContainer>
     )

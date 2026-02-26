@@ -45,6 +45,8 @@ import { createThemedStyles } from '@/shared/theme/create-themed-styles'
 import { useTheme } from '@/shared/theme/useTheme'
 import { Nav } from '@/core/navigation/types'
 import { TOAST_SCOPES } from '@/shared/components/toast/scopes'
+import { toApiError } from '@/api/http/errors'
+import { sanitizeRubInt } from '@/shared/utils/utils'
 
 const MAX_REFERENCES = 3
 
@@ -126,15 +128,19 @@ export default function OrderCreateScreen() {
     })
 
     const onValid = useCallback(
-        (values: OrderCreateFormValues) => {
-            const payload = buildNewOrderPayload(values, totalPrice)
-            addOrder(payload)
-            clearDraft()
+        async (values: OrderCreateFormValues) => {
+            try {
+                const payload = buildNewOrderPayload(values, totalPrice)
+                await addOrder(payload)
+                clearDraft()
 
-            navigation.goBack()
-            requestAnimationFrame(() => {
-                show('Заказ добавлен', 'success', { scope: TOAST_SCOPES.Orders })
-            })
+                navigation.goBack()
+                requestAnimationFrame(() => {
+                    show('Заказ добавлен', 'success', { scope: TOAST_SCOPES.Orders })
+                })
+            } catch (e) {
+                show(toApiError(e).message, 'error', { scope: TOAST_SCOPES.OrderCreate })
+            }
         },
         [addOrder, clearDraft, navigation, show, totalPrice],
     )
@@ -248,16 +254,24 @@ export default function OrderCreateScreen() {
                             other={extra?.other ?? '0'}
                             discount={extra?.discount ?? '0'}
                             onChangeDelivery={t =>
-                                setValue('extra.delivery', t, { shouldDirty: true })
+                                setValue('extra.delivery', sanitizeRubInt(t), {
+                                    shouldDirty: true,
+                                })
                             }
                             onChangeUrgency={t =>
-                                setValue('extra.urgency', t, { shouldDirty: true })
+                                setValue('extra.urgency', sanitizeRubInt(t), {
+                                    shouldDirty: true,
+                                })
                             }
                             onChangeOther={t =>
-                                setValue('extra.other', t, { shouldDirty: true })
+                                setValue('extra.other', sanitizeRubInt(t), {
+                                    shouldDirty: true,
+                                })
                             }
                             onChangeDiscount={t =>
-                                setValue('extra.discount', t, { shouldDirty: true })
+                                setValue('extra.discount', sanitizeRubInt(t), {
+                                    shouldDirty: true,
+                                })
                             }
                         />
 
@@ -340,7 +354,7 @@ export default function OrderCreateScreen() {
                     </View>
                 </KeyboardAwareScrollView>
 
-                <ToastViewport scope={TOAST_SCOPES.OrderCreate} bottomOffset={75} />
+                <ToastViewport scope={TOAST_SCOPES.OrderCreate} bottomOffset={15} />
             </View>
         </ScreenContainer>
     )
