@@ -1,3 +1,4 @@
+import { getOrderPaymentStatus } from '@/modules/orders/utils/orderPaymentStatus'
 import type { Order } from '@/shared/types/types'
 
 export type FinancePeriod = 'month' | 'year'
@@ -56,8 +57,8 @@ export function calcReceivedRevenue(
         const paidRaw = Math.max(0, toNum(o.paidAmount))
         const paid = clamp(0, paidRaw, total)
 
-        if (o.paymentStatus === 'paid') sum += total
-        else if (o.paymentStatus === 'partial') sum += paid
+        if (getOrderPaymentStatus(o) === 'paid') sum += total
+        else if (getOrderPaymentStatus(o) === 'partial') sum += paid
     }
 
     return sum
@@ -87,7 +88,7 @@ export function calcExpectedRest(
         // unpaid -> ожидаем всю сумму
         // partial -> ожидаем остаток
         // paid -> 0
-        if (o.paymentStatus === 'paid') continue
+        if (getOrderPaymentStatus(o) === 'paid') continue
 
         sum += Math.max(0, total - paid)
     }
@@ -147,7 +148,8 @@ export function calcPaidOrdersCount(
         if (!od) continue
         if (!isInPeriod(od, now, period)) continue
 
-        if (o.paymentStatus !== 'paid' && o.paymentStatus !== 'partial') continue
+        if (getOrderPaymentStatus(o) !== 'paid' && getOrderPaymentStatus(o) !== 'partial')
+            continue
 
         const total = Math.max(0, toNum(o.totalPrice))
         if (total <= 0) continue

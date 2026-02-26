@@ -19,6 +19,7 @@ import {
 import OrderCard from '@/modules/orders/components/list/order-card'
 import { Icon } from '@/shared/ui/icon/icon'
 import { useTheme } from '@/shared/theme/useTheme'
+import { getOrderPaymentStatus } from '@/modules/orders/utils/orderPaymentStatus'
 
 export default function FinancesScreen({ navigation }: any) {
     const { bottom } = useSafeAreaInsets()
@@ -38,7 +39,8 @@ export default function FinancesScreen({ navigation }: any) {
         return (orders ?? [])
             .filter(
                 o =>
-                    (o.paymentStatus === 'paid' || o.paymentStatus === 'partial') &&
+                    (getOrderPaymentStatus(o) === 'paid' ||
+                        getOrderPaymentStatus(o) === 'partial') &&
                     o.status !== 'canceled',
             )
             .filter(o => !!o.lastPaymentAt)
