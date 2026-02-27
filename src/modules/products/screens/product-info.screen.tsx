@@ -22,6 +22,7 @@ import BaseModal from '@/modules/modal/base/base-modal'
 import ConfirmModal from '@/modules/modal/variants/confirm-modal'
 import { Nav, Route } from '@/core/navigation/types'
 import { TOAST_SCOPES } from '@/shared/components/toast/scopes'
+import { toApiError } from '@/api/http/errors'
 
 export default function ProductInfoScreen() {
     const { bottom } = useSafeAreaInsets()
@@ -46,21 +47,25 @@ export default function ProductInfoScreen() {
     const openDelete = () => setDeleteVisible(true)
     const closeDelete = () => setDeleteVisible(false)
 
-    const confirmDelete = () => {
+    const confirmDelete = async () => {
         const deletedId = product.id
         const deletedName = product.name
 
         setDeleteVisible(false)
-        navigation.goBack()
 
-        requestAnimationFrame(() => {
-            setTimeout(() => {
-                removeProduct(deletedId)
-                show(`Товар "${deletedName}" удален`, 'success', {
+        try {
+            await removeProduct(deletedId)
+
+            navigation.goBack()
+            requestAnimationFrame(() => {
+                show(`Товар "${deletedName}" удалён`, 'success', {
                     scope: TOAST_SCOPES.Products,
                 })
-            }, 0)
-        })
+            })
+        } catch (e) {
+            // не уходим назад, остаёмся на карточке товара
+            show(toApiError(e).message, 'error', { scope: TOAST_SCOPES.ProductInfo })
+        }
     }
 
     const deleteMessage = `Вы уверены, что хотите удалить товар "${product.name}"?`
@@ -107,7 +112,7 @@ export default function ProductInfoScreen() {
                     />
                 </BaseModal>
 
-                <ToastViewport scope={TOAST_SCOPES.ProductInfo} bottomOffset={25} />
+                <ToastViewport scope={TOAST_SCOPES.ProductInfo} bottomOffset={15} />
             </View>
         </ScreenContainer>
     )

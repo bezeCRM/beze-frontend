@@ -31,6 +31,8 @@ import { useProfileSettingsStore } from '@/modules/profile/store/profile-setting
 import { useProfileSettingsForm } from '@/modules/profile/hooks/useProfileSettingsForm'
 import type { ProfileSettingsFormValues } from '@/modules/profile/hooks/useProfileSettingsFormBase'
 import { TOAST_SCOPES } from '@/shared/components/toast/scopes'
+import { useProductsStore } from '@/modules/products/store/products.store'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 export default function SettingsScreen() {
     const { bottom } = useSafeAreaInsets()
@@ -108,6 +110,15 @@ export default function SettingsScreen() {
         if (can) await Linking.openURL(url)
     }
 
+    // ресет
+    async function resetCatalogLocal() {
+        // чистим persistent cache
+        await AsyncStorage.multiRemove(['data.products', 'data.categories'])
+
+        // чистим runtime state
+        useProductsStore.getState().clear()
+    }
+
     return (
         <ScreenContainer>
             <View style={styles.container}>
@@ -183,6 +194,10 @@ export default function SettingsScreen() {
                                 </View>
                             </Pressable>
                         </SectionCard>
+
+                        <Pressable onPress={() => void resetCatalogLocal()}>
+                            <Text style={styles.reportText}>Очистить стор</Text>
+                        </Pressable>
 
                         <Pressable onPress={() => void openSupportEmail()}>
                             <Text style={styles.reportText}>Сообщить о проблеме</Text>

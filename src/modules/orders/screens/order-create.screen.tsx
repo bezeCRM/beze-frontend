@@ -1,5 +1,5 @@
 import { useNavigation } from '@react-navigation/native'
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { StyleSheet, Switch, Text, View } from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -127,8 +127,12 @@ export default function OrderCreateScreen() {
         addReferences,
     })
 
+    const [isSubmitting, setIsSubmitting] = useState(false)
+
     const onValid = useCallback(
         async (values: OrderCreateFormValues) => {
+            if (isSubmitting) return
+            setIsSubmitting(true)
             try {
                 const payload = buildNewOrderPayload(values, totalPrice)
                 await addOrder(payload)
@@ -140,9 +144,11 @@ export default function OrderCreateScreen() {
                 })
             } catch (e) {
                 show(toApiError(e).message, 'error', { scope: TOAST_SCOPES.OrderCreate })
+            } finally {
+                setIsSubmitting(false)
             }
         },
-        [addOrder, clearDraft, navigation, show, totalPrice],
+        [addOrder, clearDraft, isSubmitting, navigation, show, totalPrice],
     )
 
     return (
@@ -350,6 +356,8 @@ export default function OrderCreateScreen() {
                         <Button
                             title="Создать заказ"
                             onPress={handleSubmit(onValid, onInvalid)}
+                            loading={isSubmitting}
+                            disabled={isSubmitting}
                         />
                     </View>
                 </KeyboardAwareScrollView>

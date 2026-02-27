@@ -116,7 +116,7 @@ export default function OrderEditScreen() {
                     })
                 })
             } catch (e) {
-                show(toApiError(e).message, 'error', { scope: TOAST_SCOPES.OrderInfo })
+                show(toApiError(e).message, 'error', { scope: TOAST_SCOPES.OrderEdit })
             } finally {
                 setIsSubmitting(false)
             }
@@ -305,7 +305,7 @@ export default function OrderEditScreen() {
                     </View>
                 </KeyboardAwareScrollView>
 
-                <ToastViewport scope={route.key} bottomOffset={15} />
+                <ToastViewport scope={TOAST_SCOPES.OrderEdit} bottomOffset={15} />
             </View>
         </ScreenContainer>
     )
