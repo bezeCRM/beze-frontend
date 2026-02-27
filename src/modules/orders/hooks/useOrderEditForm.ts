@@ -63,6 +63,13 @@ export function useOrderEditForm(order?: Order | null) {
 
         const isPickup = order.deliveryType === 'pickup'
 
+        const decorByProductId = new Map<string, number>()
+        for (const d of order.decorPrices ?? []) {
+            if (!d?.id) continue
+            const price = typeof d.price === 'number' ? d.price : Number(d.price)
+            decorByProductId.set(String(d.id), Number.isFinite(price) ? price : 0)
+        }
+
         const items: OrderCreateItem[] = (order.products ?? []).map((l: any, idx) => {
             const unit = l?.unit ?? l?.product?.unit
             const amount = typeof l?.amount === 'number' ? l.amount : 1
@@ -77,7 +84,9 @@ export function useOrderEditForm(order?: Order | null) {
             const weightKg =
                 unit === 'kg' ? String(l?.weightKg ?? amount ?? 1).replace('.', ',') : ''
 
-            const decorPrice = toText(l?.decorPrice ?? 0)
+            const productId = String(l?.product?.id ?? '')
+            const decorPriceNum = productId ? (decorByProductId.get(productId) ?? 0) : 0
+            const decorPrice = toText(decorPriceNum)
 
             return {
                 id: String(l?.id ?? `${order.id}-${idx}`),

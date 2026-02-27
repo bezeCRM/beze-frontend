@@ -4,11 +4,12 @@ import { usePlannerStore } from '../store/planner.store'
 import { splitUpcomingPast, sortPast, sortUpcoming } from '../utils/planner-tasks'
 import { useOrdersStore } from '@/modules/orders/store/orders.store'
 import { normalizeToDateKey } from '../utils/planner-date'
+import { cutOrderId } from '@/shared/utils/utils'
 
 const EMPTY_ORDERS: Order[] = []
 
 function orderTitle(o: Order) {
-    return o.name?.trim() || `Заказ #${o.id}`
+    return o.name?.trim() || `Заказ #${cutOrderId(o.id)}`
 }
 
 function mapOrdersToPlannerItems(orders: Order[]): PlannerListItem[] {

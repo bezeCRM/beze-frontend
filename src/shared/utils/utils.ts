@@ -17,3 +17,8 @@ export function parseRubInt(text: number | string): number {
     const n = Number(sanitized)
     return Number.isFinite(n) ? Math.max(0, n) : 0
 }
+
+export function cutOrderId(id: string | number): string {
+    const s = String(id)
+    return s.length > 8 ? `${s.slice(0, 8)}` : s
+}

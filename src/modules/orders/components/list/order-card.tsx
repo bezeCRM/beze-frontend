@@ -6,6 +6,7 @@ import { useTheme } from '@/shared/theme/useTheme'
 import { createThemedStyles } from '@/shared/theme/create-themed-styles'
 import { formatDeliveryDateTime } from '../../utils/order-format'
 import { getOrderPaymentStatus } from '../../utils/orderPaymentStatus'
+import { cutOrderId } from '@/shared/utils/utils'
 
 type Props = {
     order: Order
@@ -24,7 +25,7 @@ function StatusPill(status: OrderStatus) {
 
 export default function OrderCard({ order, onPress }: Props) {
     const styles = useStyles()
-    const title = order.name?.trim() ? order.name : `Заказ #${order.id}`
+    const title = order.name?.trim() ? order.name : `Заказ #${cutOrderId(order.id)}`
     const s = StatusPill(order.status)
 
     return (

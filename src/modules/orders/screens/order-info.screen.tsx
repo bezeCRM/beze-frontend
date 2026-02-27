@@ -30,6 +30,7 @@ import { TOAST_SCOPES } from '@/shared/components/toast/scopes'
 import { getOrderPaymentStatus } from '../utils/orderPaymentStatus'
 import { useOrdersStore } from '../store/orders.store'
 import { toApiError } from '@/api/http/errors'
+import { cutOrderId } from '@/shared/utils/utils'
 
 export default function OrderInfoScreen() {
     const styles = useStyles()
@@ -90,7 +91,7 @@ export default function OrderInfoScreen() {
                     contentContainerStyle={{ paddingBottom: bottom + 30 }}
                 >
                     <InternalHeaderTitle
-                        title={order.name ? order.name : `Заказ #${order.id}`}
+                        title={order.name ? order.name : `Заказ #${cutOrderId(order.id)}`}
                     />
 
                     {!!createdLabel && <Text style={styles.created}>{createdLabel}</Text>}
