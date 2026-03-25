@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import type { ProfileSettings } from '../store/profile-settings.store'
+import type { ProfileSettings } from '@/modules/profile/api/profile.api'
 import {
     makeProfileSettingsDefaultValues,
     useProfileSettingsFormBase,

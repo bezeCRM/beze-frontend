@@ -3,7 +3,7 @@ import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 
 import {
-    ProfileSettings,
+    type ProfileSettings,
     getProfileSettings,
     updateProfileSettings,
     type ProfileSettingsUpsertRequest,
