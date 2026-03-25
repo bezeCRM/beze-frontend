@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import {
     Image,
     Linking,
@@ -7,6 +7,7 @@ import {
     Text,
     TextInput,
     View,
+    ActivityIndicator,
 } from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -31,8 +32,18 @@ import { useProfileSettingsStore } from '@/modules/profile/store/profile-setting
 import { useProfileSettingsForm } from '@/modules/profile/hooks/useProfileSettingsForm'
 import type { ProfileSettingsFormValues } from '@/modules/profile/hooks/useProfileSettingsFormBase'
 import { TOAST_SCOPES } from '@/shared/components/toast/scopes'
-import { useProductsStore } from '@/modules/products/store/products.store'
-import AsyncStorage from '@react-native-async-storage/async-storage'
+
+import {
+    useNotificationSettingsStore,
+    EVENING_REMINDER_OPTIONS,
+    COOKING_REMINDER_OPTIONS,
+    PICKUP_REMINDER_OPTIONS,
+    type NotificationSettings,
+} from '@/modules/notifications/store/notification-settings.store'
+
+import { rescheduleOrderNotifications } from '@/modules/notifications/utils/reschedule-notifications'
+import { useOrdersStore } from '@/modules/orders/store/orders.store'
+import { NotificationRow } from '../components/settings/notification-row'
 
 export default function SettingsScreen() {
     const { bottom } = useSafeAreaInsets()
@@ -42,10 +53,18 @@ export default function SettingsScreen() {
     const navigation = useNavigation<any>()
     const { show } = useToast()
 
+    const [isSaving, setIsSaving] = useState(false)
+
     const settings = useProfileSettingsStore(s => s.settings)
     const updateSettings = useProfileSettingsStore(s => s.updateSettings)
 
-    const form = useProfileSettingsForm(settings)
+    const notifSettings = useNotificationSettingsStore(s => s.settings)
+    const updateNotifSettings = useNotificationSettingsStore(s => s.updateSettings)
+
+    // Заказы нужны чтобы пересчитать уведомления после смены настроек
+    const orders = useOrdersStore(s => s.orders)
+
+    const form = useProfileSettingsForm(settings ?? undefined)
 
     const {
         handleSubmit,
@@ -66,18 +85,27 @@ export default function SettingsScreen() {
         setPhotoUri(uri)
     }, [setPhotoUri])
 
-    const onValid = (values: ProfileSettingsFormValues) => {
-        updateSettings({
-            profileName: values.profileName,
-            nickname: values.nickname,
-            photoUri: values.photoUri,
-        })
+    const onValid = async (values: ProfileSettingsFormValues) => {
+        if (isSaving) return
 
-        navigation.goBack()
+        setIsSaving(true)
+        try {
+            await updateSettings({
+                profileName: values.profileName,
+                nickname: values.nickname,
+                photoUri: values.photoUri,
+            })
 
-        requestAnimationFrame(() => {
-            show('Изменения сохранены', 'success', { scope: TOAST_SCOPES.Profile })
-        })
+            navigation.goBack()
+
+            requestAnimationFrame(() => {
+                show('Изменения сохранены', 'success', { scope: TOAST_SCOPES.Profile })
+            })
+        } catch {
+            show('Ошибка соединения', 'error', { scope: TOAST_SCOPES.Settings })
+        } finally {
+            setIsSaving(false)
+        }
     }
 
     const onInvalid = makeOnInvalidToast<
@@ -89,6 +117,17 @@ export default function SettingsScreen() {
         show: msg => show(msg, 'error', { scope: TOAST_SCOPES.Settings }),
     })
 
+    const handleNotifChange = <K extends keyof NotificationSettings>(
+        key: K,
+        value: NotificationSettings[K],
+    ) => {
+        // Обновляем стор синхронно, затем пересчитываем уведомления
+        // с уже применённым изменением (merge вручную, не ждём ре-рендер)
+        const nextSettings: NotificationSettings = { ...notifSettings, [key]: value }
+        updateNotifSettings({ [key]: value })
+        void rescheduleOrderNotifications(orders, nextSettings)
+    }
+
     const EMAIL = 'liquoree@list.ru'
 
     async function openSupportEmail() {
@@ -97,11 +136,7 @@ export default function SettingsScreen() {
 
         const available = await MailComposer.isAvailableAsync()
         if (available) {
-            await MailComposer.composeAsync({
-                recipients: [EMAIL],
-                subject,
-                body,
-            })
+            await MailComposer.composeAsync({ recipients: [EMAIL], subject, body })
             return
         }
 
@@ -110,13 +145,14 @@ export default function SettingsScreen() {
         if (can) await Linking.openURL(url)
     }
 
-    // ресет
-    async function resetCatalogLocal() {
-        // чистим persistent cache
-        await AsyncStorage.multiRemove(['data.products', 'data.categories'])
-
-        // чистим runtime state
-        useProductsStore.getState().clear()
+    if (!settings) {
+        return (
+            <ScreenContainer>
+                <View style={styles.loadingContainer}>
+                    <ActivityIndicator size="large" />
+                </View>
+            </ScreenContainer>
+        )
     }
 
     return (
@@ -127,7 +163,7 @@ export default function SettingsScreen() {
                         onBack={() => navigation.goBack()}
                         showAction={true}
                         onActionPress={handleSubmit(onValid, onInvalid)}
-                        actionText="Сохранить"
+                        actionText={isSaving ? 'Сохранение...' : 'Сохранить'}
                     />
                 </View>
 
@@ -148,6 +184,8 @@ export default function SettingsScreen() {
                     </View>
 
                     <View style={styles.formList}>
+                        {/* ── Профиль ── */}
+
                         <SectionCard title="Имя профиля" required>
                             <TextInput
                                 value={profileName}
@@ -161,6 +199,7 @@ export default function SettingsScreen() {
                                     errors.profileName && styles.inputError,
                                 ]}
                                 returnKeyType="done"
+                                editable={!isSaving}
                             />
                         </SectionCard>
 
@@ -174,6 +213,7 @@ export default function SettingsScreen() {
                                 placeholderTextColor={colors.textMuted}
                                 style={styles.input}
                                 returnKeyType="done"
+                                editable={!isSaving}
                             />
                         </SectionCard>
 
@@ -181,6 +221,7 @@ export default function SettingsScreen() {
                             <Pressable
                                 style={styles.photoRow}
                                 onPress={() => void handlePickPhoto()}
+                                disabled={isSaving}
                             >
                                 <View style={styles.photoCircle}>
                                     {photoUri ? (
@@ -191,21 +232,62 @@ export default function SettingsScreen() {
                                     ) : (
                                         <View style={styles.photoPlaceholder} />
                                     )}
+                                    <Image
+                                        source={require('@/assets/images/camera.png')}
+                                        style={styles.cameraImg}
+                                        resizeMode="contain"
+                                    />
+                                    <View style={styles.photoCoverer} />
                                 </View>
                             </Pressable>
                         </SectionCard>
 
-                        <Pressable onPress={() => void resetCatalogLocal()}>
-                            <Text style={styles.reportText}>Очистить стор</Text>
-                        </Pressable>
+                        {/* ── Уведомления ── */}
 
+                        <SectionCard title="Уведомления">
+                            <View style={styles.notifSection}>
+                                <NotificationRow
+                                    label="Накануне вечером"
+                                    hint="Напомним о заказах на следующий день"
+                                    options={EVENING_REMINDER_OPTIONS}
+                                    value={notifSettings.eveningReminder}
+                                    onChange={v =>
+                                        handleNotifChange('eveningReminder', v)
+                                    }
+                                />
+
+                                <View style={styles.divider} />
+
+                                <NotificationRow
+                                    label="Начать готовить"
+                                    hint="За сколько часов до выдачи напомнить о готовке"
+                                    options={COOKING_REMINDER_OPTIONS}
+                                    value={notifSettings.cookingReminder}
+                                    onChange={v =>
+                                        handleNotifChange('cookingReminder', v)
+                                    }
+                                />
+
+                                <View style={styles.divider} />
+
+                                <NotificationRow
+                                    label="Перед выдачей"
+                                    hint="Напомним незадолго до выдачи заказа"
+                                    options={PICKUP_REMINDER_OPTIONS}
+                                    value={notifSettings.pickupReminder}
+                                    onChange={v => handleNotifChange('pickupReminder', v)}
+                                />
+                            </View>
+                        </SectionCard>
+
+                        {/* ── Поддержка ── */}
                         <Pressable onPress={() => void openSupportEmail()}>
                             <Text style={styles.reportText}>Сообщить о проблеме</Text>
                         </Pressable>
                     </View>
                 </KeyboardAwareScrollView>
 
-                <ToastViewport scope={TOAST_SCOPES.Settings} bottomOffset={75} />
+                <ToastViewport scope={TOAST_SCOPES.Settings} bottomOffset={15} />
             </View>
         </ScreenContainer>
     )
@@ -214,6 +296,11 @@ export default function SettingsScreen() {
 const useStyles = createThemedStyles(theme =>
     StyleSheet.create({
         container: { flex: 1, backgroundColor: theme.colors.background },
+        loadingContainer: {
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+        },
         stickyTopBar: { backgroundColor: theme.colors.background },
         scroll: { flex: 1 },
         titleWrap: {},
@@ -241,15 +328,35 @@ const useStyles = createThemedStyles(theme =>
             backgroundColor: theme.colors.surface,
             justifyContent: 'center',
             alignItems: 'center',
+            position: 'relative',
         },
-        photoImage: {
-            width: '100%',
-            height: '100%',
-        },
+        photoImage: { width: '100%', height: '100%' },
         photoPlaceholder: {
             width: '100%',
             height: '100%',
+            backgroundColor: theme.colors.background,
+        },
+
+        photoCoverer: {
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'rgba(0, 0, 0, 0.6)',
+            position: 'absolute',
+            zIndex: 3,
+        },
+
+        cameraImg: {
+            width: 40,
+            height: 40,
+            position: 'absolute',
+            zIndex: 4,
+        },
+
+        notifSection: { rowGap: 16 },
+        divider: {
+            height: 1,
             backgroundColor: theme.colors.border,
+            opacity: 0.6,
         },
 
         reportText: {

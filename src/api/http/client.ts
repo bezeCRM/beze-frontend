@@ -3,6 +3,8 @@ import { ENV } from '../config/env'
 import { getAccessToken } from '../storage/tokenStorage'
 import { attachAuthInterceptor } from './authInterceptor'
 import { forceLogoutLocal, refreshTokensOnce } from './refreshManager'
+import { toApiError } from './errors'
+import { shouldLogoutOnRefreshError } from './refreshPolicy'
 
 type RetriableConfig = InternalAxiosRequestConfig & { _retry?: boolean }
 
@@ -27,37 +29,49 @@ export function createHttpClient(): AxiosInstance {
     attachAuthInterceptor(client)
 
     client.interceptors.response.use(
-        r => r,
+        response => response,
         async (err: unknown) => {
-            if (!isAxiosError(err)) throw err
+            if (!isAxiosError(err)) {
+                throw toApiError(err)
+            }
 
             const original = err.config as RetriableConfig | undefined
             const status = err.response?.status
             const url = original?.url
 
-            if (!original) throw err
+            if (!original) {
+                throw toApiError(err)
+            }
 
-            // 1) если это не 401, ничего не делаем
-            if (status !== 401) throw err
+            if (status !== 401) {
+                throw toApiError(err)
+            }
 
-            // 2) не делаем refresh для auth запросов (логин, регистрация и т.д.)
-            if (shouldSkipRefresh(url)) throw err
+            if (shouldSkipRefresh(url)) {
+                throw toApiError(err)
+            }
 
-            // 3) защищаемся от бесконечного цикла
-            if (original._retry) throw err
+            if (original._retry) {
+                throw toApiError(err)
+            }
             original._retry = true
 
             try {
                 await refreshTokensOnce()
+
                 const access = await getAccessToken()
                 if (access) {
                     original.headers = original.headers ?? {}
                     original.headers.Authorization = `Bearer ${access}`
                 }
+
                 return await client.request(original)
             } catch (refreshErr) {
-                await forceLogoutLocal()
-                throw refreshErr
+                if (shouldLogoutOnRefreshError(refreshErr)) {
+                    await forceLogoutLocal()
+                }
+
+                throw toApiError(refreshErr)
             }
         },
     )

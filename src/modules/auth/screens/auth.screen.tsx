@@ -14,9 +14,11 @@ import AuthSegment, { AuthSegmentValue } from '../components/auth-segment'
 import AuthCard from '../components/auth-card'
 import AuthInput from '../components/auth-input'
 import AuthLink from '../components/auth-link'
+import { useTheme } from '@/shared/theme/useTheme'
 
 export default function AuthScreen() {
     const styles = useStyles()
+    const colors = useTheme().theme.colors
     const { signIn, signUp, isSubmitting, clearError, error } = useAuth()
 
     const [mode, setMode] = useState<AuthSegmentValue>('login')
@@ -80,7 +82,12 @@ export default function AuthScreen() {
                         }}
                         placeholder="Логин"
                         autoCapitalize="none"
-                        left={<Icon name="email-icon" />}
+                        left={isFocused => (
+                            <Icon
+                                name="email-icon"
+                                color={isFocused ? colors.brand : colors.textMuted}
+                            />
+                        )}
                     />
 
                     <AuthInput
@@ -92,14 +99,19 @@ export default function AuthScreen() {
                         placeholder="Пароль"
                         autoCapitalize="none"
                         secureTextEntry={!isPasswordVisible}
-                        left={<Icon name="password-icon" />}
-                        right={
+                        left={isFocused => (
+                            <Icon
+                                name="password-icon"
+                                color={isFocused ? colors.brand : colors.textMuted}
+                            />
+                        )}
+                        right={() => (
                             <Pressable
                                 onPress={() => setIsPasswordVisible(prev => !prev)}
                             >
                                 {isPasswordVisible ? <PassShown /> : <PassHidden />}
                             </Pressable>
-                        }
+                        )}
                     />
 
                     {mode === 'register' ? (
@@ -112,8 +124,13 @@ export default function AuthScreen() {
                             placeholder="Повторите пароль"
                             autoCapitalize="none"
                             secureTextEntry={!isRepeatPasswordVisible}
-                            left={<Icon name="password-icon" />}
-                            right={
+                            left={isFocused => (
+                                <Icon
+                                    name="password-icon"
+                                    color={isFocused ? colors.brand : colors.textMuted}
+                                />
+                            )}
+                            right={() => (
                                 <Pressable
                                     onPress={() =>
                                         setIsRepeatPasswordVisible(prev => !prev)
@@ -125,7 +142,7 @@ export default function AuthScreen() {
                                         <PassHidden />
                                     )}
                                 </Pressable>
-                            }
+                            )}
                         />
                     ) : null}
 
@@ -138,7 +155,7 @@ export default function AuthScreen() {
                     ) : null}
 
                     {error ? (
-                        <Text style={styles.error} numberOfLines={2}>
+                        <Text style={styles.error} numberOfLines={3}>
                             {error}
                         </Text>
                     ) : null}
@@ -147,7 +164,7 @@ export default function AuthScreen() {
                         title={mode === 'login' ? 'Войти' : 'Зарегистрироваться'}
                         onPress={onSubmit}
                         loading={isSubmitting}
-                        disabled={!canSubmit || !passwordsMatch}
+                        disabled={!canSubmit || !passwordsMatch || isSubmitting}
                     />
                 </AuthCard>
             </View>

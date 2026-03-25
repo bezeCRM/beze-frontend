@@ -1,7 +1,7 @@
 import { createThemedStyles } from '@/shared/theme/create-themed-styles'
 import { useTheme } from '@/shared/theme/useTheme'
 import { Icon, IconName } from '@/shared/ui/icon/icon'
-import { View, StyleSheet, Text, TextInput } from 'react-native'
+import { View, StyleSheet, Text } from 'react-native'
 
 type Props = {
     title: string
@@ -33,15 +33,15 @@ export function HelpSectionCard({ title, icon, text, pinkBackground }: Props) {
                 </Text>
             </View>
 
-            <TextInput
-                value={text}
-                editable={false}
-                multiline
-                selectTextOnFocus
-                style={styles.textContent}
-                selectionColor="#3b82f6"
-                scrollEnabled={false}
-            />
+            <Text
+                selectable
+                style={[
+                    styles.textContent,
+                    pinkBackground && styles.pinkBackgroundTextContent,
+                ]}
+            >
+                {text}
+            </Text>
         </View>
     )
 }
@@ -77,6 +77,9 @@ const useStyles = createThemedStyles(theme =>
             color: theme.colors.text,
             fontSize: 14,
             lineHeight: 16.8,
+        },
+        pinkBackgroundTextContent: {
+            color: theme.colors.fixedWhite,
         },
     }),
 )

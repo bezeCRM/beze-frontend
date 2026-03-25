@@ -5,16 +5,20 @@ import ScreenContainer from '@/shared/components/layout/screen-container'
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs'
 import { CompositeNavigationProp, useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
-import { View, Text, StyleSheet, Pressable } from 'react-native'
+import { View, Text, StyleSheet, Pressable, ActivityIndicator } from 'react-native'
 import ProfileHeader from '../components/profile/profile-header'
 import ProfileUserInfo from '../components/profile/profile-user-info'
 import { Items } from '../utils/profile-list-items'
 import ProfileListItem from '../components/profile/profile-list-item'
 import { createThemedStyles } from '@/shared/theme/create-themed-styles'
-import { ToastViewport } from '@/shared/components/toast/toast-provider'
+import { ToastViewport, useToast } from '@/shared/components/toast/toast-provider'
 import { TOAST_SCOPES } from '@/shared/components/toast/scopes'
 import { useProfileSettingsStore } from '../store/profile-settings.store'
 import { useAuth } from '@/modules/auth/hooks/useAuth'
+import { useEffect, useState } from 'react'
+import { toApiError } from '@/api'
+import BaseModal from '@/modules/modal/base/base-modal'
+import ConfirmModal from '@/modules/modal/variants/confirm-modal'
 
 // навигация
 type ProfileNav = CompositeNavigationProp<
@@ -28,6 +32,7 @@ function useProfileNav() {
 
 export default function ProfileScreen() {
     const { signOut } = useAuth()
+    const { show } = useToast()
 
     const styles = useStyles()
     const navigation = useProfileNav()
@@ -41,15 +46,46 @@ export default function ProfileScreen() {
         () => navigation.navigate('Help'),
     ]
 
-    const profileName = useProfileSettingsStore(s => s.settings.profileName)
-    const nickname = useProfileSettingsStore(s => s.settings.nickname)
-    const photoUri = useProfileSettingsStore(s => s.settings.photoUri)
+    const settings = useProfileSettingsStore(s => s.settings)
+    const hasHydrated = useProfileSettingsStore(s => s.hasHydrated)
+    // const isFetching = useProfileSettingsStore(s => s.isFetching)
+    const fetchSettings = useProfileSettingsStore(s => s.fetchSettings)
+
+    const [showLogoutModal, setShowLogoutModal] = useState(false)
+
+    useEffect(() => {
+        if (!hasHydrated) return
+
+        void (async () => {
+            try {
+                await fetchSettings()
+            } catch (err) {
+                const apiErr = toApiError(err)
+                show(apiErr.message, 'error', { scope: TOAST_SCOPES.Profile })
+            }
+        })()
+    }, [hasHydrated, fetchSettings, show])
+
+    if (!settings) {
+        return (
+            <ScreenContainer>
+                <MainHeader />
+                <View style={styles.loadingContainer}>
+                    <ActivityIndicator size="large" />
+                </View>
+            </ScreenContainer>
+        )
+    }
 
     return (
         <ScreenContainer>
             <MainHeader />
             <ProfileHeader />
-            <ProfileUserInfo name={profileName} nick={nickname ?? ''} image={photoUri} />
+            <ProfileUserInfo
+                name={settings.profileName}
+                nick={settings.nickname ?? ''}
+                image={settings.photoUri}
+            />
             <View style={styles.list}>
                 {Items.map(item => (
                     <ProfileListItem
@@ -61,20 +97,38 @@ export default function ProfileScreen() {
                     />
                 ))}
             </View>
-            <Pressable onPress={() => signOut()}>
+            <Pressable onPress={() => setShowLogoutModal(true)}>
                 <Text style={styles.leave}>Выйти</Text>
             </Pressable>
             <ToastViewport
                 scope={TOAST_SCOPES.Profile}
-                bottomOffset={90}
+                bottomOffset={80}
                 horizontalInset={20}
             />
+            <BaseModal
+                visible={showLogoutModal}
+                onClose={() => setShowLogoutModal(false)}
+            >
+                <ConfirmModal
+                    title="Выход из аккаунта"
+                    message={'Вы уверены, что хотите выйти из аккаунта?'}
+                    onConfirm={() => signOut()}
+                    onClose={() => setShowLogoutModal(false)}
+                    confirmText="Выйти"
+                    cancelText="Отмена"
+                />
+            </BaseModal>
         </ScreenContainer>
     )
 }
 
 const useStyles = createThemedStyles(theme =>
     StyleSheet.create({
+        loadingContainer: {
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+        },
         list: {
             rowGap: 7,
             marginBottom: 30,

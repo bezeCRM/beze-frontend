@@ -34,6 +34,7 @@ import {
 import { ToastViewport, useToast } from '@/shared/components/toast/toast-provider'
 import { Nav } from '@/core/navigation/types'
 import { TOAST_SCOPES } from '@/shared/components/toast/scopes'
+import { toApiError } from '@/api/http/errors'
 
 LogBox.ignoreLogs(['VirtualizedLists should never be nested inside plain ScrollViews'])
 
@@ -69,8 +70,8 @@ export default function PlannerScreen() {
         nearbyTask,
         nearbyCount,
         tasksForSelectedDate,
-
         openAllTasksFocusNearby,
+        isFetching,
     } = usePlannerScreen()
 
     const selectedTitle = useMemo(
@@ -83,12 +84,18 @@ export default function PlannerScreen() {
     const openAddTaskModal = () => {
         open('plannerTask', {
             initialDate: selectedDate,
-            onSubmit: (payload: { title: string; date: string; time?: string }) => {
-                addTask(payload)
-                close()
-                show(`Задача добавлена`, 'success', {
-                    scope: TOAST_SCOPES.Planner,
-                })
+            onSubmit: async (payload: { title: string; date: string; time?: string }) => {
+                try {
+                    await addTask(payload)
+                    close()
+                    show('Задача добавлена', 'success', {
+                        scope: TOAST_SCOPES.Planner,
+                    })
+                } catch (e) {
+                    show(toApiError(e).message, 'error', {
+                        scope: TOAST_SCOPES.Planner,
+                    })
+                }
             },
         })
     }
@@ -96,6 +103,19 @@ export default function PlannerScreen() {
     const onPressTask = (item: any) => {
         if (item.kind === 'order') {
             navigation.navigate('OrderInfo', { orderId: item.orderId })
+        }
+    }
+
+    const handleDeleteTask = async (taskId: string) => {
+        try {
+            await removeTask(taskId)
+            show('Задача удалена', 'success', {
+                scope: TOAST_SCOPES.Planner,
+            })
+        } catch (e) {
+            show(toApiError(e).message, 'error', {
+                scope: TOAST_SCOPES.Planner,
+            })
         }
     }
 
@@ -164,7 +184,10 @@ export default function PlannerScreen() {
                         />
 
                         <View style={styles.dayRow}>
-                            <Text style={styles.dayTitle}>{selectedTitle}</Text>
+                            <View style={styles.dayTitleBox}>
+                                <Text style={styles.dayTitle}>{selectedTitle}</Text>
+                                {isFetching && <ActivityIndicator />}
+                            </View>
                             <AddPlus onPress={openAddTaskModal} small />
                         </View>
 
@@ -191,6 +214,15 @@ export default function PlannerScreen() {
                     </ScrollView>
                 ) : (
                     <View style={[styles.allTasksTab, { paddingBottom: bottom + 90 }]}>
+                        {isFetching ? (
+                            <View style={styles.fetchingRow}>
+                                <ActivityIndicator />
+                                <Text style={styles.fetchingText}>
+                                    Обновляем задачи...
+                                </Text>
+                            </View>
+                        ) : null}
+
                         <View style={styles.sectionsWrap}>
                             <TasksSection
                                 title="Ближайшие задачи"
@@ -201,7 +233,9 @@ export default function PlannerScreen() {
                                 onToggleExpanded={toggleUpcomingExpanded}
                                 onToggleCompleted={toggleCompleted}
                                 onPressItem={onPressTask}
-                                onDeleteTask={removeTask}
+                                onDeleteTask={taskId => {
+                                    void handleDeleteTask(taskId)
+                                }}
                             />
 
                             <View style={{ height: 12 }} />
@@ -215,15 +249,14 @@ export default function PlannerScreen() {
                                 onToggleExpanded={togglePastExpanded}
                                 onToggleCompleted={toggleCompleted}
                                 onPressItem={onPressTask}
-                                onDeleteTask={removeTask}
+                                onDeleteTask={taskId => {
+                                    void handleDeleteTask(taskId)
+                                }}
                             />
                         </View>
 
                         <View style={styles.footerWrap}>
-                            <Button
-                                title={'Добавить задачу'}
-                                onPress={openAddTaskModal}
-                            />
+                            <Button title="Добавить задачу" onPress={openAddTaskModal} />
                         </View>
                     </View>
                 )}
@@ -254,6 +287,10 @@ const useStyles = createThemedStyles(theme =>
             alignItems: 'center',
             justifyContent: 'space-between',
         },
+        dayTitleBox: {
+            flexDirection: 'row',
+            gap: 20,
+        },
         dayTitle: {
             fontFamily: 'Epilogue-SemiBold',
             fontSize: 20,
@@ -273,6 +310,16 @@ const useStyles = createThemedStyles(theme =>
         },
         footerWrap: {
             paddingTop: 18,
+        },
+        fetchingRow: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 8,
+        },
+        fetchingText: {
+            fontFamily: 'Epilogue-Regular',
+            fontSize: 14,
+            color: theme.colors.textMuted,
         },
     }),
 )

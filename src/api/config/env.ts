@@ -16,5 +16,5 @@ export const ENV = {
         __DEV__ && devHost
             ? `http://${devHost}:8000/api/v1`
             : 'http://127.0.0.1:8000/api/v1',
-    requestTimeoutMs: 15000,
+    requestTimeoutMs: 6000,
 }

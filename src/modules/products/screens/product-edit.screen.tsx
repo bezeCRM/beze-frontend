@@ -32,6 +32,7 @@ import { useTheme } from '@/shared/theme/useTheme'
 import { Nav, Route } from '@/core/navigation/types'
 import { TOAST_SCOPES } from '@/shared/components/toast/scopes'
 import { toApiError } from '@/api/http/errors'
+import { sanitizeRubInt } from '@/shared/utils/utils'
 
 const MAX_PHOTOES = 3
 
@@ -254,7 +255,9 @@ export default function ProductEditScreen() {
                             <TextInput
                                 value={price}
                                 onChangeText={t =>
-                                    setValue('price', t, { shouldValidate: true })
+                                    setValue('price', sanitizeRubInt(t), {
+                                        shouldValidate: true,
+                                    })
                                 }
                                 placeholder={
                                     unit === 'piece'

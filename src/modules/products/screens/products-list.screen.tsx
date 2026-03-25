@@ -1,10 +1,10 @@
 import MainHeader from '@/shared/components/headers/main-header'
 import ScreenContainer from '@/shared/components/layout/screen-container'
 import Search from '@/shared/components/search/search'
-import { ToastViewport } from '@/shared/components/toast/toast-provider'
+import { ToastViewport, useToast } from '@/shared/components/toast/toast-provider'
 import { useCategoryStore } from '../store/categories.store'
 import { useSearchHistoryStore } from '@/shared/store/searchHistory.store'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import ProductsFilters from '../components/list/products-filters'
 import ProductsHeader from '../components/list/products-header'
 import ProductsList from '../components/list/products-list'
@@ -35,6 +35,8 @@ export default function ProductsListScreen() {
     const [query, setQuery] = useState('')
     const [sortId, setSortId] = useState<ProductsSortId>('priceAsc')
 
+    const { show } = useToast()
+
     const activeCategoryId = useCategoryStore(s => s.activeCategoryId)
     const results = useProductsSearch({ query, activeCategoryId })
     const addQuery = useSearchHistoryStore(s => s.addQuery)
@@ -44,7 +46,14 @@ export default function ProductsListScreen() {
         [results, sortId],
     )
 
-    const { hasHydrated, isSyncing, refetch } = useCatalogSync()
+    const { hasHydrated, isSyncing, refetch, error, clearError } = useCatalogSync()
+
+    useEffect(() => {
+        if (error) {
+            show('Ошибка соединения', 'error', { scope: TOAST_SCOPES.Products })
+            clearError()
+        }
+    }, [error, show, clearError])
 
     if (!hasHydrated) {
         return (

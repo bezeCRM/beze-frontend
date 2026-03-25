@@ -3,6 +3,7 @@ import * as SplashScreen from 'expo-splash-screen'
 import { useEffect } from 'react'
 import AppProviders from './providers/app-providers'
 import AppNavigation from './navigation/app-navigation'
+import { setupNotifications } from '@/modules/notifications/utils/setup-notifications'
 
 SplashScreen.preventAutoHideAsync()
 
@@ -17,6 +18,10 @@ export default function App() {
             SplashScreen.hideAsync()
         }
     }, [fontsLoaded])
+
+    useEffect(() => {
+        void setupNotifications()
+    }, [])
 
     if (!fontsLoaded) return null // пока шрифт не загрузился — просто пустой экран
 

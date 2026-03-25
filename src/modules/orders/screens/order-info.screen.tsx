@@ -71,7 +71,7 @@ export default function OrderInfoScreen() {
         }
     }
 
-    const deleteMessage = `Вы уверены, что хотите удалить заказ ${order.name ? `"${order.name}"` : `#${order.id}`}?`
+    const deleteMessage = `Вы уверены, что хотите удалить заказ ${order.name?.trim() ? order.name : `#${cutOrderId(order.id)}`}?`
 
     return (
         <ScreenContainer>

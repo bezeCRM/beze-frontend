@@ -8,6 +8,7 @@ type UseOrdersSyncResult = {
     isSyncing: boolean
     error: string | null
     refetch: () => Promise<void>
+    clearError: () => void
 }
 
 export function useOrdersSync(): UseOrdersSyncResult {
@@ -43,5 +44,9 @@ export function useOrdersSync(): UseOrdersSyncResult {
         await runSync()
     }, [runSync])
 
-    return { hasHydrated, isSyncing, error, refetch }
+    const clearError = useCallback(() => {
+        setError(null)
+    }, [])
+
+    return { hasHydrated, isSyncing, error, refetch, clearError }
 }

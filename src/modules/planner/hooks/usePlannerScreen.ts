@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react'
-import { usePlannerStore } from '../store/planner.store'
+import { usePlannerStore, addMonthsToDateKey, monthEndKey } from '../store/planner.store'
 import { pad2 } from '../utils/planner-date'
 import { usePlannerItems } from './usePlannerItems'
 import { uniqueDateSets } from '../utils/planner-tasks'
@@ -19,7 +19,7 @@ export function usePlannerScreen() {
     const setShowAllTasks = usePlannerStore(s => s.setShowAllTasks)
 
     const openAllTasksFocusUpcoming = usePlannerStore(s => s.openAllTasksFocusUpcoming)
-    const openAllTasksFocusPast = usePlannerStore(s => (s as any).openAllTasksFocusPast)
+    const openAllTasksFocusPast = usePlannerStore(s => s.openAllTasksFocusPast)
 
     const setSelectedDate = usePlannerStore(s => s.setSelectedDate)
     const setVisibleMonth = usePlannerStore(s => s.setVisibleMonth)
@@ -32,6 +32,8 @@ export function usePlannerScreen() {
     const addTask = usePlannerStore(s => s.addTask)
     const removeTask = usePlannerStore(s => s.removeTask)
     const cleanupArchive = usePlannerStore(s => s.cleanupArchive)
+    const fetchTasksInRange = usePlannerStore(s => s.fetchTasksInRange)
+    const isFetching = usePlannerStore(s => s.isFetching)
 
     const { upcoming, past, items } = usePlannerItems(today)
 
@@ -44,9 +46,16 @@ export function usePlannerScreen() {
         cleanupArchive(today)
     }, [cleanupArchive, today])
 
+    useEffect(() => {
+        const monthStart = `${selectedDate.slice(0, 7)}-01`
+        const from = addMonthsToDateKey(monthStart, -6)
+        const to = monthEndKey(addMonthsToDateKey(monthStart, 6))
+
+        void fetchTasksInRange({ from, to })
+    }, [fetchTasksInRange, selectedDate])
+
     const marks = useMemo(() => uniqueDateSets(items as any, today), [items, today])
 
-    // ближайшая задача на/после выбранной даты (среди upcoming)
     const nearbyUpcoming = useMemo(() => {
         if (!upcoming.length) return []
         const idx = upcoming.findIndex(it => it.date >= selectedDate)
@@ -57,7 +66,6 @@ export function usePlannerScreen() {
     const nextUpcoming = useMemo(() => nearbyUpcoming[0] ?? null, [nearbyUpcoming])
     const nearbyUpcomingCount = useMemo(() => nearbyUpcoming.length, [nearbyUpcoming])
 
-    // прошедшие задачи в диапазоне от selectedDate до today (включительно)
     const nearbyPastInRange = useMemo(() => {
         if (!past.length) return []
         if (selectedDate >= today) return []
@@ -66,7 +74,6 @@ export function usePlannerScreen() {
 
     const nearbyPastCount = useMemo(() => nearbyPastInRange.length, [nearbyPastInRange])
 
-    // самая поздняя прошедшая задача в этом диапазоне (ближайшая к today)
     const nearbyPastTask = useMemo(() => {
         if (!nearbyPastInRange.length) return null
 
@@ -95,26 +102,13 @@ export function usePlannerScreen() {
     const openAllTasksFocusNearby = useMemo(() => {
         return () => {
             if (nearbyMode === 'past') {
-                if (typeof openAllTasksFocusPast === 'function') {
-                    openAllTasksFocusPast()
-                } else {
-                    setShowAllTasks(true, today)
-                    setSectionExpanded('past', true)
-                    setSectionExpanded('upcoming', false)
-                }
+                openAllTasksFocusPast()
                 return
             }
 
             openAllTasksFocusUpcoming()
         }
-    }, [
-        nearbyMode,
-        openAllTasksFocusPast,
-        openAllTasksFocusUpcoming,
-        setShowAllTasks,
-        setSectionExpanded,
-        today,
-    ])
+    }, [nearbyMode, openAllTasksFocusPast, openAllTasksFocusUpcoming])
 
     return {
         today,
@@ -134,8 +128,11 @@ export function usePlannerScreen() {
         nearbyCount,
         openAllTasksFocusNearby,
 
+        isFetching,
+
         setShowAllTasks: (nextVal: boolean) => setShowAllTasks(nextVal, today),
         openAllTasksFocusUpcoming,
+        openAllTasksFocusPast,
 
         setSelectedDate,
         setVisibleMonth,

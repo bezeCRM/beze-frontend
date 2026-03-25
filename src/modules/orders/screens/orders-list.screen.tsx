@@ -1,9 +1,9 @@
 import MainHeader from '@/shared/components/headers/main-header'
 import ScreenContainer from '@/shared/components/layout/screen-container'
 import Search from '@/shared/components/search/search'
-import { ToastViewport } from '@/shared/components/toast/toast-provider'
+import { ToastViewport, useToast } from '@/shared/components/toast/toast-provider'
 import { useSearchHistoryStore } from '@/shared/store/searchHistory.store'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import OrdersFilters, { OrdersFilterId } from '../components/list/orders-filters'
 import OrdersHeader from '../components/list/orders-header'
 import OrdersList from '../components/list/orders-list'
@@ -53,6 +53,7 @@ export default function OrdersListScreen() {
     const [activeFilterId, setActiveFilterId] = useState<OrdersFilterId>('all')
     const [sortId, setSortId] = useState<OrdersSortId>('dateAsc')
     const [mode, setMode] = useState<OrdersMode>('active')
+    const { show } = useToast()
 
     const addQuery = useSearchHistoryStore(s => s.addQuery)
 
@@ -80,7 +81,14 @@ export default function OrdersListScreen() {
         [filteredByMode, sortId],
     )
 
-    const { hasHydrated, isSyncing, refetch } = useOrdersSync() // добавь
+    const { hasHydrated, isSyncing, refetch, error, clearError } = useOrdersSync()
+
+    useEffect(() => {
+        if (error) {
+            show('Ошибка соединения', 'error', { scope: TOAST_SCOPES.Orders })
+            clearError()
+        }
+    }, [error, show, clearError])
 
     if (!hasHydrated) {
         return (

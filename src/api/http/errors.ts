@@ -28,8 +28,8 @@ function translateValidationMessage(msg: string): string {
         return 'Поле обязательно для заполнения'
     }
 
-    if (m.includes('login already exists')) {
-        return 'Логин занят'
+    if (m.includes('planner task not found')) {
+        return 'Задача не найдена'
     }
 
     return m
@@ -43,7 +43,10 @@ function translateHttpMessage(status: number, msg: string | null): string | null
         if (msg === 'product already exists') {
             return 'Товар с таким названием уже существует'
         }
-        return 'Конфликт данных. Обновите список и попробуйте снова'
+        if (msg === 'login already exists') {
+            return 'Логин занят'
+        }
+        return 'Конфликт данных, попробуйте снова'
     }
 
     if (status === 422) {
@@ -114,7 +117,18 @@ function isTimeoutError(e: AxiosError<unknown>): boolean {
     return code === 'ECONNABORTED' || code === 'ETIMEDOUT' || msg.includes('timeout')
 }
 
+function isApiError(v: unknown): v is ApiError {
+    return (
+        isObject(v) &&
+        typeof v['kind'] === 'string' &&
+        typeof v['message'] === 'string' &&
+        'status' in v
+    )
+}
+
 export function toApiError(err: unknown): ApiError {
+    if (isApiError(err)) return err
+
     if (!isAxiosError(err)) {
         if (err instanceof Error) {
             return { kind: 'unknown', status: null, message: err.message, details: err }
@@ -136,7 +150,7 @@ export function toApiError(err: unknown): ApiError {
         return {
             kind: 'timeout',
             status,
-            message: 'Не удалось подключиться к серверу',
+            message: 'Ошибка соединения',
             details: err,
         }
     }
@@ -146,7 +160,7 @@ export function toApiError(err: unknown): ApiError {
         return {
             kind: 'network',
             status: null,
-            message: 'Не удалось подключиться к серверу',
+            message: 'Ошибка соединения',
             details: err,
         }
     }

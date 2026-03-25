@@ -10,6 +10,14 @@ import {
     type OrderUpsertRequest,
     patchOrderApi,
 } from '@/modules/orders/api/orders.api'
+import { rescheduleOrderNotifications } from '@/modules/notifications/utils/reschedule-notifications'
+import { useNotificationSettingsStore } from '@/modules/notifications/store/notification-settings.store'
+
+// Хелпер чтобы не повторять две строки везде
+function reschedule(orders: Order[]) {
+    const notifSettings = useNotificationSettingsStore.getState().settings
+    void rescheduleOrderNotifications(orders, notifSettings)
+}
 
 type OrdersStore = {
     orders: Order[]
@@ -43,27 +51,39 @@ export const useOrdersStore = create<OrdersStore>()(
 
             addOrder: async payload => {
                 const created = await createOrder(payload)
-                set(state => ({ orders: [created, ...state.orders] }))
+                set(state => {
+                    const orders = [created, ...state.orders]
+                    reschedule(orders)
+                    return { orders }
+                })
                 return created.id
             },
 
             updateOrder: async (id, payload) => {
                 const updated = await updateOrderApi(id, payload)
-                set(state => ({
-                    orders: state.orders.map(o => (o.id === id ? updated : o)),
-                }))
+                set(state => {
+                    const orders = state.orders.map(o => (o.id === id ? updated : o))
+                    reschedule(orders)
+                    return { orders }
+                })
             },
 
             patchOrder: async (id, patch) => {
                 const updated = await patchOrderApi(id, patch)
-                set(state => ({
-                    orders: state.orders.map(o => (o.id === id ? updated : o)),
-                }))
+                set(state => {
+                    const orders = state.orders.map(o => (o.id === id ? updated : o))
+                    reschedule(orders)
+                    return { orders }
+                })
             },
 
             removeOrder: async id => {
                 await deleteOrderApi(id)
-                set(state => ({ orders: state.orders.filter(o => o.id !== id) }))
+                set(state => {
+                    const orders = state.orders.filter(o => o.id !== id)
+                    reschedule(orders)
+                    return { orders }
+                })
             },
 
             getById: id => get().orders.find(o => o.id === id),

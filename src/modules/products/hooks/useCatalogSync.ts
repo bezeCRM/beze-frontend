@@ -9,6 +9,7 @@ type UseCatalogSyncResult = {
     isSyncing: boolean
     error: string | null
     refetch: () => Promise<void>
+    clearError: () => void
 }
 
 export function useCatalogSync(): UseCatalogSyncResult {
@@ -46,5 +47,9 @@ export function useCatalogSync(): UseCatalogSyncResult {
         await runSync()
     }, [runSync])
 
-    return { hasHydrated, isSyncing, error, refetch }
+    const clearError = useCallback(() => {
+        setError(null)
+    }, [])
+
+    return { hasHydrated, isSyncing, error, refetch, clearError }
 }

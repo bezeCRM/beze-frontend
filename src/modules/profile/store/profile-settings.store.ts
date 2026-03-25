@@ -2,117 +2,160 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 
-export type ProfileSettings = {
-    profileName: string
-    nickname?: string
-    photoUri?: string
-    updatedAt: string
-}
+import {
+    ProfileSettings,
+    getProfileSettings,
+    updateProfileSettings,
+    type ProfileSettingsUpsertRequest,
+} from '@/modules/profile/api/profile.api'
 
-type ProfileSettingsStore = {
-    settings: ProfileSettings
+type ProfileSettingsPatch = Partial<Omit<ProfileSettings, 'ownerId' | 'updatedAt'>>
+
+type State = {
+    settings: ProfileSettings | null
     hasHydrated: boolean
+    isFetching: boolean
+
     setHasHydrated: (v: boolean) => void
-    updateSettings: (patch: Partial<Omit<ProfileSettings, 'updatedAt'>>) => void
-    clearPhoto: () => void
+
+    fetchSettings: () => Promise<void>
+    updateSettings: (patch: ProfileSettingsPatch) => Promise<void>
+    clearPhoto: () => Promise<void>
+
+    clear: () => void
 }
 
 const STORAGE_KEY = 'data.profile_settings'
-const STORAGE_VERSION = 1
-
-function makeDefaultNickname() {
-    const n = Math.floor(Math.random() * 10000)
-        .toString()
-        .padStart(4, '0')
-    return `user${n}`
-}
+const STORAGE_VERSION = 2
 
 function makeDefaultSettings(): ProfileSettings {
-    const now = new Date().toISOString()
     return {
+        ownerId: '',
         profileName: 'Пользователь beze',
-        nickname: makeDefaultNickname(),
+        nickname: undefined,
         photoUri: undefined,
-        updatedAt: now,
+        updatedAt: new Date().toISOString(),
     }
 }
 
-export const useProfileSettingsStore = create<ProfileSettingsStore>()(
+function normalizeSettingsPatch(
+    current: ProfileSettings,
+    patch: ProfileSettingsPatch,
+): ProfileSettingsUpsertRequest {
+    const payload: ProfileSettingsUpsertRequest = {}
+
+    if ('profileName' in patch) {
+        const trimmed = String(patch.profileName ?? '').trim()
+        if (trimmed) payload.profileName = trimmed
+    }
+
+    if ('nickname' in patch) {
+        const trimmed = String(patch.nickname ?? '').trim()
+        if (trimmed) {
+            payload.nickname = trimmed.replace(/\s+/g, '_').replace(/_+/g, '_')
+        } else {
+            payload.nickname = undefined
+        }
+    }
+
+    if ('photoUri' in patch) {
+        payload.photoUri = patch.photoUri ? String(patch.photoUri) : undefined
+    }
+
+    return payload
+}
+
+export const useProfileSettingsStore = create<State>()(
     persist(
         (set, get) => ({
             settings: makeDefaultSettings(),
             hasHydrated: false,
+            isFetching: false,
+
             setHasHydrated: v => set({ hasHydrated: v }),
 
-            updateSettings: patch => {
-                const now = new Date().toISOString()
+            fetchSettings: async () => {
+                set({ isFetching: true })
+                try {
+                    const settings = await getProfileSettings()
+                    set({ settings, isFetching: false })
+                } catch (e) {
+                    set({ isFetching: false })
+                    throw e
+                }
+            },
+
+            updateSettings: async patch => {
                 const current = get().settings
+                if (!current) return
 
-                const profileName =
-                    'profileName' in patch
-                        ? String(patch.profileName ?? '').trim()
-                        : current.profileName
+                const payload = normalizeSettingsPatch(current, patch)
 
-                const nicknameRaw =
-                    'nickname' in patch
-                        ? String(patch.nickname ?? '').trim()
-                        : current.nickname
+                const updated = await updateProfileSettings(payload)
+                set({ settings: updated })
+            },
 
-                const nickname = nicknameRaw
-                    ? nicknameRaw.replace(/\s+/g, '_').replace(/_+/g, '_')
-                    : undefined
+            clearPhoto: async () => {
+                const current = get().settings
+                if (!current) return
 
-                const photoUri =
-                    'photoUri' in patch
-                        ? patch.photoUri
-                            ? String(patch.photoUri)
-                            : undefined
-                        : current.photoUri
+                const updated = await updateProfileSettings({ photoUri: undefined })
+                set({ settings: updated })
+            },
 
+            clear: () =>
                 set({
-                    settings: {
-                        ...current,
-                        profileName,
-                        nickname,
-                        photoUri,
-                        updatedAt: now,
-                    },
-                })
-            },
-
-            clearPhoto: () => {
-                const now = new Date().toISOString()
-                set(state => ({
-                    settings: { ...state.settings, photoUri: undefined, updatedAt: now },
-                }))
-            },
+                    settings: makeDefaultSettings(),
+                    isFetching: false,
+                }),
         }),
         {
             name: STORAGE_KEY,
             version: STORAGE_VERSION,
             storage: createJSONStorage(() => AsyncStorage),
-            partialize: s => ({ settings: s.settings }),
-            onRehydrateStorage: () => (state, error) => {
-                state?.setHasHydrated(true)
+
+            partialize: state => ({
+                settings: state.settings,
+            }),
+
+            migrate: (persistedState: any, version: number) => {
+                // Миграция с версии 1 на версию 2
+                if (version === 1) {
+                    const oldSettings = persistedState?.settings
+                    if (oldSettings && typeof oldSettings === 'object') {
+                        // Добавляем ownerId (пустой, будет заполнен с сервера)
+                        return {
+                            settings: {
+                                ownerId: '',
+                                profileName:
+                                    oldSettings.profileName || 'Пользователь beze',
+                                nickname: oldSettings.nickname,
+                                photoUri: oldSettings.photoUri,
+                                updatedAt:
+                                    oldSettings.updatedAt || new Date().toISOString(),
+                            },
+                        }
+                    }
+                }
+                return persistedState
             },
+
+            onRehydrateStorage: () => (state, error) => {
+                if (error) {
+                    // можно добавить логгер
+                }
+                if (!state) return
+
+                state.setHasHydrated(true)
+            },
+
             merge: (persisted, current) => {
-                const p = (persisted ?? {}) as Partial<ProfileSettingsStore>
-                const merged = {
+                const persistedState = (persisted ?? {}) as Partial<State>
+                return {
                     ...current,
-                    ...p,
-                    settings: { ...current.settings, ...(p.settings ?? {}) },
+                    ...persistedState,
                     hasHydrated: true,
                 }
-
-                // если раньше уже сохранялись пустые значения, подставим новые дефолты
-                if (!String(merged.settings.profileName ?? '').trim()) {
-                    merged.settings.profileName = current.settings.profileName
-                }
-                if (!String(merged.settings.nickname ?? '').trim()) {
-                    merged.settings.nickname = current.settings.nickname
-                }
-
-                return merged
             },
         },
     ),

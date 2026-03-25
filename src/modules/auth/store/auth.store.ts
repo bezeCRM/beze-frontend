@@ -1,13 +1,21 @@
 import { create } from 'zustand'
 import * as authApi from '../api/auth.api'
-import { clearTokens, getRefreshToken, saveTokens, toApiError } from '@/api'
+import {
+    clearTokens,
+    getAccessToken,
+    getRefreshToken,
+    saveTokens,
+    toApiError,
+} from '@/api'
 import { getMe } from '@/api/system/me'
+import { updateProfileSettings } from '@/modules/profile/api/profile.api'
 
 type AuthState = {
     isBootstrapping: boolean
     isSubmitting: boolean
     error: string | null
     isAuthed: boolean
+    isOffline: boolean
 
     clearError: () => void
 
@@ -15,6 +23,7 @@ type AuthState = {
     signUp: (login: string, password: string) => Promise<void>
     signOut: () => Promise<void>
     bootstrap: () => Promise<void>
+    validateSession: () => Promise<void>
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
@@ -22,62 +31,135 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     isSubmitting: false,
     error: null,
     isAuthed: false,
+    isOffline: false,
 
     clearError: () => {
-        if (get().error) set({ error: null })
+        if (get().error) {
+            set({ error: null })
+        }
     },
 
     bootstrap: async () => {
         set({ isBootstrapping: true, error: null })
+
+        const access = await getAccessToken()
+        const refresh = await getRefreshToken()
+
+        if (!access || !refresh) {
+            await clearTokens()
+            set({
+                isAuthed: false,
+                isOffline: false,
+                isBootstrapping: false,
+            })
+            return
+        }
+
+        set({
+            isAuthed: true,
+            isOffline: false,
+            isBootstrapping: false,
+        })
+
+        void get().validateSession()
+    },
+
+    validateSession: async () => {
         try {
-            const refresh = await getRefreshToken()
-            if (!refresh) {
-                set({ isAuthed: false, isBootstrapping: false })
+            await getMe()
+            set({
+                isAuthed: true,
+                isOffline: false,
+                error: null,
+            })
+        } catch (e) {
+            const apiError = toApiError(e)
+
+            if (apiError.kind === 'network' || apiError.kind === 'timeout') {
+                set({
+                    isAuthed: true,
+                    isOffline: true,
+                    error: null,
+                })
                 return
             }
 
-            await getMe()
-            set({ isAuthed: true, isBootstrapping: false })
-        } catch (e) {
-            await clearTokens()
-            set({ isAuthed: false, isBootstrapping: false, error: toApiError(e).message })
+            if (apiError.kind === 'http' && apiError.status === 401) {
+                await clearTokens()
+                set({
+                    isAuthed: false,
+                    isOffline: false,
+                    error: null,
+                })
+                return
+            }
+
+            set({
+                isAuthed: true,
+                isOffline: true,
+                error: apiError.message,
+            })
         }
     },
 
     signIn: async (login: string, password: string) => {
         set({ isSubmitting: true, error: null })
+
         try {
             const tokens = await authApi.login({ login, password })
+
             await saveTokens({
                 accessToken: tokens.access_token,
                 refreshToken: tokens.refresh_token,
             })
 
-            await getMe()
-            set({ isAuthed: true, isSubmitting: false })
+            set({
+                isAuthed: true,
+                isOffline: false,
+                isSubmitting: false,
+            })
+
+            void get().validateSession()
         } catch (e) {
-            set({ error: toApiError(e).message, isSubmitting: false })
+            set({
+                error: toApiError(e).message,
+                isSubmitting: false,
+            })
         }
     },
 
     signUp: async (login: string, password: string) => {
         set({ isSubmitting: true, error: null })
+
         try {
             const tokens = await authApi.register({ login, password })
+
             await saveTokens({
                 accessToken: tokens.access_token,
                 refreshToken: tokens.refresh_token,
             })
 
-            await getMe()
-            set({ isAuthed: true, isSubmitting: false })
+            // сохраняем логин как никнейм по умолчанию
+            await updateProfileSettings({ nickname: login })
+
+            set({
+                isAuthed: true,
+                isOffline: false,
+                isSubmitting: false,
+            })
+
+            void get().validateSession()
         } catch (e) {
-            set({ error: toApiError(e).message, isSubmitting: false })
+            set({
+                error: toApiError(e).message,
+                isSubmitting: false,
+            })
         }
     },
 
     signOut: async () => {
         set({ isSubmitting: true, error: null })
+
         try {
             const refresh = await getRefreshToken()
             if (refresh) {
@@ -86,7 +168,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         } catch {
         } finally {
             await clearTokens()
-            set({ isAuthed: false, isSubmitting: false })
+            set({
+                isAuthed: false,
+                isOffline: false,
+                isSubmitting: false,
+            })
         }
     },
 }))
