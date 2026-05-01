@@ -46,7 +46,11 @@ export default function ResetPasswordScreen({ route, navigation }: Props) {
                 placeholder="Повторите пароль"
                 style={{ borderWidth: 1, padding: 8, marginVertical: 8 }}
             />
-            <Button title={loading ? 'Сохранение...' : 'Сохранить'} onPress={handleSubmit} disabled={loading} />
+            <Button
+                title={loading ? 'Сохранение...' : 'Сохранить'}
+                onPress={handleSubmit}
+                disabled={loading}
+            />
         </View>
     )
 }

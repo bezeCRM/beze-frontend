@@ -23,7 +23,7 @@ export default function AuthInput(props: Props) {
 
             <TextInput
                 value={props.value}
-                keyboardType={props.keyboardEmail ? 'email-address' : "default"}
+                keyboardType={props.keyboardEmail ? 'email-address' : 'default'}
                 onChangeText={props.onChangeText}
                 placeholder={props.placeholder}
                 placeholderTextColor={styles.placeholder.color}

@@ -170,7 +170,10 @@ export default function AuthScreen() {
                     ) : null}
 
                     {mode === 'login' ? (
-                        <AuthLink title="Забыли пароль?" onPress={() => navigation.navigate('ForgotPassword')} />
+                        <AuthLink
+                            title="Забыли пароль?"
+                            onPress={() => navigation.navigate('ForgotPassword')}
+                        />
                     ) : null}
 
                     {!passwordsMatch ? (

@@ -15,7 +15,10 @@ export default function ForgotPasswordScreen({ navigation }: Props) {
         setLoading(true)
         try {
             await forgotPassword({ email: email.trim().toLowerCase() })
-            Alert.alert('Готово', 'Если этот email зарегистрирован, ссылка для сброса отправлена')
+            Alert.alert(
+                'Готово',
+                'Если этот email зарегистрирован, ссылка для сброса отправлена',
+            )
             navigation.goBack()
         } catch {
             Alert.alert('Ошибка', 'Не удалось отправить запрос')
@@ -35,7 +38,11 @@ export default function ForgotPasswordScreen({ navigation }: Props) {
                 placeholder="example@mail.com"
                 style={{ borderWidth: 1, padding: 8, marginVertical: 8 }}
             />
-            <Button title={loading ? 'Отправка...' : 'Отправить'} onPress={handleSubmit} disabled={loading} />
+            <Button
+                title={loading ? 'Отправка...' : 'Отправить'}
+                onPress={handleSubmit}
+                disabled={loading}
+            />
             <Button title="Назад" onPress={() => navigation.goBack()} />
         </View>
     )
