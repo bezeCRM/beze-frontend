@@ -4,7 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack'
 
 import RootNavigation from './root-navigation'
 
-import type { AppStackParamList, RootSwitchParamList } from './types'
+import type { AppStackParamList, AuthStackParamList, RootSwitchParamList } from './types'
 
 import { useAuth } from '@/modules/auth/hooks/useAuth'
 
@@ -20,9 +20,23 @@ import FinancesScreen from '@/modules/profile/screens/finances.screen'
 import HelpScreen from '@/modules/profile/screens/help.screen'
 import SettingsScreen from '@/modules/profile/screens/settings.screen'
 import AuthScreen from '@/modules/auth/screens/auth.screen'
+import ResetPasswordScreen from '@/modules/auth/screens/reset-password.screen'
+import ForgotPasswordScreen from '@/modules/auth/screens/forgot-password.screen'
 
 const RootStack = createNativeStackNavigator<RootSwitchParamList>()
 const AppStack = createNativeStackNavigator<AppStackParamList>()
+
+const AuthStack = createNativeStackNavigator<AuthStackParamList>()
+
+function AuthStackNavigation(): JSX.Element {
+    return (
+        <AuthStack.Navigator screenOptions={{ headerShown: false }}>
+            <AuthStack.Screen name="Login" component={AuthScreen} />
+            <AuthStack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
+            <AuthStack.Screen name="ResetPassword" component={ResetPasswordScreen} />
+        </AuthStack.Navigator>
+    )
+}
 
 function AppStackNavigation(): JSX.Element {
     return (
@@ -88,7 +102,7 @@ export default function AppNavigation(): JSX.Element {
             {isAuthed ? (
                 <RootStack.Screen name="App" component={AppStackNavigation} />
             ) : (
-                <RootStack.Screen name="Auth" component={AuthScreen} />
+                <RootStack.Screen name="Auth" component={AuthStackNavigation} />
             )}
         </RootStack.Navigator>
     )

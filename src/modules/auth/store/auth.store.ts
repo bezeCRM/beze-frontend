@@ -19,8 +19,8 @@ type AuthState = {
 
     clearError: () => void
 
-    signIn: (login: string, password: string) => Promise<void>
-    signUp: (login: string, password: string) => Promise<void>
+    signIn: (credential: string, password: string) => Promise<void>
+    signUp: (login: string, email: string, password: string) => Promise<void>
     signOut: () => Promise<void>
     bootstrap: () => Promise<void>
     validateSession: () => Promise<void>
@@ -102,11 +102,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         }
     },
 
-    signIn: async (login: string, password: string) => {
+    signIn: async (credential: string, password: string) => {
         set({ isSubmitting: true, error: null })
 
         try {
-            const tokens = await authApi.login({ login, password })
+            const tokens = await authApi.login({ credential, password })
 
             await saveTokens({
                 accessToken: tokens.access_token,
@@ -128,18 +128,18 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         }
     },
 
-    signUp: async (login: string, password: string) => {
+    signUp: async (login: string, email: string, password: string) => {
         set({ isSubmitting: true, error: null })
 
         try {
-            const tokens = await authApi.register({ login, password })
+            const tokens = await authApi.register({ login, email, password })
 
             await saveTokens({
                 accessToken: tokens.access_token,
                 refreshToken: tokens.refresh_token,
             })
 
-            // сохраняем логин как никнейм по умолчанию
+            // сохраняем логин как никнейм по умолчанию для profile-settings
             await updateProfileSettings({ nickname: login })
 
             set({

@@ -10,6 +10,7 @@ type Props = {
     right?: (isFocused: boolean) => ReactNode
     autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters'
     secureTextEntry?: boolean
+    keyboardEmail?: boolean
 }
 
 export default function AuthInput(props: Props) {
@@ -22,7 +23,7 @@ export default function AuthInput(props: Props) {
 
             <TextInput
                 value={props.value}
-                keyboardType="default"
+                keyboardType={props.keyboardEmail ? 'email-address' : "default"}
                 onChangeText={props.onChangeText}
                 placeholder={props.placeholder}
                 placeholderTextColor={styles.placeholder.color}

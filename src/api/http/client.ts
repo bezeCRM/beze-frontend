@@ -28,6 +28,8 @@ export function createHttpClient(): AxiosInstance {
 
     attachAuthInterceptor(client)
 
+    console.log('apiBaseUrl:', ENV.apiBaseUrl)
+
     client.interceptors.response.use(
         response => response,
         async (err: unknown) => {

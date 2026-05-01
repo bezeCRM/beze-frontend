@@ -46,6 +46,9 @@ function translateHttpMessage(status: number, msg: string | null): string | null
         if (msg === 'login already exists') {
             return 'Логин занят'
         }
+        if (msg === 'email already exists') {
+            return 'Email занят'
+        }
         return 'Конфликт данных, попробуйте снова'
     }
 

@@ -7,7 +7,9 @@ export type RootSwitchParamList = {
 }
 
 export type AuthStackParamList = {
-    AuthMain: undefined
+    Login: undefined
+    ForgotPassword: undefined
+    ResetPassword: { token: string }
 }
 
 export type AppStackParamList = {

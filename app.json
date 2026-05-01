@@ -2,6 +2,7 @@
     "expo": {
         "name": "beze-frontend",
         "slug": "beze-frontend",
+        "scheme": "beze",
         "icon": "./src/assets/icons/icon.png",
         "version": "1.0.0",
         "assetBundlePatterns": ["**/*"],

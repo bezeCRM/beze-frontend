@@ -15,13 +15,17 @@ import AuthCard from '../components/auth-card'
 import AuthInput from '../components/auth-input'
 import AuthLink from '../components/auth-link'
 import { useTheme } from '@/shared/theme/useTheme'
+import { AuthNav } from '@/core/navigation/types'
+import { useNavigation } from '@react-navigation/native'
 
 export default function AuthScreen() {
     const styles = useStyles()
     const colors = useTheme().theme.colors
     const { signIn, signUp, isSubmitting, clearError, error } = useAuth()
+    const navigation = useNavigation<AuthNav>()
 
     const [mode, setMode] = useState<AuthSegmentValue>('login')
+    const [email, setEmail] = useState('')
 
     const [login, setLogin] = useState('')
     const [password, setPassword] = useState('')
@@ -41,12 +45,13 @@ export default function AuthScreen() {
         if (password.length === 0) return false
 
         if (mode === 'register') {
+            if (email.trim().length === 0) return false
             if (repeatPassword.length === 0) return false
             if (password !== repeatPassword) return false
         }
 
         return true
-    }, [login, password, repeatPassword, mode])
+    }, [login, password, repeatPassword, email, mode])
 
     const onSubmit = async (): Promise<void> => {
         const cleanLogin = login.trim()
@@ -57,7 +62,7 @@ export default function AuthScreen() {
         }
 
         if (password !== repeatPassword) return
-        await signUp(cleanLogin, password)
+        await signUp(cleanLogin, email.trim(), password)
     }
 
     return (
@@ -89,6 +94,24 @@ export default function AuthScreen() {
                             />
                         )}
                     />
+
+                    {mode === 'register' ? (
+                        <AuthInput
+                            value={email}
+                            onChangeText={v => {
+                                if (error) clearError()
+                                setEmail(v)
+                            }}
+                            placeholder="Email"
+                            autoCapitalize="none"
+                            left={isFocused => (
+                                <Icon
+                                    name="email-icon"
+                                    color={isFocused ? colors.brand : colors.textMuted}
+                                />
+                            )}
+                        />
+                    ) : null}
 
                     <AuthInput
                         value={password}
@@ -147,7 +170,7 @@ export default function AuthScreen() {
                     ) : null}
 
                     {mode === 'login' ? (
-                        <AuthLink title="Забыли пароль?" onPress={() => {}} />
+                        <AuthLink title="Забыли пароль?" onPress={() => navigation.navigate('ForgotPassword')} />
                     ) : null}
 
                     {!passwordsMatch ? (

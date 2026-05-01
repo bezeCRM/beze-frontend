@@ -9,8 +9,8 @@ type UseAuthResult = {
 
     clearError: () => void
 
-    signIn: (login: string, password: string) => Promise<void>
-    signUp: (login: string, password: string) => Promise<void>
+    signIn: (credential: string, password: string) => Promise<void>
+    signUp: (login: string, email: string, password: string) => Promise<void>
     signOut: () => Promise<void>
     bootstrap: () => Promise<void>
 }
@@ -29,15 +29,15 @@ export function useAuth(): UseAuthResult {
     const bootstrapRaw = useAuthStore(s => s.bootstrap)
 
     const signIn = useCallback(
-        async (login: string, password: string) => {
-            await signInRaw(login, password)
+        async (credential: string, password: string) => {
+            await signInRaw(credential, password)
         },
         [signInRaw],
     )
 
     const signUp = useCallback(
-        async (login: string, password: string) => {
-            await signUpRaw(login, password)
+        async (login: string, email: string, password: string) => {
+            await signUpRaw(login, email, password)
         },
         [signUpRaw],
     )
