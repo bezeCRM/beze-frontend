@@ -15,13 +15,14 @@
                 {
                     "backgroundColor": "#FF8EB1",
                     "image": "./src/assets/icons/splash-icon.png",
-                    "imageWidth": 150
+                    "imageWidth": 100
                 }
             ],
             "expo-secure-store"
         ],
         "platforms": ["ios", "android"],
         "ios": {
+            "bundleIdentifier": "com.bezefrontend.crm",
             "infoPlist": {
                 "NSPhotoLibraryUsageDescription": "Нужно для выбора фото из галереи"
             }

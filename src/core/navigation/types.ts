@@ -4,12 +4,12 @@ import type { RouteProp } from '@react-navigation/native'
 export type RootSwitchParamList = {
     Auth: undefined
     App: undefined
+    ResetPassword: { token?: string }
 }
 
 export type AuthStackParamList = {
     Login: undefined
     ForgotPassword: undefined
-    ResetPassword: { token: string }
 }
 
 export type AppStackParamList = {
@@ -31,5 +31,7 @@ export type AppStackParamList = {
 export type Nav = NativeStackNavigationProp<AppStackParamList>
 
 export type AuthNav = NativeStackNavigationProp<AuthStackParamList>
+
+export type RootNav = NativeStackNavigationProp<RootSwitchParamList>
 
 export type Route<T extends keyof AppStackParamList> = RouteProp<AppStackParamList, T>

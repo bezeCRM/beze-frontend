@@ -25,7 +25,6 @@ import ForgotPasswordScreen from '@/modules/auth/screens/forgot-password.screen'
 
 const RootStack = createNativeStackNavigator<RootSwitchParamList>()
 const AppStack = createNativeStackNavigator<AppStackParamList>()
-
 const AuthStack = createNativeStackNavigator<AuthStackParamList>()
 
 function AuthStackNavigation(): JSX.Element {
@@ -33,7 +32,6 @@ function AuthStackNavigation(): JSX.Element {
         <AuthStack.Navigator screenOptions={{ headerShown: false }}>
             <AuthStack.Screen name="Login" component={AuthScreen} />
             <AuthStack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
-            <AuthStack.Screen name="ResetPassword" component={ResetPasswordScreen} />
         </AuthStack.Navigator>
     )
 }
@@ -104,6 +102,8 @@ export default function AppNavigation(): JSX.Element {
             ) : (
                 <RootStack.Screen name="Auth" component={AuthStackNavigation} />
             )}
+
+            <RootStack.Screen name="ResetPassword" component={ResetPasswordScreen} />
         </RootStack.Navigator>
     )
 }

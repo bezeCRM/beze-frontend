@@ -13,12 +13,19 @@ type Props = {
 }
 
 const linking: LinkingOptions<any> = {
-    prefixes: [createURL('/')],
+    prefixes: ['beze://', createURL('/')],
     config: {
         screens: {
-            Login: {
+            ResetPassword: 'reset-password',
+            Auth: {
                 screens: {
-                    ResetPassword: 'reset-password',
+                    Login: 'login',
+                    ForgotPassword: 'forgot-password',
+                },
+            },
+            App: {
+                screens: {
+                    Tabs: '',
                 },
             },
         },
