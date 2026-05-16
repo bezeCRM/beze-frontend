@@ -10,7 +10,7 @@ export default function AuthLink(props: Props) {
     const styles = useStyles()
 
     return (
-        <Pressable onPress={props.onPress} style={styles.root}>
+        <Pressable onPress={props.onPress} style={styles.root} hitSlop={10}>
             <Text style={styles.text}>{props.title}</Text>
         </Pressable>
     )

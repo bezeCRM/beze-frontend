@@ -85,7 +85,7 @@ export default function AuthScreen() {
                             if (error) clearError()
                             setLogin(v)
                         }}
-                        placeholder="Логин"
+                        placeholder={`${mode === 'login' ? 'Логин или email' : 'Логин'}`}
                         autoCapitalize="none"
                         left={isFocused => (
                             <Icon

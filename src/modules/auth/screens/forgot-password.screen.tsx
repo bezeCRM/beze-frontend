@@ -1,12 +1,26 @@
 import { useState } from 'react'
-import { View, Text, TextInput, Button, Alert } from 'react-native'
+import { Alert, StyleSheet, Text, View } from 'react-native'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack'
+import Logo from '@/assets/images/logo.svg'
+
+import ScreenContainer from '@/shared/components/layout/screen-container'
+import { createThemedStyles } from '@/shared/theme/create-themed-styles'
+import { useTheme } from '@/shared/theme/useTheme'
+import Button from '@/shared/ui/button/button'
+import { Icon } from '@/shared/ui/icon/icon'
+
 import type { AuthStackParamList } from '@/core/navigation/types'
 import { forgotPassword } from '../api/auth.api'
+import AuthCard from '../components/auth-card'
+import AuthInput from '../components/auth-input'
+import AuthLink from '../components/auth-link'
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'ForgotPassword'>
 
 export default function ForgotPasswordScreen({ navigation }: Props) {
+    const styles = useStyles()
+    const colors = useTheme().theme.colors
+
     const [email, setEmail] = useState('')
     const [loading, setLoading] = useState(false)
 
@@ -34,24 +48,70 @@ export default function ForgotPasswordScreen({ navigation }: Props) {
     }
 
     return (
-        <View style={{ flex: 1, padding: 24, justifyContent: 'center' }}>
-            <Text>Email</Text>
-            <TextInput
-                value={email}
-                onChangeText={setEmail}
-                autoCapitalize="none"
-                keyboardType="email-address"
-                placeholder="example@mail.com"
-                style={{ borderWidth: 1, padding: 8, marginVertical: 8 }}
-            />
+        <ScreenContainer>
+            <View style={styles.center}>
+                <Logo width={110} height={42} />
 
-            <Button
-                title={loading ? 'Отправка...' : 'Отправить'}
-                onPress={handleSubmit}
-                disabled={loading}
-            />
+                <Text style={styles.title}>Восстановление пароля</Text>
+                <Text style={styles.subtitle}>
+                    Укажите email, и мы отправим ссылку для сброса пароля
+                </Text>
 
-            <Button title="Назад" onPress={() => navigation.goBack()} />
-        </View>
+                <AuthCard>
+                    <AuthInput
+                        value={email}
+                        onChangeText={setEmail}
+                        placeholder="Email"
+                        autoCapitalize="none"
+                        keyboardEmail
+                        left={isFocused => (
+                            <Icon
+                                name="email-icon"
+                                color={isFocused ? colors.brand : colors.textMuted}
+                            />
+                        )}
+                    />
+
+                    <Button
+                        title={loading ? 'Отправка...' : 'Отправить'}
+                        onPress={handleSubmit}
+                        loading={loading}
+                        disabled={loading}
+                        style={styles.btn}
+                    />
+
+                    <AuthLink title="Назад" onPress={() => navigation.goBack()} />
+                </AuthCard>
+            </View>
+        </ScreenContainer>
     )
 }
+
+const useStyles = createThemedStyles(theme =>
+    StyleSheet.create({
+        center: {
+            marginTop: '20%',
+            alignItems: 'center',
+        },
+        title: {
+            marginTop: 28,
+            fontFamily: 'Epilogue-SemiBold',
+            fontSize: 22,
+            color: theme.colors.text,
+            textAlign: 'center',
+        },
+        subtitle: {
+            marginTop: 8,
+            width: '82%',
+            fontFamily: 'Epilogue-Regular',
+            fontSize: 14,
+            lineHeight: 20,
+            color: theme.colors.textMuted,
+            textAlign: 'center',
+        },
+        btn: {
+            marginTop: 3,
+            marginBottom: 3,
+        },
+    }),
+)

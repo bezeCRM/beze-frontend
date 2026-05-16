@@ -1,19 +1,37 @@
 import { useState } from 'react'
-import { View, Text, TextInput, Button, Alert } from 'react-native'
+import { Alert, Pressable, StyleSheet, Text, View } from 'react-native'
 import { CommonActions } from '@react-navigation/native'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack'
+import Logo from '@/assets/images/logo.svg'
+import PassHidden from '@/assets/icons/pass_hidden-icon.svg'
+import PassShown from '@/assets/icons/pass_shown-icon.svg'
+
+import ScreenContainer from '@/shared/components/layout/screen-container'
+import { createThemedStyles } from '@/shared/theme/create-themed-styles'
+import { useTheme } from '@/shared/theme/useTheme'
+import Button from '@/shared/ui/button/button'
+import { Icon } from '@/shared/ui/icon/icon'
+
 import type { RootSwitchParamList } from '@/core/navigation/types'
 import { resetPassword } from '@/modules/auth/api/auth.api'
+import AuthCard from '../components/auth-card'
+import AuthInput from '../components/auth-input'
 
 type Props = NativeStackScreenProps<RootSwitchParamList, 'ResetPassword'>
 
 export default function ResetPasswordScreen({ route, navigation }: Props) {
+    const styles = useStyles()
+    const colors = useTheme().theme.colors
+
     const token = route.params?.token
     console.log('reset password token:', token)
 
     const [password, setPassword] = useState('')
     const [confirm, setConfirm] = useState('')
     const [loading, setLoading] = useState(false)
+
+    const [isPasswordVisible, setIsPasswordVisible] = useState(false)
+    const [isConfirmVisible, setIsConfirmVisible] = useState(false)
 
     const goToAuth = () => {
         navigation.dispatch(
@@ -56,30 +74,89 @@ export default function ResetPasswordScreen({ route, navigation }: Props) {
     }
 
     return (
-        <View style={{ flex: 1, padding: 24, justifyContent: 'center' }}>
-            <Text>Новый пароль</Text>
-            <TextInput
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry
-                placeholder="Минимум 8 символов"
-                style={{ borderWidth: 1, padding: 8, marginVertical: 8 }}
-            />
+        <ScreenContainer>
+            <View style={styles.center}>
+                <Logo width={110} height={42} />
 
-            <Text>Повторите пароль</Text>
-            <TextInput
-                value={confirm}
-                onChangeText={setConfirm}
-                secureTextEntry
-                placeholder="Повторите пароль"
-                style={{ borderWidth: 1, padding: 8, marginVertical: 8 }}
-            />
+                <Text style={styles.title}>Новый пароль</Text>
+                <Text style={styles.subtitle}>
+                    Придумайте новый пароль и повторите его ниже
+                </Text>
 
-            <Button
-                title={loading ? 'Сохранение...' : 'Сохранить'}
-                onPress={handleSubmit}
-                disabled={loading}
-            />
-        </View>
+                <AuthCard>
+                    <AuthInput
+                        value={password}
+                        onChangeText={setPassword}
+                        placeholder="Минимум 8 символов"
+                        autoCapitalize="none"
+                        secureTextEntry={!isPasswordVisible}
+                        left={isFocused => (
+                            <Icon
+                                name="password-icon"
+                                color={isFocused ? colors.brand : colors.textMuted}
+                            />
+                        )}
+                        right={() => (
+                            <Pressable
+                                onPress={() => setIsPasswordVisible(prev => !prev)}
+                            >
+                                {isPasswordVisible ? <PassShown /> : <PassHidden />}
+                            </Pressable>
+                        )}
+                    />
+
+                    <AuthInput
+                        value={confirm}
+                        onChangeText={setConfirm}
+                        placeholder="Повторите пароль"
+                        autoCapitalize="none"
+                        secureTextEntry={!isConfirmVisible}
+                        left={isFocused => (
+                            <Icon
+                                name="password-icon"
+                                color={isFocused ? colors.brand : colors.textMuted}
+                            />
+                        )}
+                        right={() => (
+                            <Pressable onPress={() => setIsConfirmVisible(prev => !prev)}>
+                                {isConfirmVisible ? <PassShown /> : <PassHidden />}
+                            </Pressable>
+                        )}
+                    />
+
+                    <Button
+                        title={loading ? 'Сохранение...' : 'Сохранить'}
+                        onPress={handleSubmit}
+                        loading={loading}
+                        disabled={loading}
+                    />
+                </AuthCard>
+            </View>
+        </ScreenContainer>
     )
 }
+
+const useStyles = createThemedStyles(theme =>
+    StyleSheet.create({
+        center: {
+            marginTop: '20%',
+            alignItems: 'center',
+        },
+        title: {
+            marginTop: 28,
+            fontFamily: 'Epilogue-Regular',
+            fontSize: 22,
+            color: theme.colors.text,
+            textAlign: 'center',
+        },
+        subtitle: {
+            marginTop: 8,
+            width: '82%',
+            fontFamily: 'Epilogue-Regular',
+            fontSize: 14,
+            lineHeight: 20,
+            color: theme.colors.textMuted,
+            textAlign: 'center',
+        },
+    }),
+)
