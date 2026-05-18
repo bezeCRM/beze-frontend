@@ -39,7 +39,20 @@ export default function OrderReferencesPicker({
                             onPress={() => viewer.openAt(index)}
                             style={styles.preview}
                         >
-                            <Image source={{ uri: p.uri }} style={styles.img} />
+                            <Image
+                                source={{ uri: p.uri }}
+                                style={styles.img}
+                                resizeMode="cover"
+                                onLoad={() => {
+                                    console.log('order reference image loaded:', p.uri)
+                                }}
+                                onError={e => {
+                                    console.log('order reference image error:', {
+                                        uri: p.uri,
+                                        error: e.nativeEvent.error,
+                                    })
+                                }}
+                            />
                         </TouchableOpacity>
 
                         <TouchableOpacity

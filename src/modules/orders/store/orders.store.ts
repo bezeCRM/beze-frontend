@@ -5,10 +5,11 @@ import type { Order } from '@/shared/types/types'
 import {
     createOrder,
     deleteOrderApi,
-    OrderPatchRequest,
     updateOrderApi,
-    type OrderUpsertRequest,
     patchOrderApi,
+    uploadOrderReference,
+    type OrderPatchRequest,
+    type OrderUpsertRequest,
 } from '@/modules/orders/api/orders.api'
 import { rescheduleOrderNotifications } from '@/modules/notifications/utils/reschedule-notifications'
 import { useNotificationSettingsStore } from '@/modules/notifications/store/notification-settings.store'
@@ -39,6 +40,43 @@ type OrdersStore = {
 const STORAGE_KEY = 'data.orders'
 const STORAGE_VERSION = 1
 
+function isLocalPhotoUri(uri?: string): uri is string {
+    if (!uri) return false
+
+    return (
+        uri.startsWith('file://') ||
+        uri.startsWith('content://') ||
+        uri.startsWith('ph://') ||
+        uri.startsWith('blob:')
+    )
+}
+
+async function uploadLocalOrderReferences<
+    T extends { references?: { uri: string }[] | null },
+>(payload: T): Promise<T> {
+    if (!('references' in payload)) return payload
+
+    const references = payload.references
+
+    if (references == null) return payload
+
+    const uploadedReferences = await Promise.all(
+        references.map(async reference => {
+            if (!isLocalPhotoUri(reference.uri)) {
+                return reference
+            }
+
+            const uri = await uploadOrderReference(reference.uri)
+            return { ...reference, uri }
+        }),
+    )
+
+    return {
+        ...payload,
+        references: uploadedReferences,
+    }
+}
+
 export const useOrdersStore = create<OrdersStore>()(
     persist(
         (set, get) => ({
@@ -50,17 +88,24 @@ export const useOrdersStore = create<OrdersStore>()(
             setOrders: items => set({ orders: items }),
 
             addOrder: async payload => {
-                const created = await createOrder(payload)
+                const payloadWithUploadedReferences =
+                    await uploadLocalOrderReferences(payload)
+                const created = await createOrder(payloadWithUploadedReferences)
+
                 set(state => {
                     const orders = [created, ...state.orders]
                     reschedule(orders)
                     return { orders }
                 })
+
                 return created.id
             },
 
             updateOrder: async (id, payload) => {
-                const updated = await updateOrderApi(id, payload)
+                const payloadWithUploadedReferences =
+                    await uploadLocalOrderReferences(payload)
+                const updated = await updateOrderApi(id, payloadWithUploadedReferences)
+
                 set(state => {
                     const orders = state.orders.map(o => (o.id === id ? updated : o))
                     reschedule(orders)
@@ -69,7 +114,10 @@ export const useOrdersStore = create<OrdersStore>()(
             },
 
             patchOrder: async (id, patch) => {
-                const updated = await patchOrderApi(id, patch)
+                const patchWithUploadedReferences =
+                    await uploadLocalOrderReferences(patch)
+                const updated = await patchOrderApi(id, patchWithUploadedReferences)
+
                 set(state => {
                     const orders = state.orders.map(o => (o.id === id ? updated : o))
                     reschedule(orders)

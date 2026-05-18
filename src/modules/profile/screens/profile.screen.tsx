@@ -3,7 +3,11 @@ import { AppStackParamList } from '@/core/navigation/types'
 import MainHeader from '@/shared/components/headers/main-header'
 import ScreenContainer from '@/shared/components/layout/screen-container'
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs'
-import { CompositeNavigationProp, useNavigation } from '@react-navigation/native'
+import {
+    CompositeNavigationProp,
+    useFocusEffect,
+    useNavigation,
+} from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { View, Text, StyleSheet, Pressable, ActivityIndicator } from 'react-native'
 import ProfileHeader from '../components/profile/profile-header'
@@ -15,7 +19,7 @@ import { ToastViewport, useToast } from '@/shared/components/toast/toast-provide
 import { TOAST_SCOPES } from '@/shared/components/toast/scopes'
 import { useProfileSettingsStore } from '../store/profile-settings.store'
 import { useAuth } from '@/modules/auth/hooks/useAuth'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { toApiError } from '@/api'
 import BaseModal from '@/modules/modal/base/base-modal'
 import ConfirmModal from '@/modules/modal/variants/confirm-modal'
@@ -53,18 +57,26 @@ export default function ProfileScreen() {
 
     const [showLogoutModal, setShowLogoutModal] = useState(false)
 
-    useEffect(() => {
+    const refreshSettings = useCallback(async () => {
         if (!hasHydrated) return
 
-        void (async () => {
-            try {
-                await fetchSettings()
-            } catch (err) {
-                const apiErr = toApiError(err)
-                show(apiErr.message, 'error', { scope: TOAST_SCOPES.Profile })
-            }
-        })()
+        try {
+            await fetchSettings()
+        } catch (err) {
+            const apiErr = toApiError(err)
+            show(apiErr.message, 'error', { scope: TOAST_SCOPES.Profile })
+        }
     }, [hasHydrated, fetchSettings, show])
+
+    useEffect(() => {
+        void refreshSettings()
+    }, [refreshSettings])
+
+    useFocusEffect(
+        useCallback(() => {
+            void refreshSettings()
+        }, [refreshSettings]),
+    )
 
     if (!settings) {
         return (

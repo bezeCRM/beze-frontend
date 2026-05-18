@@ -101,6 +101,45 @@ type OrderApiDto = Omit<
     paymentStatus?: 'unpaid' | 'partial' | 'paid'
 }
 
+type OrderReferenceUploadResponse = {
+    uri: string
+}
+
+function getFileNameFromUri(uri: string): string {
+    const fallback = `order-reference-${Date.now()}.jpg`
+    const name = uri.split('/').pop()
+    return name || fallback
+}
+
+function getMimeTypeFromFileName(fileName: string): string {
+    const lower = fileName.toLowerCase()
+
+    if (lower.endsWith('.png')) return 'image/png'
+    if (lower.endsWith('.webp')) return 'image/webp'
+    if (lower.endsWith('.heic')) return 'image/heic'
+    if (lower.endsWith('.heif')) return 'image/heif'
+
+    return 'image/jpeg'
+}
+
+export async function uploadOrderReference(localUri: string): Promise<string> {
+    const fileName = getFileNameFromUri(localUri)
+
+    const formData = new FormData()
+    formData.append('file', {
+        uri: localUri,
+        name: fileName,
+        type: getMimeTypeFromFileName(fileName),
+    } as any)
+
+    const { data } = await http.post<OrderReferenceUploadResponse>(
+        '/orders/references',
+        formData,
+    )
+
+    return data.uri
+}
+
 function optString(v: string | null | undefined): string | undefined {
     return v == null ? undefined : v
 }

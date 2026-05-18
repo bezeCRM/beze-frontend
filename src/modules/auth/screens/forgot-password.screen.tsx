@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { Alert, StyleSheet, Text, View } from 'react-native'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack'
-import Logo from '@/assets/images/logo.svg'
 
 import ScreenContainer from '@/shared/components/layout/screen-container'
 import { createThemedStyles } from '@/shared/theme/create-themed-styles'
@@ -14,6 +13,7 @@ import { forgotPassword } from '../api/auth.api'
 import AuthCard from '../components/auth-card'
 import AuthInput from '../components/auth-input'
 import AuthLink from '../components/auth-link'
+import AuthLogo from '../components/auth-logo'
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'ForgotPassword'>
 
@@ -50,7 +50,7 @@ export default function ForgotPasswordScreen({ navigation }: Props) {
     return (
         <ScreenContainer>
             <View style={styles.center}>
-                <Logo width={110} height={42} />
+                <AuthLogo />
 
                 <Text style={styles.title}>Восстановление пароля</Text>
                 <Text style={styles.subtitle}>

@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native'
 import { CommonActions } from '@react-navigation/native'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack'
-import Logo from '@/assets/images/logo.svg'
 import PassHidden from '@/assets/icons/pass_hidden-icon.svg'
 import PassShown from '@/assets/icons/pass_shown-icon.svg'
 
@@ -16,6 +15,7 @@ import type { RootSwitchParamList } from '@/core/navigation/types'
 import { resetPassword } from '@/modules/auth/api/auth.api'
 import AuthCard from '../components/auth-card'
 import AuthInput from '../components/auth-input'
+import AuthLogo from '../components/auth-logo'
 
 type Props = NativeStackScreenProps<RootSwitchParamList, 'ResetPassword'>
 
@@ -76,7 +76,7 @@ export default function ResetPasswordScreen({ route, navigation }: Props) {
     return (
         <ScreenContainer>
             <View style={styles.center}>
-                <Logo width={110} height={42} />
+                <AuthLogo />
 
                 <Text style={styles.title}>Новый пароль</Text>
                 <Text style={styles.subtitle}>

@@ -3,13 +3,13 @@ import { useTheme } from '@/shared/theme/useTheme'
 import { Icon } from '@/shared/ui/icon/icon'
 import { StyleSheet, View } from 'react-native'
 
-export default function MainHeader() {
+export default function AuthLogo() {
     const colors = useTheme().theme.colors
 
     return (
         <View style={styles.container}>
-            <LogoIcon width={30} />
-            <Icon name="logo-text-icon" color={colors.text} size={45} />
+            <LogoIcon height={32} width={40} />
+            <Icon name="logo-text-icon" color={colors.text} size={54} />
         </View>
     )
 }
@@ -17,9 +17,13 @@ export default function MainHeader() {
 const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
+        // borderColor: '#FFFFFF',
+        // borderWidth: 1,
         alignItems: 'center',
         justifyContent: 'center',
-        columnGap: 11,
-        height: 40,
+        columnGap: 10,
+        height: 42,
+        width: 120,
+        marginBottom: -10,
     },
 })

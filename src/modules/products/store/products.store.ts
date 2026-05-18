@@ -6,6 +6,7 @@ import {
     createProduct,
     deleteProductApi,
     updateProductApi,
+    uploadProductPhoto,
 } from '@/modules/products/api/products.api'
 
 export type NewProductInput = Omit<Product, 'id' | 'createdAt' | 'updatedAt'>
@@ -32,6 +33,41 @@ type ProductsStore = {
 
 const STORAGE_KEY = 'data.products'
 const STORAGE_VERSION = 1
+
+function isLocalPhotoUri(uri?: string): uri is string {
+    if (!uri) return false
+
+    return (
+        uri.startsWith('file://') ||
+        uri.startsWith('content://') ||
+        uri.startsWith('ph://') ||
+        uri.startsWith('blob:')
+    )
+}
+
+async function uploadLocalProductPhotoes(
+    data: NewProductInput,
+): Promise<NewProductInput> {
+    const photoes = data.photoes ?? []
+
+    if (!photoes.length) return data
+
+    const uploadedPhotoes = await Promise.all(
+        photoes.slice(0, 3).map(async photo => {
+            if (!isLocalPhotoUri(photo.uri)) {
+                return photo
+            }
+
+            const uri = await uploadProductPhoto(photo.uri)
+            return { ...photo, uri }
+        }),
+    )
+
+    return {
+        ...data,
+        photoes: uploadedPhotoes,
+    }
+}
 
 function normalizeNewProductToApiPayload(data: NewProductInput) {
     const fillings = (data.fillings ?? [])
@@ -63,24 +99,6 @@ function normalizeNewProductToApiPayload(data: NewProductInput) {
     }
 }
 
-function normalizePatchToApiPayload(
-    current: Product,
-    patch: Partial<Omit<Product, 'id' | 'createdAt' | 'updatedAt'>>,
-) {
-    const merged: NewProductInput = {
-        name: patch.name ?? current.name,
-        price: patch.price ?? current.price,
-        unit: patch.unit ?? current.unit,
-        category: 'category' in patch ? patch.category : current.category,
-        fillings: 'fillings' in patch ? patch.fillings : current.fillings,
-        ingredients: 'ingredients' in patch ? patch.ingredients : current.ingredients,
-        recipe: 'recipe' in patch ? patch.recipe : current.recipe,
-        photoes: 'photoes' in patch ? patch.photoes : current.photoes,
-    }
-
-    return normalizeNewProductToApiPayload(merged)
-}
-
 export const useProductsStore = create<ProductsStore>()(
     persist(
         (set, get) => ({
@@ -92,7 +110,8 @@ export const useProductsStore = create<ProductsStore>()(
             setProducts: items => set({ products: items }),
 
             addProduct: async data => {
-                const payload = normalizeNewProductToApiPayload(data)
+                const dataWithUploadedPhotoes = await uploadLocalProductPhotoes(data)
+                const payload = normalizeNewProductToApiPayload(dataWithUploadedPhotoes)
                 const created = await createProduct(payload)
 
                 set(state => ({ products: [created, ...state.products] }))
@@ -103,7 +122,20 @@ export const useProductsStore = create<ProductsStore>()(
                 const current = get().products.find(p => p.id === id)
                 if (!current) return
 
-                const payload = normalizePatchToApiPayload(current, patch)
+                const merged: NewProductInput = {
+                    name: patch.name ?? current.name,
+                    price: patch.price ?? current.price,
+                    unit: patch.unit ?? current.unit,
+                    category: 'category' in patch ? patch.category : current.category,
+                    fillings: 'fillings' in patch ? patch.fillings : current.fillings,
+                    ingredients:
+                        'ingredients' in patch ? patch.ingredients : current.ingredients,
+                    recipe: 'recipe' in patch ? patch.recipe : current.recipe,
+                    photoes: 'photoes' in patch ? patch.photoes : current.photoes,
+                }
+
+                const mergedWithUploadedPhotoes = await uploadLocalProductPhotoes(merged)
+                const payload = normalizeNewProductToApiPayload(mergedWithUploadedPhotoes)
                 const updated = await updateProductApi(id, payload)
 
                 set(state => ({

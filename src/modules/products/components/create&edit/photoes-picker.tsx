@@ -48,7 +48,20 @@ export default function PhotoesPicker({
                             }}
                             style={styles.preview}
                         >
-                            <Image source={{ uri: p.uri }} style={styles.img} />
+                            <Image
+                                source={{ uri: p.uri }}
+                                style={styles.img}
+                                resizeMode="cover"
+                                onLoad={() => {
+                                    console.log('product image loaded:', p.uri)
+                                }}
+                                onError={e => {
+                                    console.log('product image error:', {
+                                        uri: p.uri,
+                                        error: e.nativeEvent.error,
+                                    })
+                                }}
+                            />
                         </TouchableOpacity>
 
                         <TouchableOpacity

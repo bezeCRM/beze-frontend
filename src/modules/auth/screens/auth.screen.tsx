@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
-import Logo from '@/assets/images/logo.svg'
 import PassHidden from '@/assets/icons/pass_hidden-icon.svg'
 import PassShown from '@/assets/icons/pass_shown-icon.svg'
 
@@ -17,6 +16,7 @@ import AuthLink from '../components/auth-link'
 import { useTheme } from '@/shared/theme/useTheme'
 import { AuthNav } from '@/core/navigation/types'
 import { useNavigation } from '@react-navigation/native'
+import AuthLogo from '../components/auth-logo'
 
 export default function AuthScreen() {
     const styles = useStyles()
@@ -68,7 +68,7 @@ export default function AuthScreen() {
     return (
         <ScreenContainer>
             <View style={styles.center}>
-                <Logo width={110} height={42} />
+                <AuthLogo />
 
                 <AuthSegment
                     value={mode}
@@ -89,7 +89,7 @@ export default function AuthScreen() {
                         autoCapitalize="none"
                         left={isFocused => (
                             <Icon
-                                name="email-icon"
+                                name="profile-icon"
                                 color={isFocused ? colors.brand : colors.textMuted}
                             />
                         )}

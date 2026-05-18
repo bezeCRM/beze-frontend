@@ -19,6 +19,8 @@ import SectionCard from '@/shared/ui/section/section-card'
 import { createThemedStyles } from '@/shared/theme/create-themed-styles'
 import { useTheme } from '@/shared/theme/useTheme'
 
+import { uploadProfilePhoto } from '@/modules/profile/api/profile.api'
+
 import {
     InternalHeaderTitle,
     InternalHeaderTopBar,
@@ -82,18 +84,37 @@ export default function SettingsScreen() {
         const picked = await pickImagesFromLibrary({ limit: 1 })
         const uri = picked?.[0]?.uri
         if (!uri) return
+
         setPhotoUri(uri)
     }, [setPhotoUri])
+
+    function isLocalPhotoUri(uri?: string): uri is string {
+        if (!uri) return false
+
+        return (
+            uri.startsWith('file://') ||
+            uri.startsWith('content://') ||
+            uri.startsWith('ph://') ||
+            uri.startsWith('blob:')
+        )
+    }
 
     const onValid = async (values: ProfileSettingsFormValues) => {
         if (isSaving) return
 
         setIsSaving(true)
+
         try {
+            let photoUri = values.photoUri
+
+            if (isLocalPhotoUri(photoUri)) {
+                photoUri = await uploadProfilePhoto(photoUri)
+            }
+
             await updateSettings({
                 profileName: values.profileName,
                 nickname: values.nickname,
-                photoUri: values.photoUri,
+                photoUri,
             })
 
             navigation.goBack()
@@ -121,8 +142,6 @@ export default function SettingsScreen() {
         key: K,
         value: NotificationSettings[K],
     ) => {
-        // Обновляем стор синхронно, затем пересчитываем уведомления
-        // с уже применённым изменением (merge вручную, не ждём ре-рендер)
         const nextSettings: NotificationSettings = { ...notifSettings, [key]: value }
         updateNotifSettings({ [key]: value })
         void rescheduleOrderNotifications(orders, nextSettings)
@@ -228,6 +247,22 @@ export default function SettingsScreen() {
                                         <Image
                                             source={{ uri: photoUri }}
                                             style={styles.photoImage}
+                                            resizeMode="cover"
+                                            onLoad={() => {
+                                                console.log(
+                                                    'profile settings image loaded:',
+                                                    photoUri,
+                                                )
+                                            }}
+                                            onError={e => {
+                                                console.log(
+                                                    'profile settings image error:',
+                                                    {
+                                                        uri: photoUri,
+                                                        error: e.nativeEvent.error,
+                                                    },
+                                                )
+                                            }}
                                         />
                                     ) : (
                                         <View style={styles.photoPlaceholder} />
