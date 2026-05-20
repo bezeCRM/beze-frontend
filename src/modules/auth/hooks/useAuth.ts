@@ -12,6 +12,7 @@ type UseAuthResult = {
     signIn: (credential: string, password: string) => Promise<void>
     signUp: (login: string, email: string, password: string) => Promise<void>
     signOut: () => Promise<void>
+    deleteAccount: () => Promise<void>
     bootstrap: () => Promise<void>
 }
 
@@ -26,6 +27,7 @@ export function useAuth(): UseAuthResult {
     const signInRaw = useAuthStore(s => s.signIn)
     const signUpRaw = useAuthStore(s => s.signUp)
     const signOutRaw = useAuthStore(s => s.signOut)
+    const deleteAccountRaw = useAuthStore(s => s.deleteAccount)
     const bootstrapRaw = useAuthStore(s => s.bootstrap)
 
     const signIn = useCallback(
@@ -46,6 +48,10 @@ export function useAuth(): UseAuthResult {
         await signOutRaw()
     }, [signOutRaw])
 
+    const deleteAccount = useCallback(async () => {
+        await deleteAccountRaw()
+    }, [deleteAccountRaw])
+
     const bootstrap = useCallback(async () => {
         await bootstrapRaw()
     }, [bootstrapRaw])
@@ -59,6 +65,7 @@ export function useAuth(): UseAuthResult {
         signIn,
         signUp,
         signOut,
+        deleteAccount,
         bootstrap,
     }
 }

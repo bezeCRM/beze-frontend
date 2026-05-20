@@ -35,7 +35,7 @@ function useProfileNav() {
 }
 
 export default function ProfileScreen() {
-    const { signOut } = useAuth()
+    const { signOut, deleteAccount } = useAuth()
     const { show } = useToast()
 
     const styles = useStyles()
@@ -56,6 +56,7 @@ export default function ProfileScreen() {
     const fetchSettings = useProfileSettingsStore(s => s.fetchSettings)
 
     const [showLogoutModal, setShowLogoutModal] = useState(false)
+    const [showDeleteUserModal, setShowDeleteUserModal] = useState(false)
 
     const refreshSettings = useCallback(async () => {
         if (!hasHydrated) return
@@ -89,6 +90,15 @@ export default function ProfileScreen() {
         )
     }
 
+    const handleDeleteAccount = async () => {
+        try {
+            await deleteAccount()
+            setShowDeleteUserModal(false)
+        } catch {
+            setShowDeleteUserModal(false)
+        }
+    }
+
     return (
         <ScreenContainer>
             <MainHeader />
@@ -112,6 +122,10 @@ export default function ProfileScreen() {
             <Pressable onPress={() => setShowLogoutModal(true)}>
                 <Text style={styles.leave}>Выйти</Text>
             </Pressable>
+            <Pressable onPress={() => setShowDeleteUserModal(true)}>
+                <Text style={styles.leave}>Удалить аккаунт</Text>
+            </Pressable>
+
             <ToastViewport
                 scope={TOAST_SCOPES.Profile}
                 bottomOffset={80}
@@ -127,6 +141,22 @@ export default function ProfileScreen() {
                     onConfirm={() => signOut()}
                     onClose={() => setShowLogoutModal(false)}
                     confirmText="Выйти"
+                    cancelText="Отмена"
+                />
+            </BaseModal>
+
+            <BaseModal
+                visible={showDeleteUserModal}
+                onClose={() => setShowDeleteUserModal(false)}
+            >
+                <ConfirmModal
+                    title="Удаление аккаунта"
+                    message={
+                        'Вы уверены, что хотите удалить аккаунт? Это приведет к безвозвратной потере всех данных'
+                    }
+                    onConfirm={() => handleDeleteAccount()}
+                    onClose={() => setShowDeleteUserModal(false)}
+                    confirmText="Удалить"
                     cancelText="Отмена"
                 />
             </BaseModal>
@@ -150,6 +180,7 @@ const useStyles = createThemedStyles(theme =>
             color: theme.colors.danger,
             fontSize: 16,
             textAlign: 'center',
+            marginBottom: 22,
         },
     }),
 )

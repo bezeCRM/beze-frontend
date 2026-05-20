@@ -22,6 +22,7 @@ type AuthState = {
     signIn: (credential: string, password: string) => Promise<void>
     signUp: (login: string, email: string, password: string) => Promise<void>
     signOut: () => Promise<void>
+    deleteAccount: () => Promise<void>
     bootstrap: () => Promise<void>
     validateSession: () => Promise<void>
 }
@@ -172,6 +173,25 @@ export const useAuthStore = create<AuthState>((set, get) => ({
                 isAuthed: false,
                 isOffline: false,
                 isSubmitting: false,
+            })
+        }
+    },
+
+    deleteAccount: async () => {
+        set({ isSubmitting: true, error: null })
+
+        try {
+            await authApi.deleteAccount()
+        } catch (error) {
+            console.log('delete account error', error)
+        } finally {
+            await clearTokens()
+
+            set({
+                isAuthed: false,
+                isOffline: false,
+                isSubmitting: false,
+                error: null,
             })
         }
     },

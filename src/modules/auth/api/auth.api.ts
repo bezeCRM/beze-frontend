@@ -22,6 +22,10 @@ export async function logout(payload: { refresh_token: string }): Promise<void> 
     await http.post('/auth/logout', payload)
 }
 
+export async function deleteAccount(): Promise<void> {
+    await http.delete('/users/me')
+}
+
 export async function forgotPassword(payload: { email: string }): Promise<void> {
     await http.post('/auth/forgot-password', payload)
 }
