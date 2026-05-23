@@ -133,14 +133,19 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         set({ isSubmitting: true, error: null })
 
         try {
-            const tokens = await authApi.register({ login, email, password })
+            const tokens = await authApi.register({
+                login,
+                email,
+                password,
+                terms_accepted: true,
+                personal_data_accepted: true,
+            })
 
             await saveTokens({
                 accessToken: tokens.access_token,
                 refreshToken: tokens.refresh_token,
             })
 
-            // сохраняем логин как никнейм по умолчанию для profile-settings
             await updateProfileSettings({ nickname: login })
 
             set({

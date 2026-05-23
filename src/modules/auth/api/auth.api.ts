@@ -13,6 +13,8 @@ export async function register(payload: {
     login: string
     email: string
     password: string
+    terms_accepted: boolean
+    personal_data_accepted: boolean
 }): Promise<TokensDto> {
     const { data } = await http.post<TokensDto>('/auth/register', payload)
     return data
