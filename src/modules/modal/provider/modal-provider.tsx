@@ -9,6 +9,7 @@ import ListSelectModal from '@/modules/modal/variants/list-select-modal'
 import ChipSelectModal from '@/modules/modal/variants/chip-select-modal'
 import WizardModal from '@/modules/modal/variants/wizard-modal'
 import PlannerTaskModal from '@/modules/modal/variants/planner-task-modal'
+import GuestStartModal from '@/modules/modal/variants/guest-start-modal'
 
 export function ModalProvider() {
     const { type, visible, props, content, close, reset } = useModalStore()
@@ -38,6 +39,8 @@ export function ModalProvider() {
                 return <WizardModal {...(props as any)} onClose={close} />
             case 'plannerTask':
                 return <PlannerTaskModal {...(props as any)} onClose={close} />
+            case 'guestStart':
+                return <GuestStartModal {...(props as any)} onClose={close} />
             default:
                 return null
         }

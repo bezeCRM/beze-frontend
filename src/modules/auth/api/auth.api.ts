@@ -20,6 +20,14 @@ export async function register(payload: {
     return data
 }
 
+export async function registerGuest(payload: {
+    terms_accepted: boolean
+    personal_data_accepted: boolean
+}): Promise<TokensDto> {
+    const { data } = await http.post<TokensDto>('/auth/guest', payload)
+    return data
+}
+
 export async function logout(payload: { refresh_token: string }): Promise<void> {
     await http.post('/auth/logout', payload)
 }

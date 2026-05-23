@@ -20,7 +20,17 @@ type AuthState = {
     clearError: () => void
 
     signIn: (credential: string, password: string) => Promise<void>
-    signUp: (login: string, email: string, password: string) => Promise<void>
+    signUp: (
+        login: string,
+        email: string,
+        password: string,
+        termsAccepted: boolean,
+        personalDataAccepted: boolean,
+    ) => Promise<void>
+    signInAsGuest: (
+        termsAccepted: boolean,
+        personalDataAccepted: boolean,
+    ) => Promise<void>
     signOut: () => Promise<void>
     deleteAccount: () => Promise<void>
     bootstrap: () => Promise<void>
@@ -129,7 +139,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         }
     },
 
-    signUp: async (login: string, email: string, password: string) => {
+    signUp: async (
+        login: string,
+        email: string,
+        password: string,
+        termsAccepted: boolean,
+        personalDataAccepted: boolean,
+    ) => {
         set({ isSubmitting: true, error: null })
 
         try {
@@ -137,8 +153,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
                 login,
                 email,
                 password,
-                terms_accepted: true,
-                personal_data_accepted: true,
+                terms_accepted: termsAccepted,
+                personal_data_accepted: personalDataAccepted,
             })
 
             await saveTokens({
@@ -147,6 +163,35 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             })
 
             await updateProfileSettings({ nickname: login })
+
+            set({
+                isAuthed: true,
+                isOffline: false,
+                isSubmitting: false,
+            })
+
+            void get().validateSession()
+        } catch (e) {
+            set({
+                error: toApiError(e).message,
+                isSubmitting: false,
+            })
+        }
+    },
+
+    signInAsGuest: async (termsAccepted: boolean, personalDataAccepted: boolean) => {
+        set({ isSubmitting: true, error: null })
+
+        try {
+            const tokens = await authApi.registerGuest({
+                terms_accepted: termsAccepted,
+                personal_data_accepted: personalDataAccepted,
+            })
+
+            await saveTokens({
+                accessToken: tokens.access_token,
+                refreshToken: tokens.refresh_token,
+            })
 
             set({
                 isAuthed: true,

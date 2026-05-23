@@ -7,6 +7,7 @@ import { ListSelectModalProps } from '../variants/list-select-modal'
 import { ChipSelectModalProps } from '../variants/chip-select-modal'
 import { WizardModalProps } from '../variants/wizard-modal'
 import { PlannerTaskModalProps } from '../variants/planner-task-modal'
+import { GuestStartModalProps } from '../variants/guest-start-modal'
 
 export type ModalPropsMap = {
     confirm: ConfirmModalProps
@@ -16,6 +17,7 @@ export type ModalPropsMap = {
     'chip-select': ChipSelectModalProps
     wizard: WizardModalProps
     plannerTask: PlannerTaskModalProps
+    guestStart: GuestStartModalProps
 }
 
 export type ModalType = keyof ModalPropsMap

@@ -10,7 +10,17 @@ type UseAuthResult = {
     clearError: () => void
 
     signIn: (credential: string, password: string) => Promise<void>
-    signUp: (login: string, email: string, password: string) => Promise<void>
+    signUp: (
+        login: string,
+        email: string,
+        password: string,
+        termsAccepted: boolean,
+        personalDataAccepted: boolean,
+    ) => Promise<void>
+    signInAsGuest: (
+        termsAccepted: boolean,
+        personalDataAccepted: boolean,
+    ) => Promise<void>
     signOut: () => Promise<void>
     deleteAccount: () => Promise<void>
     bootstrap: () => Promise<void>
@@ -26,6 +36,7 @@ export function useAuth(): UseAuthResult {
 
     const signInRaw = useAuthStore(s => s.signIn)
     const signUpRaw = useAuthStore(s => s.signUp)
+    const signInAsGuestRaw = useAuthStore(s => s.signInAsGuest)
     const signOutRaw = useAuthStore(s => s.signOut)
     const deleteAccountRaw = useAuthStore(s => s.deleteAccount)
     const bootstrapRaw = useAuthStore(s => s.bootstrap)
@@ -38,10 +49,23 @@ export function useAuth(): UseAuthResult {
     )
 
     const signUp = useCallback(
-        async (login: string, email: string, password: string) => {
-            await signUpRaw(login, email, password)
+        async (
+            login: string,
+            email: string,
+            password: string,
+            termsAccepted: boolean,
+            personalDataAccepted: boolean,
+        ) => {
+            await signUpRaw(login, email, password, termsAccepted, personalDataAccepted)
         },
         [signUpRaw],
+    )
+
+    const signInAsGuest = useCallback(
+        async (termsAccepted: boolean, personalDataAccepted: boolean) => {
+            await signInAsGuestRaw(termsAccepted, personalDataAccepted)
+        },
+        [signInAsGuestRaw],
     )
 
     const signOut = useCallback(async () => {
@@ -64,6 +88,7 @@ export function useAuth(): UseAuthResult {
         isAuthed,
         signIn,
         signUp,
+        signInAsGuest,
         signOut,
         deleteAccount,
         bootstrap,

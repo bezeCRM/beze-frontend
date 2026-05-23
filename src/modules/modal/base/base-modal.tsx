@@ -82,7 +82,7 @@ const useStyles = createThemedStyles(theme =>
         card: {
             width: '100%',
             maxWidth: 420,
-            backgroundColor: theme.colors.background,
+            backgroundColor: theme.colors.surface,
             borderRadius: 25,
             overflow: 'hidden',
         },
