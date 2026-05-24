@@ -44,4 +44,10 @@ export const Items: ProfileListItemType[] = [
         name: 'Справка',
         arrow: true,
     },
+    {
+        id: '7',
+        icon: 'profile/docs-icon',
+        name: 'Документы',
+        arrow: false,
+    },
 ]

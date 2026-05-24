@@ -1,5 +1,5 @@
 import React, { createContext, useMemo } from 'react'
-import { useColorScheme } from 'react-native'
+import { StatusBar, useColorScheme } from 'react-native'
 import { createTheme, type Theme } from '@/shared/theme/theme'
 import { useThemeStore, type ThemeMode } from '@/shared/theme/theme.store'
 import type { ThemeScheme } from '@/shared/theme/colors'
@@ -34,5 +34,13 @@ export const ThemeProvider: React.FC<React.PropsWithChildren> = ({ children }) =
         [theme, themeMode, setThemeMode],
     )
 
-    return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
+    return (
+        <ThemeContext.Provider value={value}>
+            <StatusBar
+                barStyle={scheme === 'light' ? 'dark-content' : 'light-content'}
+                backgroundColor={theme.colors.background}
+            />
+            {children}
+        </ThemeContext.Provider>
+    )
 }

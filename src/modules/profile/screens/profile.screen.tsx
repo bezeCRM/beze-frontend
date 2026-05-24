@@ -9,7 +9,14 @@ import {
     useNavigation,
 } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
-import { View, Text, StyleSheet, Pressable, ActivityIndicator } from 'react-native'
+import {
+    View,
+    Text,
+    StyleSheet,
+    Pressable,
+    ActivityIndicator,
+    Linking,
+} from 'react-native'
 import ProfileHeader from '../components/profile/profile-header'
 import ProfileUserInfo from '../components/profile/profile-user-info'
 import { Items } from '../utils/profile-list-items'
@@ -23,6 +30,8 @@ import { useCallback, useEffect, useState } from 'react'
 import { toApiError } from '@/api'
 import BaseModal from '@/modules/modal/base/base-modal'
 import ConfirmModal from '@/modules/modal/variants/confirm-modal'
+
+import { LEGAL_LINKS } from '@/shared/utils/legal-links'
 
 // навигация
 type ProfileNav = CompositeNavigationProp<
@@ -41,6 +50,11 @@ export default function ProfileScreen() {
     const styles = useStyles()
     const navigation = useProfileNav()
 
+    // docs
+    const openDocuments = (): void => {
+        void Linking.openURL(LEGAL_LINKS.docs)
+    }
+
     const ProfileNavFunctions: (() => void)[] = [
         () => navigation.navigate('Orders'),
         () => navigation.navigate('Products'),
@@ -48,11 +62,11 @@ export default function ProfileScreen() {
         () => navigation.navigate('Finances'),
         () => navigation.navigate('Settings'),
         () => navigation.navigate('Help'),
+        () => openDocuments(),
     ]
 
     const settings = useProfileSettingsStore(s => s.settings)
     const hasHydrated = useProfileSettingsStore(s => s.hasHydrated)
-    // const isFetching = useProfileSettingsStore(s => s.isFetching)
     const fetchSettings = useProfileSettingsStore(s => s.fetchSettings)
 
     const [showLogoutModal, setShowLogoutModal] = useState(false)

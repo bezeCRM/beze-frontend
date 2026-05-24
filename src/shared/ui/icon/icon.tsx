@@ -29,6 +29,7 @@ import ConactUsIcon from '@/assets/icons/contact-us-icon.svg'
 import EmailIcon from '@/assets/icons/email-icon.svg'
 import PasswordIcon from '@/assets/icons/password-icon.svg'
 import LogoTextIcon from '@/assets/icons/logo_text.svg'
+import ProfileDocsIcon from '@/assets/icons/profile-list-icons/docs-icon.svg'
 
 type IconComponent = React.FC<SvgProps>
 
@@ -60,6 +61,7 @@ export type IconName =
     | 'email-icon'
     | 'password-icon'
     | 'logo-text-icon'
+    | 'profile/docs-icon'
 const ICONS: Record<IconName, IconComponent> = {
     'checkmark-icon': CheckmarkIcon,
     'add_image-icon': AddImageIcon,
@@ -88,6 +90,7 @@ const ICONS: Record<IconName, IconComponent> = {
     'email-icon': EmailIcon,
     'password-icon': PasswordIcon,
     'logo-text-icon': LogoTextIcon,
+    'profile/docs-icon': ProfileDocsIcon,
 }
 
 export type IconProps = {
