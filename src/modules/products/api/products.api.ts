@@ -43,12 +43,27 @@ export async function uploadProductPhoto(localUri: string): Promise<string> {
         type: getMimeTypeFromFileName(fileName),
     } as any)
 
-    const { data } = await http.post<ProductPhotoUploadResponse>(
-        '/products/photos',
-        formData,
-    )
+    console.log('[PHOTO] Начинаем загрузку', localUri)
 
-    return data.uri
+    try {
+        const { data } = await http.post<ProductPhotoUploadResponse>(
+            '/products/photos',
+            formData,
+        )
+
+        console.log('[PHOTO] Успешно загружено')
+        return data.uri
+    } catch (error) {
+        const e = error as any
+        console.log('[PHOTO] Ошибка', {
+            kind: e.kind,
+            status: e.status,
+            message: e.message,
+            code: e.details?.code,
+            originalMessage: e.details?.message,
+        })
+        throw error
+    }
 }
 
 export async function getProducts(): Promise<Product[]> {
