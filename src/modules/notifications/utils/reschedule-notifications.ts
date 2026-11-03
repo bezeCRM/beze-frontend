@@ -1,4 +1,5 @@
-import * as Notifications from 'expo-notifications'
+import Constants from 'expo-constants'
+import { Platform } from 'react-native'
 
 import type { Order } from '@/shared/types/types'
 import type { NotificationSettings } from '@/modules/notifications/store/notification-settings.store'
@@ -49,7 +50,12 @@ export async function rescheduleOrderNotifications(
     orders: Order[],
     settings: NotificationSettings,
 ): Promise<void> {
-    // Сбрасываем всё — проще чем диффить
+    if (Platform.OS === 'android' && Constants.expoGoConfig != null) {
+        return
+    }
+
+    const Notifications = await import('expo-notifications')
+
     await Notifications.cancelAllScheduledNotificationsAsync()
 
     const allDisabled =

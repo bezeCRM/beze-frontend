@@ -93,7 +93,7 @@ function ToastCard({ item, onDismiss }: { item: ToastItem; onDismiss: () => void
     const translateY = useRef(new Animated.Value(16)).current
     const opacity = useRef(new Animated.Value(0)).current
     const translateX = useRef(new Animated.Value(0)).current
-    const timerRef = useRef<NodeJS.Timeout | null>(null)
+    const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
     const successIcon = <Icon name="success-icon" size={25} />
     const errorIcon = <Icon name="error-icon" size={25} />

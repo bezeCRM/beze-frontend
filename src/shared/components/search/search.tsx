@@ -6,6 +6,7 @@ import {
     TextInputProps,
     TouchableOpacity,
     Keyboard,
+    TextInputInstance,
 } from 'react-native'
 import { createThemedStyles } from '@/shared/theme/create-themed-styles'
 import { useTheme } from '@/shared/theme/useTheme'
@@ -29,7 +30,7 @@ export default function Search({
 }: Props) {
     const styles = useStyles()
     const colors = useTheme().theme.colors
-    const inputRef = useRef<TextInput>(null)
+    const inputRef = useRef<TextInputInstance>(null)
 
     const trimmed = value.trim()
     const canSubmit = trimmed.length > 0

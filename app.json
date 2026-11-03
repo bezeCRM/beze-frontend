@@ -1,6 +1,6 @@
 {
     "expo": {
-        "name": "beze-frontend",
+        "name": "bezeCRM",
         "slug": "beze-frontend",
         "scheme": "beze",
         "icon": "./src/assets/icons/app-icon.png",
@@ -19,7 +19,10 @@
                     "resizeMode": "contain"
                 }
             ],
-            "expo-secure-store"
+            "expo-secure-store",
+            "@react-native-community/datetimepicker",
+            "expo-image",
+            "expo-status-bar"
         ],
         "platforms": ["ios", "android"],
         "ios": {

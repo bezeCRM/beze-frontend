@@ -36,10 +36,7 @@ export const ThemeProvider: React.FC<React.PropsWithChildren> = ({ children }) =
 
     return (
         <ThemeContext.Provider value={value}>
-            <StatusBar
-                barStyle={scheme === 'light' ? 'dark-content' : 'light-content'}
-                backgroundColor={theme.colors.background}
-            />
+            <StatusBar barStyle={scheme === 'light' ? 'dark-content' : 'light-content'} />
             {children}
         </ThemeContext.Provider>
     )

@@ -13,6 +13,7 @@ import {
     TouchableOpacity,
     useWindowDimensions,
     View,
+    ViewInstance,
 } from 'react-native'
 import SectionCard from '../section/section-card'
 import { createThemedStyles } from '@/shared/theme/create-themed-styles'
@@ -54,13 +55,15 @@ export default function SelectField({
         [options, selectedId],
     )
 
-    const anchorRef = useRef<View>(null)
+    const anchorRef = useRef<ViewInstance>(null)
 
     function openDropdown() {
-        anchorRef.current?.measureInWindow((x, y, w, h) => {
-            setAnchor({ x, y, width: w, height: h })
-            setOpenSelect(true)
-        })
+        anchorRef.current?.measureInWindow(
+            (x: number, y: number, w: number, h: number) => {
+                setAnchor({ x, y, width: w, height: h })
+                setOpenSelect(true)
+            },
+        )
     }
 
     function handleSelect(opt: Category) {
@@ -162,7 +165,7 @@ export default function SelectField({
                 statusBarTranslucent
                 onRequestClose={() => setOpenSelect(false)}
             >
-                <View style={StyleSheet.absoluteFillObject} pointerEvents="box-none">
+                <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
                     <Pressable
                         style={styles.backdrop}
                         onPress={() => setOpenSelect(false)}
@@ -267,7 +270,7 @@ const useStyles = createThemedStyles(theme =>
         },
 
         backdrop: {
-            ...StyleSheet.absoluteFillObject,
+            ...StyleSheet.absoluteFill,
             backgroundColor: 'rgba(0,0,0,0.1)',
         },
         dropdown: {

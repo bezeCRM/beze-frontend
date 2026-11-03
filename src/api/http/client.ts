@@ -39,6 +39,14 @@ export function createHttpClient(): AxiosInstance {
             const status = err.response?.status
             const url = original?.url
 
+            if (__DEV__ && status === 401) {
+                console.log('[API 401]', {
+                    method: original?.method?.toUpperCase(),
+                    url,
+                    hasToken: Boolean(original?.headers?.Authorization),
+                })
+            }
+
             if (!original) {
                 throw toApiError(err)
             }
