@@ -7,7 +7,7 @@ import {
     LayoutChangeEvent,
     ViewStyle,
     TextStyle,
-    Platform
+    Platform,
 } from 'react-native'
 import Animated, {
     useAnimatedStyle,

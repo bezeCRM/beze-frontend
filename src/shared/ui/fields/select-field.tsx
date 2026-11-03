@@ -13,7 +13,7 @@ import {
     TouchableOpacity,
     useWindowDimensions,
     View,
-    ViewInstance
+    ViewInstance,
 } from 'react-native'
 import SectionCard from '../section/section-card'
 import { createThemedStyles } from '@/shared/theme/create-themed-styles'
