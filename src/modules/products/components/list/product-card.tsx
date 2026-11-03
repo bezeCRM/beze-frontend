@@ -84,7 +84,7 @@ const useStyles = createThemedStyles(theme =>
             fontSize: 16,
             lineHeight: 17.6,
             color: theme.colors.text,
-            fontFamily: 'Epilogue-SemiBold',
+            fontFamily: 'Epilogue-Regular',
         },
         fillings: {
             fontSize: 14,

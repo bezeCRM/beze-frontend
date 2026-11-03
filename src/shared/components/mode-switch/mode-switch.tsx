@@ -7,12 +7,14 @@ import {
     LayoutChangeEvent,
     ViewStyle,
     TextStyle,
+    Platform
 } from 'react-native'
 import Animated, {
     useAnimatedStyle,
     useSharedValue,
     withTiming,
 } from 'react-native-reanimated'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { createThemedStyles } from '@/shared/theme/create-themed-styles'
 import { useTheme } from '@/shared/theme/useTheme'
 
@@ -57,6 +59,7 @@ type Props<Key extends string> = {
 type ItemLayout = { x: number; w: number }
 
 export function ModeSwitch<Key extends string>(props: Props<Key>) {
+    const insets = useSafeAreaInsets()
     const styles = useStyles()
     const stylesColors = useTheme().theme.colors
 
@@ -270,6 +273,10 @@ export function ModeSwitch<Key extends string>(props: Props<Key>) {
                     borderColor: colors.border,
                 },
                 containerStyle,
+                variant === 'tabbar' &&
+                    Platform.OS === 'android' && {
+                        marginBottom: Math.max(insets.bottom, 12) / 3,
+                    },
             ]}
         >
             {renderPill(colors.pill)}

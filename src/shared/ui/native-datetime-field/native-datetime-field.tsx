@@ -214,7 +214,7 @@ export default function NativeDateTimeField({
 const useStyles = createThemedStyles(theme =>
     StyleSheet.create({
         modalRoot: {
-            ...StyleSheet.absoluteFillObject,
+            ...StyleSheet.absoluteFill,
             justifyContent: 'flex-end',
         },
 
@@ -256,7 +256,7 @@ const useStyles = createThemedStyles(theme =>
             fontSize: 14,
         },
         backdrop: {
-            ...StyleSheet.absoluteFillObject,
+            ...StyleSheet.absoluteFill,
             backgroundColor: 'rgba(0,0,0,0.35)',
         },
         iosSheet: {

@@ -12,6 +12,7 @@ import {
     TouchableOpacity,
     useWindowDimensions,
     View,
+    type ViewInstance,
 } from 'react-native'
 
 type Option<T extends string> = { id: T; name: string }
@@ -36,7 +37,7 @@ export default function PillSelect<T extends string>({
     const { height: screenH } = useWindowDimensions()
     const [open, setOpen] = useState(false)
     const [anchor, setAnchor] = useState<LayoutRectangle | null>(null)
-    const anchorRef = useRef<View>(null)
+    const anchorRef = useRef<ViewInstance>(null)
 
     const selected = useMemo(
         () => options.find(o => o.id === value) ?? null,
@@ -44,10 +45,12 @@ export default function PillSelect<T extends string>({
     )
 
     function openDropdown() {
-        anchorRef.current?.measureInWindow((x, y, w, h) => {
-            setAnchor({ x, y, width: w, height: h })
-            setOpen(true)
-        })
+        anchorRef.current?.measureInWindow(
+            (x: number, y: number, w: number, h: number) => {
+                setAnchor({ x, y, width: w, height: h })
+                setOpen(true)
+            },
+        )
     }
 
     function handleSelect(opt: Option<T>) {
@@ -93,7 +96,7 @@ export default function PillSelect<T extends string>({
                 statusBarTranslucent
                 onRequestClose={() => setOpen(false)}
             >
-                <View style={StyleSheet.absoluteFillObject} pointerEvents="box-none">
+                <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
                     <Pressable style={styles.backdrop} onPress={() => setOpen(false)} />
 
                     {anchor && (
@@ -164,7 +167,7 @@ const useStyles = createThemedStyles(theme =>
         },
 
         backdrop: {
-            ...StyleSheet.absoluteFillObject,
+            ...StyleSheet.absoluteFill,
             backgroundColor: 'rgba(0,0,0,0.1)',
         },
         dropdown: {

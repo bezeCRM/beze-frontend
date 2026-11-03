@@ -1,9 +1,13 @@
 import { createThemedStyles } from '@/shared/theme/create-themed-styles'
 import { useTheme } from '@/shared/theme/useTheme'
 import React, { PropsWithChildren } from 'react'
-import { View, Text, StyleSheet, ViewStyle } from 'react-native'
+import { View, Text, StyleSheet, StyleProp, ViewStyle } from 'react-native'
 
-type Props = PropsWithChildren<{ title?: string; style?: ViewStyle; required?: boolean }>
+type Props = PropsWithChildren<{
+    title?: string
+    style?: StyleProp<ViewStyle>
+    required?: boolean
+}>
 
 function RequiredStar() {
     const colors = useTheme().theme.colors

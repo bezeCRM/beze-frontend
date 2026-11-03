@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { FlatList, InteractionManager } from 'react-native'
+import { FlatList } from 'react-native'
 
 type Params = {
     itemsLength: number
@@ -37,7 +37,7 @@ export function useAutoScroll<T = { id: string }>({
     const scrollToItem = (index: number) => {
         if (!listRef.current) return
 
-        InteractionManager.runAfterInteractions(() => {
+        requestIdleCallback(() => {
             try {
                 listRef.current?.scrollToIndex({
                     index,
@@ -46,7 +46,7 @@ export function useAutoScroll<T = { id: string }>({
                     viewOffset: 8,
                 })
             } catch {
-                // если индекс вне диапазона — игнорируем
+                // игнорируем ошибку прокрутки
             }
         })
     }
