@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native'
 
 import ModalHeader from '@/modules/modal/base/modal-header'
@@ -94,13 +94,10 @@ export default function ListSelectModal({
         pick(selected)
     }
 
-    useEffect(() => {
-        if (!selectedId) return
-        const stillVisible = filtered.some(i => i.id === selectedId)
-        if (!stillVisible) setSelectedId(null)
-    }, [filtered, selectedId])
+    const visibleSelectedId =
+        selectedId && filtered.some(i => i.id === selectedId) ? selectedId : null
 
-    const primaryDisabled = !selectedId
+    const primaryDisabled = !visibleSelectedId
 
     return (
         <View style={styles.container}>

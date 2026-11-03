@@ -34,7 +34,11 @@ export function useOrderProductPicker({
     }, [products])
 
     const openPickFilling = useCallback(
-        (product: Product, selectedId: string, onBack: () => void) => {
+        function openPickFilling(
+            product: Product,
+            selectedId: string,
+            onBack: () => void,
+        ) {
             const fillings: Filling[] = product.fillings ?? []
 
             open('chip-select', {
