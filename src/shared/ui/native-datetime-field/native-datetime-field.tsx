@@ -150,9 +150,12 @@ export default function NativeDateTimeField({
                         display="default"
                         minimumDate={minDate}
                         maximumDate={maxDate}
-                        onChange={(_, selected) => {
+                        onValueChange={(_, selected) => {
                             setVisible(false)
-                            if (selected) commit(selected)
+                            commit(selected)
+                        }}
+                        onDismiss={() => {
+                            setVisible(false)
                         }}
                     />
                 )}
@@ -199,8 +202,8 @@ export default function NativeDateTimeField({
                                 display="spinner"
                                 minimumDate={minDate}
                                 maximumDate={maxDate}
-                                onChange={(_, selected) => {
-                                    if (selected) setTemp(selected)
+                                onValueChange={(_, selected) => {
+                                    setTemp(selected)
                                 }}
                             />
                         </View>

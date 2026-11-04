@@ -16,6 +16,9 @@ export default [
             globals: {
                 __DEV__: true,
             },
+            parserOptions: {
+                projectService: true,
+            },
         },
         plugins: {
             react,
@@ -34,6 +37,7 @@ export default [
             'react-native/no-inline-styles': 'warn',
             'react-native/no-unused-styles': 'warn',
             '@typescript-eslint/no-unused-vars': ['warn'],
+            '@typescript-eslint/no-deprecated': 'warn',
         },
     },
 ]
