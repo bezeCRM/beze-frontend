@@ -63,9 +63,6 @@ export default function SettingsScreen() {
     const notifSettings = useNotificationSettingsStore(s => s.settings)
     const updateNotifSettings = useNotificationSettingsStore(s => s.updateSettings)
 
-    // Заказы нужны чтобы пересчитать уведомления после смены настроек
-    const orders = useOrdersStore(s => s.orders)
-
     const form = useProfileSettingsForm(settings ?? undefined)
 
     const {
@@ -142,9 +139,14 @@ export default function SettingsScreen() {
         key: K,
         value: NotificationSettings[K],
     ) => {
-        const nextSettings: NotificationSettings = { ...notifSettings, [key]: value }
         updateNotifSettings({ [key]: value })
-        void rescheduleOrderNotifications(orders, nextSettings)
+
+        const currentSettings = useNotificationSettingsStore.getState().settings
+        const currentOrders = useOrdersStore.getState().orders
+
+        void rescheduleOrderNotifications(currentOrders, currentSettings).catch(error => {
+            console.error('[notifications] reschedule failed', error)
+        })
     }
 
     const EMAIL = 'liquoree@list.ru'

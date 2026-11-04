@@ -5,48 +5,28 @@ import type { Order } from '@/shared/types/types'
 import type { NotificationSettings } from '@/modules/notifications/store/notification-settings.store'
 import { cutOrderId } from '@/shared/utils/utils'
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
+type EveningGroup = {
+    triggerAt: Date
+    count: number
+    firstOrder: Order
+    firstPickupTime: number
+}
 
-/** Объединяет date ('2025-06-15') и time ('14:30') в объект Date */
+let scheduleQueue: Promise<void> = Promise.resolve()
+let latestRequestId = 0
+
 function buildPickupDate(date: string, time: string): Date {
-    // Безопасный разбор без риска timezone-сдвига
     const [year, month, day] = date.split('-').map(Number)
     const [hours, minutes] = time.split(':').map(Number)
-    const d = new Date()
-    d.setFullYear(year, month - 1, day)
-    d.setHours(hours, minutes, 0, 0)
-    return d
+
+    return new Date(year, month - 1, day, hours, minutes, 0, 0)
 }
 
-/** Парсит cookingReminder: '4h' → 4 (часы) */
-function parseCookingHours(value: string): number {
-    return parseInt(value, 10) // '3h' → 3, '8h' → 8
-}
-
-/** Парсит pickupReminder в минуты: '30min' → 30, '1h' → 60, '2h' → 120 */
-function parsePickupMinutes(value: string): number {
-    if (value.endsWith('min')) return parseInt(value, 10)
-    return parseInt(value, 10) * 60
-}
-
-/** Человекочитаемое название заказа для тела уведомления */
 function orderTitle(order: Order): string {
     return order.name?.trim() ? order.name : `#${cutOrderId(order.id)}`
 }
 
-// ─── Main ─────────────────────────────────────────────────────────────────────
-
-/**
- * Полностью пересчитывает все запланированные уведомления.
- * Вызывать при:
- *   - изменении настроек уведомлений
- *   - создании / редактировании / удалении заказа
- *   - старте приложения (после hydration сторов)
- *
- * Только заказы со статусом, не являющимся финальным, участвуют в планировании.
- * Уведомления в прошлом молча пропускаются.
- */
-export async function rescheduleOrderNotifications(
+async function applySchedule(
     orders: Order[],
     settings: NotificationSettings,
 ): Promise<void> {
@@ -56,7 +36,14 @@ export async function rescheduleOrderNotifications(
 
     const Notifications = await import('expo-notifications')
 
-    await Notifications.cancelAllScheduledNotificationsAsync()
+    const scheduled = await Notifications.getAllScheduledNotificationsAsync()
+    const prefixes = ['evening_', 'cooking_', 'pickup_']
+
+    await Promise.all(
+        scheduled
+            .filter(item => prefixes.some(prefix => item.identifier.startsWith(prefix)))
+            .map(item => Notifications.cancelScheduledNotificationAsync(item.identifier)),
+    )
 
     const allDisabled =
         settings.eveningReminder === 'disabled' &&
@@ -66,45 +53,58 @@ export async function rescheduleOrderNotifications(
     if (allDisabled) return
 
     const now = Date.now()
+    const eveningGroups = new Map<number, EveningGroup>()
 
-    // Фильтруем только активные заказы (не готовые / не отменённые/ не выданные)
-    const activeOrders = orders.filter(
-        o => o.status !== 'ready' && o.status !== 'canceled' && o.status !== 'delivered',
+    const uniqueOrders = [...new Map(orders.map(order => [order.id, order])).values()]
+
+    const activeOrders = uniqueOrders.filter(
+        order =>
+            order.status !== 'ready' &&
+            order.status !== 'canceled' &&
+            order.status !== 'delivered',
     )
 
     for (const order of activeOrders) {
         const pickupAt = buildPickupDate(order.date, order.time)
+        const pickupTime = pickupAt.getTime()
+
+        if (!Number.isFinite(pickupTime)) continue
+
         const title = orderTitle(order)
 
-        // ── 1. Накануне вечером ──────────────────────────────────────────────
         if (settings.eveningReminder !== 'disabled') {
-            const [h, m] = settings.eveningReminder.split(':').map(Number)
+            const [hours, minutes] = settings.eveningReminder.split(':').map(Number)
 
             const triggerAt = new Date(pickupAt)
-            triggerAt.setDate(triggerAt.getDate() - 1) // предыдущий день
-            triggerAt.setHours(h, m, 0, 0)
+            triggerAt.setDate(triggerAt.getDate() - 1)
+            triggerAt.setHours(hours, minutes, 0, 0)
 
-            if (triggerAt.getTime() > now) {
-                await Notifications.scheduleNotificationAsync({
-                    identifier: `evening_${order.id}`,
-                    content: {
-                        title: 'Заказы на завтра',
-                        body: `Завтра первая выдача: "${title}" в ${order.time}`,
-                        data: { orderId: order.id, type: 'evening' },
-                    },
-                    trigger: {
-                        type: Notifications.SchedulableTriggerInputTypes.DATE,
-                        date: triggerAt,
-                        channelId: 'orders',
-                    },
-                })
+            const key = triggerAt.getTime()
+
+            if (key > now) {
+                const group = eveningGroups.get(key)
+
+                if (group) {
+                    group.count += 1
+
+                    if (pickupTime < group.firstPickupTime) {
+                        group.firstOrder = order
+                        group.firstPickupTime = pickupTime
+                    }
+                } else {
+                    eveningGroups.set(key, {
+                        triggerAt,
+                        count: 1,
+                        firstOrder: order,
+                        firstPickupTime: pickupTime,
+                    })
+                }
             }
         }
 
-        // ── 2. Напомнить начать готовить ─────────────────────────────────────
         if (settings.cookingReminder !== 'disabled') {
-            const hoursBefore = parseCookingHours(settings.cookingReminder)
-            const triggerAt = new Date(pickupAt.getTime() - hoursBefore * 60 * 60 * 1000)
+            const hoursBefore = parseInt(settings.cookingReminder, 10)
+            const triggerAt = new Date(pickupTime - hoursBefore * 60 * 60 * 1000)
 
             if (triggerAt.getTime() > now) {
                 await Notifications.scheduleNotificationAsync({
@@ -123,15 +123,14 @@ export async function rescheduleOrderNotifications(
             }
         }
 
-        // ── 3. Перед выдачей ─────────────────────────────────────────────────
         if (settings.pickupReminder !== 'disabled') {
-            const minutesBefore = parsePickupMinutes(settings.pickupReminder)
-            const triggerAt = new Date(pickupAt.getTime() - minutesBefore * 60 * 1000)
+            const minutesBefore = settings.pickupReminder.endsWith('min')
+                ? parseInt(settings.pickupReminder, 10)
+                : parseInt(settings.pickupReminder, 10) * 60
 
-            const label =
-                settings.pickupReminder === '30min'
-                    ? '30 минут'
-                    : `${minutesBefore / 60} ч`
+            const triggerAt = new Date(pickupTime - minutesBefore * 60 * 1000)
+
+            const label = minutesBefore === 30 ? '30 минут' : `${minutesBefore / 60} ч`
 
             if (triggerAt.getTime() > now) {
                 await Notifications.scheduleNotificationAsync({
@@ -150,4 +149,53 @@ export async function rescheduleOrderNotifications(
             }
         }
     }
+
+    for (const [key, group] of eveningGroups) {
+        const firstOrder = group.firstOrder
+        const title = orderTitle(firstOrder)
+
+        const body =
+            group.count === 1
+                ? `Завтра выдача заказа "${title}" в ${firstOrder.time}`
+                : `Завтра заказов: ${group.count}. Первая выдача: "${title}" в ${firstOrder.time}`
+
+        await Notifications.scheduleNotificationAsync({
+            identifier: `evening_${key}`,
+            content: {
+                title: 'Заказы на завтра',
+                body,
+                data: {
+                    orderId: firstOrder.id,
+                    type: 'evening',
+                    orderCount: group.count,
+                },
+            },
+            trigger: {
+                type: Notifications.SchedulableTriggerInputTypes.DATE,
+                date: group.triggerAt,
+                channelId: 'orders',
+            },
+        })
+    }
+}
+
+export function rescheduleOrderNotifications(
+    orders: Order[],
+    settings: NotificationSettings,
+): Promise<void> {
+    const requestId = ++latestRequestId
+    const ordersSnapshot = [...orders]
+    const settingsSnapshot = { ...settings }
+
+    const task = scheduleQueue
+        .catch(() => undefined)
+        .then(async () => {
+            if (requestId !== latestRequestId) return
+
+            await applySchedule(ordersSnapshot, settingsSnapshot)
+        })
+
+    scheduleQueue = task
+
+    return task
 }
